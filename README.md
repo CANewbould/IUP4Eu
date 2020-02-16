@@ -1,3 +1,7 @@
+# IUP for Euphoria #
+
+An Open Euphoria wrapper around [IUP (Portable User Interface)](http://webserver2.tecgraf.puc-rio.br/iup/).
+
 ## Wrapper ##
 
 The wrapper is a hand-coded Euphoria utility that reads the IUP header files and generates corresponding Euphoria includes.
