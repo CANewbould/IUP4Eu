@@ -1,0 +1,99 @@
+--------------------------------------------------------------------------------
+--	Test application: iup.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Library: (iup4eu)(demos)iup.exw
+-- Description: Basic test to load and close the IUP wrapper library.
+------
+--[[[Version: 4.0.5.1
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.03.14
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* revised to reflect change to ##IupOpen##
+--* revised to trap runtime errors
+--* commentary added
+--* added test if IupVersionNumber
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter set to the location of the IUP shared library you wish to incorporate
+-- into the test.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+procedure main()
+    string path = "G:\\dll\\"
+    ifdef BITS64 then
+        puts(1, "64-bit version chosen\n")
+        path &= "64\\iup-3.28\\"
+    elsedef
+        path &= "32\\"
+    end ifdef
+    atom lib = IupOpen(path)
+    if lib then
+        printf(1, "IUP library version %.2f opened\n"
+                    & "Press ENTER to call IupClose", {IupVersionNumber()/100000})
+        if getc(0) then end if
+        IupClose()
+    else    
+        puts(1, "IUP shared library not found\n"
+                    & "Press ENTER to abort")
+        if getc(0) then end if
+        abort(0)
+    end if
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.0
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.03.13
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--* created
+--------------------------------------------------------------------------------
+
+
