@@ -1,0 +1,118 @@
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+ <title></title>
+ <link rel="stylesheet" media="screen, projection, print" type="text/css" href="style.css"/>
+<!-- source="iup.ew.cr" -->
+</head>
+<body>
+
+<a name="_0_libraryiup4euincludeiupew"></a><a name="libraryiup4euincludeiupew"></a><h1>Library: (iup4eu)(include)iup.ew</h1>
+<p>  Description: Wrapper library for use with Eu4.0.5 and beyond </p>
+
+<hr />
+
+<p>Version: 4.0.5.21<br />
+ Euphoria Version: v4.0.5 and later<br />
+ Date: 2020.03.14<br />
+ Author: Charles Newbould<br />
+ Status: incomplete; operational<br /> </p>
+ Changes in this version: </p>
+<ul><li><tt>IupOpen</tt> turned into a function
+</li><li><tt>IupVersionNumber</tt> defined
+</li></ul>
+<hr />
+ Details of earlier incremental changes can be found embedded in the source  code at the end of this module, with the title "Previous Versions".</p>
+
+<a name="_1_theeuphoriaiupwrapper"></a><a name="theeuphoriaiupwrapper"></a><h2>The Euphoria IUP Wrapper</h2>
+<p>  The wrapper is called by including the module <em>iup.ew</em> in the source code.</p>
+
+<p>  To initialised the library call the <tt>IupOpen</tt> procedure, with the single  parameter value which is either <em>""</em> or is set to a string value which  designates the folder in which the shared library (.dll or .so) is to be found.  This facility allows users to call 32-bit or 64-bit versions of IUP and/or  test their code using different versions of the source IUP library.</p>
+
+<p>  A typical IUP code block is as follows:</p>
+
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup.ew</font>
+<font color="#FF0055"> --</font>
+<font color="#330033"> IupOpen</font><font color="#880033">()</font>
+<font color="#FF0055"> --</font>
+<font color="#FF0055"> -- the IUP-based code</font>
+<font color="#FF0055"> --</font>
+<font color="#330033"> IupMainLoop</font><font color="#880033">()</font>
+<font color="#FF0055"> --</font>
+<font color="#330033"> IupClose</font><font color="#880033">()</font>
+</pre>
+
+<a name="_2_interface"></a><a name="interface"></a><h2>Interface</h2>
+<a name="_3_includes"></a><a name="includes"></a><h3>Includes</h3>
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/dll.e		</font><font color="#FF0055">-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/machine.e	</font><font color="#FF0055">-- for allocate, allocate_pointer_array, allocate_string, free, peek_string &amp; poke_pointer</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/os.e		</font><font color="#FF0055">-- for platform constants</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public include </font><font color="#330033">std/types.e     </font><font color="#FF0055">-- for string</font>
+</pre>
+
+<a name="_4_constants"></a><a name="constants"></a><h3>Constants</h3>
+<p>   <em>flags</em> </p>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">EXIT_SUCCESS = 0</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_IGNORE = -1</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_DEFAULT = -2</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CLOSE = -3</font>
+</pre>
+
+<p>   <em>IupPopup and IupShowXY Parameter Values</em> </p>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CURRENT = 65531</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CENTER = #FFFF</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CENTRE = IUP_CENTER</font>
+</pre>
+
+<a name="_5_routines"></a><a name="routines"></a><h3>Routines</h3>
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupOpen</font><font color="#880033">(</font><font color="#330033">string path = </font><font color="#330033">""</font><font color="#880033">)  </font><font color="#FF0055">-- initializes the IUP toolkit</font>
+</pre>
+
+<p> Parameter: </p>
+<ol><li><em>path</em>: any search path required to locate desired version of the shared library [Default ""]
+</li></ol>
+<p>Returns:</p>
+
+<p>  an <strong>atom</strong>: the handle to the shared library</p>
+
+<p>  Notes:</p>
+<ul><li>To avoid runtime errors, use the return value to test for success in finding the shared library.
+</li><li>This routine must be called before any other IUP function, except IupVersion and its associated routines.
+</li></ul>
+<pre class="examplecode"><font color="#0000FF">public procedure </font><font color="#330033">IupClose</font><font color="#880033">() </font><font color="#FF0055">-- ends access to the IUP toolkit and releases internal memory</font>
+</pre>
+
+<p> Note:</p>
+
+<p>  <tt>IupClose</tt> will also automatically destroy all dialogs and all elements  that have names. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupVersionNumber</font><font color="#880033">()  </font><font color="#FF0055">-- returns the version number as an integer</font>
+</pre>
+
+<p>  Returns:</p>
+
+<p>  an <strong>integer</strong>: the version number including any bug fixes.</p>
+</body></html>
