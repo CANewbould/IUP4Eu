@@ -1,0 +1,168 @@
+--------------------------------------------------------------------------------
+--	Library: iup.ew
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Library: (iup4eu)(include)iup.ew
+-- Description: Wrapper library for use with Eu4.0.5 and beyond
+------
+--[[[Version: 4.0.5.21
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.03.14
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--* ##IupOpen## turned into a function
+--* ##IupVersionNumber## defined
+--
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== The Euphoria IUP Wrapper
+--
+-- The wrapper is called by including the module //iup.ew// in the source code.
+--
+-- To initialised the library call the ##IupOpen## procedure, with the single
+-- parameter value which is either //""// or is set to a string value which
+-- designates the folder in which the shared library (.dll or .so) is to be found.
+-- This facility allows users to call 32-bit or 64-bit versions of IUP and/or
+-- test their code using different versions of the source IUP library.
+--
+-- A typical IUP code block is as follows:
+--
+--<eucode>include iup.ew
+-- --
+-- IupOpen()
+-- --
+-- -- the IUP-based code
+-- --
+-- IupMainLoop()
+-- --
+-- IupClose()</eucode>
+--
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include std/dll.e		-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER
+include std/machine.e	-- for allocate, allocate_pointer_array, allocate_string, free, peek_string & poke_pointer
+include std/os.e		-- for platform constants
+public include std/types.e     -- for string
+--------------------------------------------------------------------------------
+--/*
+--=== Constants
+--*/
+--------------------------------------------------------------------------------
+--/*
+--  //flags//
+--*/
+--------------------------------------------------------------------------------
+public constant EXIT_SUCCESS = 0
+public constant IUP_IGNORE = -1
+public constant IUP_DEFAULT = -2
+public constant IUP_CLOSE = -3
+--------------------------------------------------------------------------------
+--/*
+--  //IupPopup and IupShowXY Parameter Values//
+--*/
+--------------------------------------------------------------------------------
+public constant IUP_CURRENT = 65531
+public constant IUP_CENTER = #FFFF
+public constant IUP_CENTRE = IUP_CENTER
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+integer hIupSetCallback, hIupSetAttribute
+atom iuplib
+--------------------------------------------------------------------------------
+--/*
+--=== Routines
+--*/
+--------------------------------------------------------------------------------
+--
+--==== initialisation
+--
+--------------------------------------------------------------------------------
+public function IupOpen(string path = "")  -- initializes the IUP toolkit
+    ifdef WIN32 then
+        iuplib = open_dll(path & "iup.dll")
+    elsifdef LINUX then
+        iuplib = open_dll(path & "libiup.so")
+    end ifdef
+    if iuplib then
+        -- defined reusable ones
+        hIupSetAttribute = define_c_proc(iuplib, "IupSetAttribute",
+                    {C_INT, C_POINTER, C_POINTER})
+        hIupSetCallback = define_c_proc(iuplib, "IupSetCallback",
+                    {C_INT, C_POINTER, C_INT})
+        integer hIupOpen = define_c_func(iuplib, "IupOpen",
+                    {C_INT, C_POINTER}, C_INT)
+        if c_func(hIupOpen, {0, 0}) then end if
+    end if
+	return iuplib
+end function
+--------------------------------------------------------------------------------
+--/*
+--Parameter:
+--# //path//: any search path required to locate desired version of the shared
+-- library [Default ""]
+--
+--Returns:
+--
+-- an **atom**: the handle to the shared library
+--
+-- Notes:
+--
+--* To avoid runtime errors,
+-- use the return value to test for success in finding the shared library.
+--* This routine must be called before any other IUP function,
+-- except IupVersion and its associated routines.
+--*/
+--------------------------------------------------------------------------------
+public procedure IupClose() -- ends access to the IUP toolkit and releases internal memory
+	integer hIupClose = define_c_proc(iuplib, "IupClose", {})
+	c_proc(hIupClose, {})
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--Note:
+--
+-- ##IupClose## will also automatically destroy all dialogs and all elements
+-- that have names.
+--*/
+--------------------------------------------------------------------------------
+public function IupVersionNumber()  -- returns the version number as an integer
+    integer hIupVersionNumber = define_c_func(iuplib, "IupVersionNumber", {}, C_INT)
+    return c_func(hIupVersionNumber, {})
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- an **integer**: the version number including any bug fixes.
+--*/
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.20
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.03.13
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--* rebuilt from various previous versions
+--* incorporated former ##init## into ##IupOpen##
+--------------------------------------------------------------------------------
