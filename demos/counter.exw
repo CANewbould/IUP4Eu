@@ -1,0 +1,101 @@
+--------------------------------------------------------------------------------
+-- Demonstration: counter.exw
+--------------------------------------------------------------------------------
+-- Notes:
+--
+-- Tested successfully on v4.0.5 and on v4.1.0(32-bit)
+--------------------------------------------------------------------------------
+--/*
+--= Program: (euphoria405)(demos)(gui)(iup)counter.exw
+-- Description: displays a counter which can increment
+------
+--[[[Version: 4.0.5.2
+--Euphoria Versions: 4.0.5 upwards 
+--Author: C A Newbould
+--Date: 2020.04.24
+--Status: operational
+--Changes:]]]
+--* modified location of //iup.ew//
+--
+--==Counter example
+--
+-- This demo shows a text, which holds a running count, and a button to
+-- increment the count.
+------
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+include std/text.e	-- for sprint
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Euphoria types
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+integer count = 0
+integer T	-- for IupText
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+function B_onClick()
+	count += 1
+	IupSetAttribute(T, "VALUE", sprint(count))
+	return IUP_CONTINUE
+end function
+--------------------------------------------------------------------------------
+procedure main(string title, string path="", string path32="", string path64="") 
+    -- Initializes IUP
+    ifdef BITS64 then
+        path &= path64
+    elsedef
+        path &= path32
+    end ifdef
+    atom lib = IupOpen(path)
+    if lib then
+		T = IupText()
+		integer B = IupButton("Count")
+		integer box = IupHbox({T, B})
+		integer dlg = IupDialog(box)
+		IupSetAttributes(T, "VALUE=0")
+		IupSetAttributes(box, "GAP=10, MARGIN=15x15,EXPANDCHILDREN=YES")
+		IupSetAttributes(dlg, "TITLE=" & title & ", SIZE = 100x60, MAXBOX=NO, MINBOX=NO")
+		IupSetCallback(B, "ACTION", Icallback("B_onClick"))
+		IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+		IupMainLoop()
+		IupClose()
+    end if
+    -- Program finished successfully
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main("Counter", "g:\\euphoria405\\dlls", "\\","64\\iup-3.28\\")
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.1
+--Euphoria Versions: 4.0.5 upwards 
+--Author: C A Newbould
+--Date: 2019.05.07
+--Status: operational
+--Changes:]]]
+--* modified from earlier 4.1.0 version
+--------------------------------------------------------------------------------

@@ -1,22 +1,21 @@
 --------------------------------------------------------------------------------
---	Test application: iup.exw
+--	Test application: alarm.exw
 --------------------------------------------------------------------------------
 --/*
 --%%disallow={camelcase}
 --*/
 --------------------------------------------------------------------------------
 --/*
---=  Application: (iup4eu)(demos)iup.exw
--- Description: Basic test to load and close the IUP wrapper library.
+--=  Application: (iup4eu)(demos)alarm.exw
+-- Description: Alarm example
 ------
---[[[Version: 4.0.5.3
+--[[[Version: 4.0.5.2
 -- Euphoria Version: v4.0.5 and later
--- Date: 2020.04.25
+-- Date: 2020.03.31
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* simplified call to ##main##
---* added modification to library search
+--* modified call the ##IupOpen##
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -24,9 +23,12 @@
 --
 --== Testing the Euphoria IUP Wrapper
 --
--- Run the test using your desired version of Euphoria, with, if required, an
--- additional command-line value, giving the  location of the IUP shared
--- library you wish to incorporate into the test.
+-- This example shows a dialog similar to the one shown when you exit a program
+-- without saving.
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter //path// value reset to the location of the IUP shared library you
+-- wish to incorporate into the test.
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -43,6 +45,7 @@ include iup.ew
 --=== Constants
 --
 --------------------------------------------------------------------------------
+constant PROMPT = "Save File"
 --------------------------------------------------------------------------------
 --
 --=== Variables
@@ -53,64 +56,53 @@ include iup.ew
 --=== Routines
 --
 --------------------------------------------------------------------------------
-procedure main(string title = "") 
-    sequence path = "..\\libs\\"
+procedure main(string caption="", string path="", string path32="", string path64="") 
+    -- Initializes IUP
     ifdef BITS64 then
-        puts(1, "64-bit version chosen\n")
-        path &= "64\\"
+        path &= path64
     elsedef
-        path &= "32\\"
+        path &= path32
     end ifdef
-    atom lib = IupOpen(path)
-    if lib then
-        printf(1, "IUP library version %.2f opened\n"
-                    & "** Press ENTER to call IupClose **", {IupVersionNumber()/100000})
-        if getc(0) then end if
-        IupClose()
+    if IupOpen(path) then
+        switch IupAlarm(caption, "File not saved! Save it now?", "Yes",
+                    "No", "Cancel") do
+            -- Shows a message for each selected button
+            case 1 then
+                IupMessage(PROMPT, "File saved successfully - leaving program")
+                break
+            case 2 then
+                IupMessage(PROMPT, "File not saved - leaving program anyway")
+                break
+            case 3 then
+                IupMessage(PROMPT, "Operation cancelled")
+                break
+        end switch
     else    
         puts(1, "IUP shared library not found\n"
-                    & "!! Press ENTER to abort !!")
+                    & "Press ENTER to abort")
         if getc(0) then end if
         abort(0)
     end if
+    -- Finishes IUP
+    IupClose()
+    -- Program finished successfully
 end procedure
 --------------------------------------------------------------------------------
 --/*
 --=== Execution
 --*/
 --------------------------------------------------------------------------------
-main()  -- was (, "G:\\dll\\", "32\\","64\\iup-3.28\\")
+main("IupAlarm Example", "G:\\dll\\", "32\\","64\\iup-3.28\\")
 --------------------------------------------------------------------------------
 --
 --Previous versions
 --
 --------------------------------------------------------------------------------
---[[[Version: 4.0.5.2
--- Euphoria Version: v4.0.5 and later
--- Date: 2020.03.31
--- Author: Charles Newbould
--- Status: complete; operational]]]
--- Changes in this version:
---* modified call the ##IupOpen##
---------------------------------------------------------------------------------
 --[[[Version: 4.0.5.1
 -- Euphoria Version: v4.0.5 and later
--- Date: 2020.03.14
+-- Date: 2020.03.26
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* revised to reflect change to ##IupOpen##
---* revised to trap runtime errors
---* commentary added
---* added test if IupVersionNumber
+--* added documentation to source
 --------------------------------------------------------------------------------
---[[[Version: 4.0.5.0
--- Euphoria Version: v4.0.5 and later
--- Date: 2020.03.13
--- Author: Charles Newbould
--- Status: incomplete; operational]]]
--- Changes in this version:
---* created
---------------------------------------------------------------------------------
-
-

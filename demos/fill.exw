@@ -1,0 +1,108 @@
+--------------------------------------------------------------------------------
+-- fill.exw
+--------------------------------------------------------------------------------
+-- Example in Euphoria
+-- 
+--   Uses the Fill element to centralize a button horizontally and
+--   justify it to the left and right.
+--------------------------------------------------------------------------------
+-- Version 4.1.0.1
+-- Dated 2020.04.30
+-- Author C A Newbould
+-- Changes: modified for IupOpen
+--------------------------------------------------------------------------------
+-- includes
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+-- types
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+-- routines
+--------------------------------------------------------------------------------
+procedure main() 
+    -- Identify dll path
+    string path = "..\\libs\\64\\"-- DEFAULT
+    sequence cmd = command_line()
+    if length(cmd) > 2 then
+        path = cmd[3]
+    end if
+    -- Initializes IUP
+    atom lib = IupOpen(path)
+    if lib then
+    -- IUP identifiers
+        Ihandle frame_left 
+        Ihandle frame_right 
+        Ihandle frame_center 
+        Ihandle dialog  
+
+        --  Creates frame with left-aligned button
+        frame_left = IupFrame
+        (
+        IupHbox
+        ({
+            IupButton("Ok"),
+            IupFill()
+         })
+        ) 
+
+        -- Sets frame's title
+        IupSetAttribute(frame_left, "TITLE", "Left aligned") 
+
+        -- Creates frame with centred button
+        frame_center = IupFrame
+        (
+        IupHbox
+        ({
+            IupFill(),
+            IupButton ("Ok"),
+            IupFill()
+        })
+        ) 
+
+        -- Sets frame's title
+        IupSetAttribute(frame_center, "TITLE", "Centered") 
+
+        -- Creates frame with right aligned button
+        frame_right = IupFrame
+        (
+        IupHbox
+        ({
+            IupFill(),
+            IupButton ("Ok")
+        })
+        ) 
+        -- Sets frame's title
+        IupSetAttribute(frame_right, "TITLE", "Right aligned") 
+
+        -- Creates dialog with these three frames
+        dialog = IupDialog
+        (
+        IupVbox
+        ({
+            frame_left,
+            frame_center,
+            frame_right
+        })
+        ) 
+        -- Sets dialog's size and title
+        dialog = IupSetAttributes(dialog, "SIZE=160, TITLE=IupFill") 
+
+        -- Shows dialog
+        IupShow(dialog)    -- Shows dialog in the centre of the screen
+        
+        -- Initializes IUP main loop
+        IupMainLoop()     -- Initializes IUP main loop
+    
+        IupClose()
+    end if
+    -- Program finished successfully
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------

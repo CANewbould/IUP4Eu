@@ -1,22 +1,21 @@
 --------------------------------------------------------------------------------
---	Test application: iup.exw
+--	Test application: dialog.exw
 --------------------------------------------------------------------------------
 --/*
 --%%disallow={camelcase}
 --*/
 --------------------------------------------------------------------------------
 --/*
---=  Application: (iup4eu)(demos)iup.exw
--- Description: Basic test to load and close the IUP wrapper library.
+--=  Application: (iup4eu)(demos)dialog.exw
+-- Description: Simple dialog example
 ------
---[[[Version: 4.0.5.3
+--[[[Version: 4.1.0.2
 -- Euphoria Version: v4.0.5 and later
--- Date: 2020.04.25
+-- Date: 2020.04.27
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* simplified call to ##main##
---* added modification to library search
+--* modified ##main## to simplify call to dll
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -24,9 +23,12 @@
 --
 --== Testing the Euphoria IUP Wrapper
 --
--- Run the test using your desired version of Euphoria, with, if required, an
--- additional command-line value, giving the  location of the IUP shared
--- library you wish to incorporate into the test.
+-- This example shows a simple dialog using IupDialog, but showcases a range of
+-- other features of IUP. Please read the code before running the demo.
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter //path// value reset to the location of the IUP shared library you
+-- wish to incorporate into the test.
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -50,67 +52,72 @@ include iup.ew
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
 --=== Routines
 --
 --------------------------------------------------------------------------------
-procedure main(string title = "") 
-    sequence path = "..\\libs\\"
-    ifdef BITS64 then
-        puts(1, "64-bit version chosen\n")
-        path &= "64\\"
-    elsedef
-        path &= "32\\"
-    end ifdef
+function quit_cb()
+  return IUP_CLOSE 
+end function
+--------------------------------------------------------------------------------
+procedure main(string title) 
+    -- Identify dll path
+    string path = "..\\libs\\64\\"-- DEFAULT
+    sequence cmd = command_line()
+    if length(cmd) > 2 then
+        path = cmd[3]
+    end if
+    -- Initializes IUP
     atom lib = IupOpen(path)
     if lib then
-        printf(1, "IUP library version %.2f opened\n"
-                    & "** Press ENTER to call IupClose **", {IupVersionNumber()/100000})
-        if getc(0) then end if
+        -- Creating the button 
+        Ihandle quit_bt = IupButton("Quit") 
+        IupSetCallback(quit_bt, "ACTION", Icallback("quit_cb")) 
+        -- the container with a label and the button
+        Ihandle vbox = IupVbox({
+            IupSetAttributes(IupLabel("Very atom Text Label"),
+            "EXPAND=YES, ALIGNMENT=ACENTER"),
+            quit_bt}) 
+        IupSetAttribute(vbox, "ALIGNMENT", "ACENTER") 
+        IupSetAttribute(vbox, "MARGIN", "10x10") 
+        IupSetAttribute(vbox, "GAP", "5") 
+        -- Creating the dialog 
+        Ihandle dialog = IupDialog(vbox) 
+        IupSetAttribute(dialog, "TITLE", title)
+        IupSetAttribute(dialog, "SIZE", "QuarterxEight") 
+        IupSetAttributeHandle(dialog, "DEFAULTESC", quit_bt) 
+        IupShow(dialog)
+        IupMainLoop() 
+        IupDestroy(dialog) 
+        -- Finishes IUP
         IupClose()
-    else    
-        puts(1, "IUP shared library not found\n"
-                    & "!! Press ENTER to abort !!")
-        if getc(0) then end if
-        abort(0)
     end if
+    -- Program finished successfully
 end procedure
 --------------------------------------------------------------------------------
 --/*
 --=== Execution
 --*/
 --------------------------------------------------------------------------------
-main()  -- was (, "G:\\dll\\", "32\\","64\\iup-3.28\\")
+main("Dialog Title")
 --------------------------------------------------------------------------------
 --
 --Previous versions
 --
 --------------------------------------------------------------------------------
---[[[Version: 4.0.5.2
+--[[[Version: 4.0.5.1
 -- Euphoria Version: v4.0.5 and later
 -- Date: 2020.03.31
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* modified call the ##IupOpen##
+--* added in-code documentation to source
+--* modified Bitbucket version to allow for new IupOpen
 --------------------------------------------------------------------------------
---[[[Version: 4.0.5.1
--- Euphoria Version: v4.0.5 and later
--- Date: 2020.03.14
--- Author: Charles Newbould
--- Status: complete; operational]]]
--- Changes in this version:
---* revised to reflect change to ##IupOpen##
---* revised to trap runtime errors
---* commentary added
---* added test if IupVersionNumber
---------------------------------------------------------------------------------
---[[[Version: 4.0.5.0
--- Euphoria Version: v4.0.5 and later
--- Date: 2020.03.13
--- Author: Charles Newbould
--- Status: incomplete; operational]]]
--- Changes in this version:
---* created
---------------------------------------------------------------------------------
-
-
