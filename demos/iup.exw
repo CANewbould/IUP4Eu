@@ -9,14 +9,13 @@
 --=  Application: (iup4eu)(demos)iup.exw
 -- Description: Basic test to load and close the IUP wrapper library.
 ------
---[[[Version: 4.0.5.3
+--[[[Version: 4.0.5.4
 -- Euphoria Version: v4.0.5 and later
--- Date: 2020.04.25
+-- Date: 2020.05.06
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* simplified call to ##main##
---* added modification to library search
+--* modified for simpler call to IUP shared library
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -37,7 +36,8 @@
 --=== Includes
 --*/
 --------------------------------------------------------------------------------
-include iup.ew
+include iup.ew          -- for Toolkit functionality
+include std/console.e   -- for any_key
 --------------------------------------------------------------------------------
 --
 --=== Constants
@@ -54,25 +54,10 @@ include iup.ew
 --
 --------------------------------------------------------------------------------
 procedure main(string title = "") 
-    sequence path = "..\\libs\\"
-    ifdef BITS64 then
-        puts(1, "64-bit version chosen\n")
-        path &= "64\\"
-    elsedef
-        path &= "32\\"
-    end ifdef
-    atom lib = IupOpen(path)
-    if lib then
-        printf(1, "IUP library version %.2f opened\n"
-                    & "** Press ENTER to call IupClose **", {IupVersionNumber()/100000})
-        if getc(0) then end if
-        IupClose()
-    else    
-        puts(1, "IUP shared library not found\n"
-                    & "!! Press ENTER to abort !!")
-        if getc(0) then end if
-        abort(0)
-    end if
+    IupOpen()
+    printf(1, "IUP library version %.2f opened\n", {IupVersionNumber()/100000})
+    any_key("** Press ENTER to call IupClose **")
+    IupClose()
 end procedure
 --------------------------------------------------------------------------------
 --/*
@@ -84,6 +69,15 @@ main()  -- was (, "G:\\dll\\", "32\\","64\\iup-3.28\\")
 --
 --Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.3
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.04.25
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* simplified call to ##main##
+--* added modification to library search
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.2
 -- Euphoria Version: v4.0.5 and later
