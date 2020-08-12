@@ -9,13 +9,13 @@
 --=  Application: (iup4eu)(demos)alarm.exw
 -- Description: Alarm example
 ------
---[[[Version: 4.0.5.2
+--[[[Version: 4.0.5.3
 -- Euphoria Version: v4.0.5 and later
--- Date: 2020.03.31
+-- Date: 2020.05.16
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* modified call the ##IupOpen##
+--* simplfied to accept revised iup.ew arrangement
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -56,33 +56,21 @@ constant PROMPT = "Save File"
 --=== Routines
 --
 --------------------------------------------------------------------------------
-procedure main(string caption="", string path="", string path32="", string path64="") 
-    -- Initializes IUP
-    ifdef BITS64 then
-        path &= path64
-    elsedef
-        path &= path32
-    end ifdef
-    if IupOpen(path) then
-        switch IupAlarm(caption, "File not saved! Save it now?", "Yes",
-                    "No", "Cancel") do
-            -- Shows a message for each selected button
-            case 1 then
-                IupMessage(PROMPT, "File saved successfully - leaving program")
-                break
-            case 2 then
-                IupMessage(PROMPT, "File not saved - leaving program anyway")
-                break
-            case 3 then
-                IupMessage(PROMPT, "Operation cancelled")
-                break
-        end switch
-    else    
-        puts(1, "IUP shared library not found\n"
-                    & "Press ENTER to abort")
-        if getc(0) then end if
-        abort(0)
-    end if
+procedure main(string caption) 
+    IupOpen()
+    switch IupAlarm(caption, "File not saved! Save it now?", "Yes",
+                "No", "Cancel") do
+        -- Shows a message for each selected button
+        case 1 then
+            IupMessage(PROMPT, "File saved successfully - leaving program")
+            break
+        case 2 then
+            IupMessage(PROMPT, "File not saved - leaving program anyway")
+            break
+        case 3 then
+            IupMessage(PROMPT, "Operation cancelled")
+            break
+    end switch
     -- Finishes IUP
     IupClose()
     -- Program finished successfully
@@ -92,11 +80,19 @@ end procedure
 --=== Execution
 --*/
 --------------------------------------------------------------------------------
-main("IupAlarm Example", "G:\\dll\\", "32\\","64\\iup-3.28\\")
+main("IupAlarm Example")
 --------------------------------------------------------------------------------
 --
 --Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.2
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.03.31
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified call the ##IupOpen##
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.1
 -- Euphoria Version: v4.0.5 and later
