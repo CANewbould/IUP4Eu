@@ -1,0 +1,97 @@
+--------------------------------------------------------------------------------
+--	Test application: backgroundbox.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)backgroundbox.exw
+-- Description: Simple background box example
+------
+--[[[Version: 4.0.5.0
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.06.28
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* simplfied to accept revised iup.ew arrangement
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- In this example a Background Box is placed within the main window. This Box
+-- contains a button and text, arranged vertically. Nothing happens; the
+-- example is solely for display. 
+------
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter //path// value reset to the location of the IUP shared library you
+-- wish to incorporate into the test.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--   Main function                                                               
+--------------------------------------------------------------------------------
+procedure main() 
+    IupOpen()
+    atom frame = IupFrame(IupVbox({IupButton("This button does nothing"),
+                          IupText()})),
+    -- Creates a backgroundbox
+    btn = IupBackgroundBox(frame),
+    dlg = IupDialog(IupVbox({btn}))
+
+    IupSetAttribute(frame,"MARGIN", "0x0")
+    IupSetAttributes(dlg, "SIZE=QUARTERxSIXTH, MARGIN=10x10, GAP=10," & 
+                " TITLE = \"IupBackgroundBox Example\"")
+
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    IupMainLoop() 
+    -- Finishes IUP
+    IupClose()
+    -- Program finished successfully
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
