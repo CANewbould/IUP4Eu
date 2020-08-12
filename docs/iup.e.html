@@ -1,0 +1,125 @@
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+ <title></title>
+ <link rel="stylesheet" media="screen, projection, print" type="text/css" href="style.css"/>
+<!-- source="iup.e.cr" -->
+</head>
+<body>
+
+<a name="_0_libraryiup4euincludeiupe"></a><a name="libraryiup4euincludeiupe"></a><h1>Library: (iup4eu)(include)iup.e</h1>
+<p>  Description: Load module for Open Euphoria's access to the IUP GUI Toolkit </p>
+
+<hr />
+
+<p>Version: 4.0.5.2<br />
+ Euphoria Version: v4.0.5 and later<br />
+ Date: 2020.05.10<br />
+ Author: Charles Newbould<br />
+ Status: complete; operational<br /> </p>
+ Changes in this version:   </p>
+<ul><li>corrected error on <tt>doCN</tt>
+</li></ul>
+<hr />
+ Details of earlier incremental changes can be found embedded in the source  code at the end of this module, with the title "Previous Versions".</p>
+
+<a name="_1_theeuphoriaiupinterface"></a><a name="theeuphoriaiupinterface"></a><h2>The Euphoria IUP Interface</h2>
+<p>  This file attempts to load the appropriate IUP shared library, either: </p>
+<ul><li><em>iup.dll</em> (MS Windows), or
+</li><li><em>libiup.so</em> (Linux)
+</li></ul>
+<p> This is the main purpose of the module, which is intended to be called by the  file <em>iup.ew</em>, which contains the full Open Euphoria wrappers for the  IUP Toolkit.</p>
+
+<p>  If a shared library cannot be loaded then the module issues an error report  before initiating an abort.</p>
+
+<p>  If, however, the library call is successful and IUP becomes available then  two wrapper-enabling routines:</p>
+<ul><li><tt>doC</tt>, and
+</li><li><tt>doCN</tt>
+</li></ul>
+<p> are made available to help simplify the definitions in the major  Open Euphoria <em>iup.ew</em> module.</p>
+
+<p>  Another routine</p>
+<ul><li><tt>toCOrNot</tt>
+</li></ul>
+<p> is also provided to assist in cases where <em>NULL</em> values are acceptable  as alternatives to <strong>string</strong> values.</p>
+
+<p>  This module is called by including <em>iup.e</em> in the calling code. </p>
+
+<a name="_2_interface"></a><a name="interface"></a><h2>Interface</h2>
+<a name="_3_includes"></a><a name="includes"></a><h3>Includes</h3>
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/console.e   </font><font color="#FF0055">-- for any_key</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/dll.e       </font><font color="#FF0055">-- for open_dll, define_c_func, define_c_proc</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/machine.e   </font><font color="#FF0055">-- for allocate_string</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/types.e     </font><font color="#FF0055">-- for string</font>
+</pre>
+
+<a name="_4_constants"></a><a name="constants"></a><h3>Constants</h3>
+<pre class="examplecode"><font color="#0000FF">export constant </font><font color="#330033">IUPLIB = open_dll</font><font color="#880033">(</font><font color="#330033">DLL</font><font color="#880033">) </font><font color="#FF0055">-- the [atom] handle to the shared library</font>
+</pre>
+
+<a name="_5_routines"></a><a name="routines"></a><h3>Routines</h3>
+<pre class="examplecode"><font color="#0000FF">export function </font><font color="#330033">doC</font><font color="#880033">(</font><font color="#330033">string fn_name, </font><font color="#0000FF">sequence </font><font color="#330033">c_args = EMPTY, </font><font color="#0000FF">sequence </font><font color="#330033">e_args = EMPTY, </font><font color="#0000FF">atom </font><font color="#330033">c_ret = NULL</font><font color="#880033">) </font><font color="#FF0055">-- calls the wrapped C-function</font>
+</pre>
+
+<p>  This function calls and executes the defined C-function with Euphoria values</p>
+
+<p>  Parameters: </p>
+<ol><li><em>fn_name</em>: the name by which the C-function is declared in the shared library
+</li><li><em>c_args</em>: the sequence of C-language value types that the function requires
+</li><li><em>e_args</em>: the matching sequence of Euphoria-based values to pass to the wrapper
+</li><li><em>c_ret</em>: the C-language value type of the return value
+</li></ol>
+<p> Returns:</p>
+
+<p>  an <strong>integer</strong>: either the value returned by calling the C-function, with the  <em>e_args</em> or <em>VOID</em> if the C-function is <em>void</em>. </p>
+
+<pre class="examplecode"><font color="#0000FF">export function </font><font color="#330033">doCN</font><font color="#880033">(</font><font color="#330033">string fn_name, </font><font color="#0000FF">atom </font><font color="#330033">c_arg, </font><font color="#0000FF">sequence </font><font color="#330033">e_args, </font><font color="#0000FF">atom </font><font color="#330033">c_ret</font><font color="#880033">) </font><font color="#FF0055">-- calls the wrapped C-function</font>
+</pre>
+
+<p>  This function calls a C-function which takes a repeated, unspecified number of,  arguments, all of the same C-language value type. The function is called with  the specified Euphoria values.</p>
+
+<p>  Parameters: </p>
+<ol><li><em>fn_name</em>: the name by which the C-function is declared in the shared library
+</li><li><em>c_arg</em>: the C-language value type that the function (repeatedly) requires
+</li><li><em>e_args</em>: the matching sequence of Euphoria-based values to pass to the wrapper
+</li><li><em>c_ret</em>: the C-language value type of the return value
+</li></ol>
+<p> Returns:</p>
+
+<p>  an <strong>integer</strong>: the value returned by calling the C-function</p>
+
+<p>  Notes:</p>
+
+<p>  The C-function works by terminated the set of parameters with a <em>NULL</em>  value. This wrapper function adds the terminations automatically.</p>
+
+<p>  This function is useful for wrapping Container controls, such as <tt>IupHbox</tt>  and <tt>IupVbox</tt>. </p>
+
+<pre class="examplecode"><font color="#0000FF">export function </font><font color="#330033">toCOrNot</font><font color="#880033">(</font><font color="#0000FF">object </font><font color="#330033">this</font><font color="#880033">)</font>
+</pre>
+
+<p>  This helper function is most useful in cases, such as the definition of  controls like <tt>IupButton</tt> where Euphoria's wrapper arguments can be either  <em>NULL</em> or a string. The function returns the approriate value.</p>
+
+<p>  Parameter: </p>
+<ol><li><em>this</em>: the <em>NULL</em> or <strong>string</strong> value
+</li></ol>
+<p> Returns:</p>
+
+<p>  an <strong>atom</strong>: the original value, or a pointer to a null-terminated  C-language string holding the value of <em>this</em> </p>
+
+<a name="_6_action"></a><a name="action"></a><h3>Action</h3>
+<p>  When included this module does one of two things: </p>
+<ul><li>either it executes silently and offers the shared library's handle and access to the three functions to simplify wrapper-function writing, or
+</li><li>issues an error message, to indicate failure to find the shared library, before aborting.
+</li></ul>
+</body></html>
