@@ -1,0 +1,141 @@
+--------------------------------------------------------------------------------
+--	Test application: detachbox.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)detachbox.exw
+-- Description: example to display an IUP detach box
+------
+--[[[Version: 4.0.5.0
+-- Date: 2020.08.19
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified for simpler call to IUP shared library
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- This example shows how a detach box is laid out and how it can
+-- be detached and re-attached.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+function detached_cb(Ihandle  ih, Ihandle  new_parent, integer  x, integer  y)
+    IupSetAttribute(new_parent, "TITLE", "New Dialog")
+    IupSetAttribute(IupGetHandle("restore"), "ACTIVE", "YES")
+    IupSetAttribute(IupGetHandle("detach"), "ACTIVE", "NO")
+    printf(1, "Detached!\n")
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+function btn_restore_cb(Ihandle bt)
+    Ihandle dbox = IupGetHandle("dbox")
+    if IupGetInt(dbox, "DETACH") then
+        Ihandle dlg = IupGetDialog(dbox)
+        Ihandle old_parent = IupGetAttribute(dbox, "OLDPARENT_HANDLE")
+        Ihandle ref_child = IupGetAttribute(dbox, "OLDBROTHER_HANDLE")
+        IupReparent(dbox, old_parent, ref_child)
+        IupRefresh(old_parent)
+        IupDestroy(dlg)
+    else
+        IupSetInt(dbox, "RESTORE", NULL)
+    end if
+    IupSetAttribute(bt, "ACTIVE", "NO")
+    IupSetAttribute(IupGetHandle("detach"), "ACTIVE", "Yes")
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+function btn_detach_cb(Ihandle  bt)
+    Ihandle dbox = IupGetHandle("dbox")
+    IupSetInt(dbox, "DETACH", NULL)
+    IupSetAttribute(bt, "ACTIVE", "NO")
+    IupSetAttribute(IupGetHandle("restore"), "ACTIVE", "Yes")
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+procedure main(string title)
+    IupOpen()
+    Ihandle  bt = IupButton("Detach Me!") 
+    IupSetCallback(bt, "ACTION", Icallback("btn_detach_cb"))
+    IupSetHandle("detach", bt)
+    Ihandle ml = IupText()
+    IupSetAttribute(ml, "MULTILINE", "YES")
+    IupSetAttribute(ml, "EXPAND", "YES")
+    IupSetAttribute(ml, "VISIBLELINES", "5")
+    Ihandle hbox = IupHbox({bt, ml})
+    IupSetAttribute(hbox, "MARGIN", "10x0")
+    Ihandle dbox = IupDetachBox(hbox)
+    IupSetAttribute(dbox, "ORIENTATION", "VERTICAL")
+    IupSetAttribute(dbox, "SHOWGRIP", "NO")
+    IupSetAttribute(dbox, "COLOR", "255 0 0")
+    IupSetCallback(dbox, "DETACHED_CB", Icallback("detached_cb"))
+    IupSetHandle("dbox", dbox)
+    Ihandle lbl = IupLabel("Label")
+    IupSetAttribute(lbl, "EXPAND", "VERTICAL")
+    Ihandle bt2 = IupButton("Restore me!")
+    IupSetAttribute(bt2, "EXPAND", "YES")
+    IupSetAttribute(bt2, "ACTIVE", "NO")
+    IupSetCallback(bt2, "ACTION", Icallback("btn_restore_cb"))
+    IupSetHandle("restore", bt2)
+    Ihandle txt = IupText()
+    IupSetAttribute(txt, "EXPAND", "HORIZONTAL")
+    Ihandle dlg = IupDialog(IupVbox({dbox, lbl, bt2, txt}))
+    IupSetAttribute(dlg, "TITLE", title)
+    IupSetAttribute(dlg, "MARGIN", "10x10")
+    IupSetAttribute(dlg, "GAP", "10")
+    IupSetAttribute(dlg, "RASTERSIZE", "300x300")
+    IupSetAttribute(dlg, "SIZE", "QUARTERxHALF")
+    IupShow(dlg)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main("IupDetachBox Example")
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

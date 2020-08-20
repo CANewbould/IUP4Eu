@@ -9,13 +9,13 @@
 --= Program: (euphoria405)(demos)(gui)(iup)counter.exw
 -- Description: displays a counter which can increment
 ------
---[[[Version: 4.0.5.2
+--[[[Version: 4.0.5.3
 --Euphoria Versions: 4.0.5 upwards 
 --Author: C A Newbould
---Date: 2020.04.24
+--Date: 2020.05.16
 --Status: operational
 --Changes:]]]
---* modified location of //iup.ew//
+--* simplfied to accept revised iup.ew arrangement
 --
 --==Counter example
 --
@@ -61,35 +61,35 @@ function B_onClick()
 	return IUP_CONTINUE
 end function
 --------------------------------------------------------------------------------
-procedure main(string title, string path="", string path32="", string path64="") 
-    -- Initializes IUP
-    ifdef BITS64 then
-        path &= path64
-    elsedef
-        path &= path32
-    end ifdef
-    atom lib = IupOpen(path)
-    if lib then
-		T = IupText()
-		integer B = IupButton("Count")
-		integer box = IupHbox({T, B})
-		integer dlg = IupDialog(box)
-		IupSetAttributes(T, "VALUE=0")
-		IupSetAttributes(box, "GAP=10, MARGIN=15x15,EXPANDCHILDREN=YES")
-		IupSetAttributes(dlg, "TITLE=" & title & ", SIZE = 100x60, MAXBOX=NO, MINBOX=NO")
-		IupSetCallback(B, "ACTION", Icallback("B_onClick"))
-		IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
-		IupMainLoop()
-		IupClose()
-    end if
+procedure main(string title) 
+	IupOpen()
+	T = IupText()
+	integer B = IupButton("Count")
+	integer box = IupHbox({T, B})
+	integer dlg = IupDialog(box)
+	IupSetAttributes(T, "VALUE=0")
+	IupSetAttributes(box, "GAP=10, MARGIN=15x15,EXPANDCHILDREN=YES")
+	IupSetAttributes(dlg, "TITLE=" & title & ", SIZE = 100x60, MAXBOX=NO, MINBOX=NO")
+	IupSetCallback(B, "ACTION", Icallback("B_onClick"))
+	IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+	IupMainLoop()
     -- Program finished successfully
+	IupClose()
 end procedure
 --------------------------------------------------------------------------------
 -- execution
 --------------------------------------------------------------------------------
-main("Counter", "g:\\euphoria405\\dlls", "\\","64\\iup-3.28\\")
+main("Counter")
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.2
+--Euphoria Versions: 4.0.5 upwards 
+--Author: C A Newbould
+--Date: 2020.04.24
+--Status: operational
+--Changes:]]]
+--* modified location of //iup.ew//
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.1
 --Euphoria Versions: 4.0.5 upwards 

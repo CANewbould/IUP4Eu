@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---	Test application: dialog.exw
+--	Test application: cbox.exw
 --------------------------------------------------------------------------------
 --/*
 --%%disallow={camelcase}
@@ -7,14 +7,14 @@
 --------------------------------------------------------------------------------
 --/*
 --=  Application: (iup4eu)(demos)dialog.exw
--- Description: Simple dialog example
+-- Description: Simple CBox example, using a FlatButton
 ------
---[[[Version: 4.0.5.3
--- Date: 2020.05.06
+--[[[Version: 4.0.5.1
+-- Date: 2020.07.04
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* modified for simpler call to IUP shared library
+--* modified to common layout
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -22,8 +22,9 @@
 --
 --== Testing the Euphoria IUP Wrapper
 --
--- This example shows a simple dialog using IupDialog, but showcases a range of
--- other features of IUP. Please read the code before running the demo.
+-- This example shows a simple dialog with a Cbox inside it and a FlatButton
+-- inside that. The example is purely for displaying the widgets; no actions
+-- are programmed.
 --
 -- Run the test using your desired version of Euphoria, with, if required, the
 -- parameter //path// value reset to the location of the IUP shared library you
@@ -54,39 +55,23 @@ include iup.ew
 --=== Types
 --
 --------------------------------------------------------------------------------
-type Ihandle(object x)
-    return 1
-end type
 --------------------------------------------------------------------------------
 --
 --=== Routines
 --
 --------------------------------------------------------------------------------
-function quit_cb()
-  return IUP_CLOSE 
-end function
---------------------------------------------------------------------------------
-procedure main(string title) 
+procedure main() 
     IupOpen()
-    -- Creating the button 
-    Ihandle quit_bt = IupButton("Quit") 
-    IupSetCallback(quit_bt, "ACTION", Icallback("quit_cb")) 
-    -- the container with a label and the button
-    Ihandle vbox = IupVbox({
-        IupSetAttributes(IupLabel("Very atom Text Label"),
-        "EXPAND=YES, ALIGNMENT=ACENTER"),
-        quit_bt}) 
-    IupSetAttribute(vbox, "ALIGNMENT", "ACENTER") 
-    IupSetAttribute(vbox, "MARGIN", "10x10") 
-    IupSetAttribute(vbox, "GAP", "5") 
-    -- Creating the dialog 
-    Ihandle dialog = IupDialog(vbox) 
-    IupSetAttribute(dialog, "TITLE", title)
-    IupSetAttribute(dialog, "SIZE", "QuarterxEight") 
-    IupSetAttributeHandle(dialog, "DEFAULTESC", quit_bt) 
-    IupShow(dialog)
-    IupMainLoop() 
-    IupDestroy(dialog) 
+    -- Create the widgets 
+    atom fred = IupFlatButton("Fred")
+    atom dlg = IupDialog(IupCbox({fred}))
+    -- set the attributes
+    IupSetAttributes(dlg, "SIZE=quarterxquarter, TITLE=\"IupCbox Example\"")
+    IupSetAttribute(fred, "CX", "100")
+    IupSetAttribute(fred, "CY", "70")
+    -- display
+    IupShow(dlg)
+    IupMainLoop()
     -- Finishes IUP
     IupClose()
     -- Program finished successfully
@@ -96,26 +81,10 @@ end procedure
 --=== Execution
 --*/
 --------------------------------------------------------------------------------
-main("Dialog Title")
+main()
 --------------------------------------------------------------------------------
 --
 --Previous versions
 --
 --------------------------------------------------------------------------------
---[[[Version: 4.1.0.2
--- Euphoria Version: v4.0.5 and later
--- Date: 2020.04.27
--- Author: Charles Newbould
--- Status: complete; operational]]]
--- Changes in this version:
---* modified ##main## to simplify call to dll
---------------------------------------------------------------------------------
---[[[Version: 4.0.5.1
--- Euphoria Version: v4.0.5 and later
--- Date: 2020.03.31
--- Author: Charles Newbould
--- Status: complete; operational]]]
--- Changes in this version:
---* added in-code documentation to source
---* modified Bitbucket version to allow for new IupOpen
 --------------------------------------------------------------------------------

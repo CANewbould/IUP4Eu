@@ -6,10 +6,10 @@
     Note that "FGCOLOR" is added to the frame but it is inherited by the button.
 */
 --------------------------------------------------------------------------------
--- Version 4.1.0.2
--- Dated 2020.04.27
+-- Version 4.0.5.3
+-- Dated 2020.05.16
 -- Author C A Newbould
--- Changes: modified for IupOpen
+-- Changes: simplfied to accept revised iup.ew arrangement
 --------------------------------------------------------------------------------
 -- includes
 --------------------------------------------------------------------------------
@@ -28,49 +28,40 @@ end type
 -- routines
 --------------------------------------------------------------------------------
 procedure main(string title)
-    -- Identify dll path
-    string path = "..\\libs\\64\\"-- DEFAULT
-    sequence cmd = command_line()
-    if length(cmd) > 2 then
-        path = cmd[3]
-    end if
-    -- Initializes IUP
-    atom lib = IupOpen(path)
-    if lib then
-		/* Creates frame with a label */
-		Ihandle frame = IupFrame
-		(
-            IupHbox
-            ({
-              IupFill(),
-              IupLabel ("IupFrame Attributes:\n" & 
-                        "FGCOLOR = \"255 0 0\"\n" &
-                        "SIZE = \"EIGHTHxEIGHTH\"\n" &
-                        "TITLE = \"This is the frame\"\n" &
-                        "MARGIN = \"10x10\""),
-              IupFill(),
-              NULL
-            })
-		) 
+    IupOpen()
+    /* Creates frame with a label */
+    Ihandle frame = IupFrame
+    (
+        IupHbox
+        ({
+          IupFill(),
+          IupLabel ("IupFrame Attributes:\n" & 
+                    "FGCOLOR = \"255 0 0\"\n" &
+                    "SIZE = \"EIGHTHxEIGHTH\"\n" &
+                    "TITLE = \"This is the frame\"\n" &
+                    "MARGIN = \"10x10\""),
+          IupFill(),
+          NULL
+        })
+    ) 
 
-		/* Sets frame's attributes */
-		IupSetAttributes(frame, "FGCOLOR=\"255 0 0\", SIZE=EIGHTHxEIGHTH, " & 
-				"TITLE=" & title & ", MARGIN=10x10") 
+    /* Sets frame's attributes */
+    IupSetAttributes(frame, "FGCOLOR=\"255 0 0\", SIZE=EIGHTHxEIGHTH, " & 
+            "TITLE=" & title & ", MARGIN=10x10") 
 
-		/* Creates dialog  */
-		Ihandle dialog = IupDialog(frame) 
+    /* Creates dialog  */
+    Ihandle dialog = IupDialog(frame) 
 
-		/* Sets dialog's title & size so that title shows */
-		IupSetAttribute(dialog, "TITLE", "IupFrame")
-		IupSetAttribute(dialog, "SIZE", "QUARTERxQUARTER")
+    /* Sets dialog's title & size so that title shows */
+    IupSetAttribute(dialog, "TITLE", "IupFrame")
+    IupSetAttribute(dialog, "SIZE", "QUARTERxQUARTER")
 
-		IupShow(dialog)   /* Shows dialog in the center of the screen */
-		IupMainLoop()       /* Initializes IUP main loop */
-		IupClose()          /* Finishes IUP */
-        -- Finishes IUP
-        IupClose()
-    end if
+    IupShow(dialog)   /* Shows dialog in the center of the screen */
+    IupMainLoop()       /* Initializes IUP main loop */
+    IupClose()          /* Finishes IUP */
+    -- Finishes IUP
     -- Program finished successfully
+    IupClose()
 end procedure
 --------------------------------------------------------------------------------
 -- execution
@@ -78,6 +69,11 @@ end procedure
 main("This is the frame")
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+-- Version 4.1.0.2
+-- Dated 2020.04.27
+-- Author C A Newbould
+-- Changes: modified for IupOpen
 --------------------------------------------------------------------------------
 -- Version 4.1.0.1
 -- Dated 2018.12.22
