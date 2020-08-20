@@ -9,14 +9,19 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.33
--- Euphoria Version: v4.0.5 and later
--- Date: 2020.07.04
+--[[[Version: 4.0.5.35
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.08.20
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupCbox## defined
---  * ##IupFlatButton## defined
+--  * modified all procedures to functions
+--  * changed all calls to ##doC##
+--  * ##IupExitLoop## defined
+--  * ##IupFlush## defined
+--  * ##IupCalendar## defined
+--  * ##IupColorbar## defined
+--  * ##IupGauge## defined
 --
 ------
 --
@@ -61,7 +66,7 @@
 --*/
 --------------------------------------------------------------------------------
 include iup.e           -- for IUPLIB, or abort
-include std/dll.e		-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER
+public include std/dll.e		-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER
 include std/machine.e	-- for allocate, allocate_pointer_array, allocate_string, free, peek_string & poke_pointer
 include std/os.e		-- for platform constants
 include std/text.e      -- for upper
@@ -104,20 +109,20 @@ public constant IUP_CENTRE = IUP_CENTER
 --=== Variables
 --
 --------------------------------------------------------------------------------
-integer hIupSetAttribute, hIupSetCallback 
+integer hIupSetAttribute, hIupSetCallback
 --------------------------------------------------------------------------------
 --
 --=== Types
 --
 --------------------------------------------------------------------------------
-type attrib(string this) 
+type attrib(string this)
     for i = 1 to length(this) do
         if not upper_case(this[i]) then return FALSE end if
     end for
     return TRUE
 end type
 --------------------------------------------------------------------------------
-type upper_case(integer this) 
+type upper_case(integer this)
     return (this > 64) and (this < 91)
 end type
 --------------------------------------------------------------------------------
@@ -181,8 +186,6 @@ end function
 --*/
 --------------------------------------------------------------------------------
 public function IupAlarm(string title, string mess, string b1, object b2 = NULL, object b3 = NULL)
-	integer hIupAlarm = define_c_func(IUPLIB, "+IupAlarm",
-                {C_POINTER, C_POINTER, C_POINTER, C_POINTER, C_POINTER}, C_INT)
 	sequence arg = repeat(0, 5)
 	arg[1] = allocate_string(title)
 	arg[2] = allocate_string(mess)
@@ -193,8 +196,8 @@ public function IupAlarm(string title, string mess, string b1, object b2 = NULL,
 			arg[5] = allocate_string(b3)
 		end if
 	end if
-	return c_func(hIupAlarm, arg)
-end function 
+	return doC("IupAlarm", {C_POINTER, C_POINTER, C_POINTER, C_POINTER, C_POINTER}, arg, C_INT)
+end function
 --------------------------------------------------------------------------------
 --/*
 -- Shows a modal dialog containing a message and up to three buttons.
@@ -237,7 +240,7 @@ end function
 -- For any interface element to be shown, it must be encapsulated in a dialog.
 --
 -- Parameter:
---# //child//: the (**integer**) identifier of an interface element. The dialog has only one child. It can be NULL.  
+--# //child//: the (**integer**) identifier of an interface element. The dialog has only one child. It can be NULL.
 --
 -- Returns:
 --
@@ -249,7 +252,7 @@ end function
 public function IupMessage(string title, string message)  -- shows a modal dialog containing a message
     return doC("IupMessage", {C_POINTER, C_POINTER},
                 {allocate_string(title), allocate_string(message)})
-end function 
+end function
 --------------------------------------------------------------------------------
 --/*
 -- This procedure simply creates and then pops up a ##MessageDlg##.
@@ -393,6 +396,26 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+public function IupDetachBox(integer child = NULL)
+    return doC("IupDetachBox", {C_INT}, {child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Creates a detachable void container.
+--
+-- Dragging and dropping this element, it creates a new dialog composed by
+-- its child or elements arranged in it (for example, a child like {{{IupVbox or
+-- IupHbox).}}} During the drag, the ESC key can be pressed to cancel the action.
+--
+-- It does not have a native representation, but it contains also a {{{IupCanvas}}}
+-- to implement the bar handler.
+--
+-- Parameter: ##child## - Identifier of an interface element.
+-- It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
 public function IupFrame(atom child = NULL)	-- creates a native container, which draws a frame with a title around its child
     return doC("IupFrame", {C_INT}, {child}, C_INT)
 end function
@@ -459,14 +482,13 @@ end function
 --*/
 --------------------------------------------------------------------------------
 public function IupButton(string title = "", object action = NULL)  -- creates a button interface element, which displays a separator, a text or an image
-	integer hIupButton = define_c_func(IUPLIB, "+IupButton", {C_POINTER, C_POINTER}, C_INT)
 	sequence arg
 	if atom(action) then
 		arg = {allocate_string(title), action}
 	else
 		arg = {allocate_string(title), allocate_string(action)}
 	end if
-	return c_func(hIupButton, arg)
+	return doC("IupButton", {C_POINTER, C_POINTER}, arg, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -484,7 +506,31 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public function IupFill() 	-- creates a void element, which dynamically occupies empty spaces always trying to expand itself 
+public function IupCalendar() -- creates a month calendar interface element, where the user can select a date
+    return doC("IupCalendar", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+public function IupColorbar() -- creates a color palette to enable a color selection from several samples
+    return doC("IupColorbar", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+public function IupFill() 	-- creates a void element, which dynamically occupies empty spaces always trying to expand itself
 	return doC("IupFill", , , C_INT)
 end function
 --------------------------------------------------------------------------------
@@ -510,6 +556,18 @@ end function
 --
 -- the (**integer**) identifier of the created element, or NULL if an error
 -- occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+public function IupGauge() -- creates a Gauge control
+    return doC("IupGauge", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -547,8 +605,7 @@ end function
 --------------------------------------------------------------------------------
 public function IupMenu(sequence items)
 	atom pItems = allocate_pointer_array(items)
-	integer hIupMenu = define_c_func(IUPLIB, "+IupMenuv", {C_POINTER}, C_INT)
-	atom result = c_func(hIupMenu, {pItems})
+	atom result = doC("IupMenuv", {C_POINTER}, {pItems}, C_INT)
 	free(pItems)
 	return result
 end function
@@ -565,7 +622,6 @@ end function
 --*/
 --------------------------------------------------------------------------------
 public function IupItem(object title = NULL, object action = NULL)
-	integer hIupItem = define_c_func(IUPLIB, "+IupItem", {C_POINTER, C_POINTER}, C_INT)
 	sequence arg = {NULL, action}
     if sequence(title) then
         arg[1] = allocate_string(title)
@@ -573,7 +629,7 @@ public function IupItem(object title = NULL, object action = NULL)
     if sequence(action) then
         arg[2] = allocate_string(action)
     end if
-    return c_func(hIupItem, arg)
+    return doC("IupItem", {C_POINTER, C_POINTER}, arg, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -599,12 +655,11 @@ end function
 --*/
 --------------------------------------------------------------------------------
 export function IupSubmenu(object title = NULL, object menu = NULL)
-	integer hIupSubmenu = define_c_func(IUPLIB, "+IupSubmenu", {C_POINTER, C_INT}, C_INT)
 	sequence arg = {NULL, menu}
     if sequence(title) then
         arg[1] = allocate_string(title)
     end if
-	return c_func(hIupSubmenu, arg)
+	return doC("IupSubmenu", {C_POINTER, C_INT}, arg, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -666,9 +721,20 @@ end function
 --==== Events
 --*/
 --------------------------------------------------------------------------------
+public function IupExitLoop() -- terminates the current message loop
+    return doC("IupExitLoop")
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It has the same effect of a callback returning IUP_CLOSE.
+--*/
+--------------------------------------------------------------------------------
+public function IupFlush() -- processes all pending messages in the message queue
+    return doC("IupFlush")
+end function
+--------------------------------------------------------------------------------
 public function IupMainLoop()  -- executes the user interaction until a callback returns IUP_CLOSE, or IupExitLoop is called, or the last visible dialog is hidden
-	integer hIupMainLoop = define_c_func(IUPLIB, "+IupMainLoop",  {}, C_INT)
-	return c_func(hIupMainLoop, {})
+	return doC("IupMainLoop", , , C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -681,9 +747,25 @@ end function
 --==== Attributes
 --*/
 --------------------------------------------------------------------------------
+public function IupGetAttribute(atom widget, string attr) -- gets an interface element attribute
+    atom ret = doC("IupGetAttribute", {C_INT, C_POINTER}, {widget, allocate_string(attr)}, C_INT)
+    if ret then return peek_string(ret)
+    else return ret
+    end if
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Use only when the attribute value is a string.
+--
+-- (For other value types use the relevant function. For example:
+-- for an integer value use {{{IupGetInt}}}.)
+--
+-- Returns: the attribute value or
+-- NULL, if the attribute is not set or does not exist.
+--*/
+--------------------------------------------------------------------------------
 public function IupGetInt(atom widget, string attr)	-- gets an integer attribute value
-    integer hIupGetInt = define_c_func(IUPLIB, "+IupGetInt", {C_INT, C_POINTER}, C_INT)
-    return c_func(hIupGetInt, {widget, allocate_string(attr)})
+    return doC("IupGetInt", {C_INT, C_POINTER}, {widget, allocate_string(attr)}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -706,7 +788,7 @@ end procedure
 --# //widget//: identifier of the interface element. If NULL will set the
 -- attribute in the global environment
 --# //attribute//: the (upper-case) name of the attribute to change. If the name
--- is given in the wrong case then it will be converted to upper-case. 
+-- is given in the wrong case then it will be converted to upper-case.
 --# //val: the value to be set.
 -- If NULL then the default value for that attribute will be used.
 --
@@ -714,8 +796,7 @@ end procedure
 --*/
 --------------------------------------------------------------------------------
 public function IupSetAttributes(atom widget, string attributes)  -- sets several attributes of an interface element
-    integer hIupSetAttributes = define_c_func(IUPLIB, "+IupSetAttributes", {C_INT, C_POINTER},  C_INT)
-    return c_func(hIupSetAttributes, {widget, allocate_string(attributes)})
+    return doC("IupSetAttributes", {C_INT, C_POINTER}, {widget, allocate_string(attributes)},  C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -726,35 +807,33 @@ end function
 --
 -- Returns:
 --
---  an **integer**: the (same) identifier 
+--  an **integer**: the (same) identifier
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public procedure IupSetAttributeHandle(atom widget, string attribute, atom ih_named)    -- creates a non conflict name and associates the name with the attribute
-    integer hIupSetAttributeHandle = define_c_proc(IUPLIB, "+IupSetAttributeHandle", {C_INT, C_POINTER, C_INT})
+public function IupSetAttributeHandle(atom widget, string attribute, atom ih_named)    -- creates a non conflict name and associates the name with the attribute
     if not attrib(attribute) then attribute = upper(attribute) end if
-    c_proc(hIupSetAttributeHandle, {widget, allocate_string(attribute), ih_named})
-end procedure
+    return doC("IupSetAttributeHandle", {C_INT, C_POINTER, C_INT}, {widget, allocate_string(attribute), ih_named})
+end function
 --------------------------------------------------------------------------------
 --/*
 -- Parameters:
 --# //widget//: identifier of the interface element.
 --# //attribute//: the (upper-case) name of the attribute to change. If the name
--- is given in the wrong case then it will be converted to upper-case. 
+-- is given in the wrong case then it will be converted to upper-case.
 --# //ih_named// element to associate using a name
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public procedure IupSetGlobal(string name, object val)
-    integer hIupSetGlobal = define_c_proc(IUPLIB, "+IupSetGlobal", {C_POINTER, C_POINTER})
+public function IupSetGlobal(string name, object val)
     sequence args = {allocate_string(name), val}
     if sequence(val) then
         args[2] = allocate_string(val)
     end if
-    c_proc(hIupSetGlobal, args)
-end procedure
+    return doC("IupSetGlobal", {C_POINTER, C_POINTER}, args)
+end function
 --------------------------------------------------------------------------------
 --/*
 -- Sets an attribute in the public environment.
@@ -766,11 +845,19 @@ end procedure
 -- will be removed.
 --*/
 --------------------------------------------------------------------------------
+public function IupSetInt(atom widget, string attr, integer val)
+    return doC("IupSetInt", {C_INT, C_POINTER, C_INT}, {widget, allocate_string(attr), val})
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Sets the integer value of an interface element attribute.
+--*/
+--------------------------------------------------------------------------------
 --/*
 --==== Call back handling
 --*/
 --------------------------------------------------------------------------------
-public function Icallback(string name, atom rid = routine_id(name)) -- converts a routine_id to the appropriate form 
+public function Icallback(string name, atom rid = routine_id(name)) -- converts a routine_id to the appropriate form
     return call_back({'+', rid})
 end function
 --------------------------------------------------------------------------------
@@ -801,8 +888,7 @@ end function
 --*/
 --------------------------------------------------------------------------------
 public function IupGetHandle(string title)    -- get handle from name
-    integer hIupGetHandle = define_c_func(IUPLIB, "+IupGetHandle", {C_POINTER}, C_INT)
-    return c_func(hIupGetHandle, {allocate_string(title)})
+    return doC("IupGetHandle", {C_POINTER}, {allocate_string(title)}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -814,10 +900,9 @@ end function
 -- Returns: the element handle or NULL if not found.
 --*/
 --------------------------------------------------------------------------------
-public procedure IupSetHandle(string title, atom ih)    -- associate name with a handle
-    integer hIupSetHandle = define_c_proc(IUPLIB, "+IupSetHandle", {C_POINTER, C_INT})
-    c_proc(hIupSetHandle, {allocate_string(title), ih})
-end procedure
+public function IupSetHandle(string title, atom ih)    -- associate name with a handle
+    return doC("IupSetHandle", {C_POINTER, C_INT}, {allocate_string(title), ih})
+end function
 --------------------------------------------------------------------------------
 --/*
 -- Associates a name with an interface element.
@@ -852,12 +937,82 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
-public function IupImage(atom width, atom height, object pixmap)
-    integer hIupImage = define_c_func(IUPLIB, "+IupImage", {C_INT, C_INT, C_POINTER}, C_INT)
-    return c_func(hIupImage, {width, height, pixmap})
+public function IupGetDialog(integer handle)
+    return doC("IupGetDialog", {C_INT}, {handle}, C_INT)
 end function
 --------------------------------------------------------------------------------
+--/*
+-- Gets the handle of the dialog that contains that interface element.
+-- It works also for children of a menu that is associated with a dialog.
+--
+-- Parameter: the ##handle## to an interface element.
+--
+-- Returns: the handle of the dialog or NULL if not found.
+--*/
+--------------------------------------------------------------------------------
+public function IupImage(atom width, atom height, object pixmap)
+    return doC("IupImage", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- == Layout (hierarchy)
+--*/
+--------------------------------------------------------------------------------
+public function IupReparent(integer child, integer new_parent, integer ref_child)
+    return doC("IupReparent", {C_INT, C_INT, C_INT}, {child, new_parent, ref_child})
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Moves an interface element from one position in the hierarchy tree to another.
+--
+-- Parameters: ##child##: Identifier of the element to be moved,
+-- ##new_parent##: Identifier of the new parent
+-- ##ref_child##: Identifier of the element to be used as reference, where
+-- the child will be inserted before it. It can be NULL.
+--*/
+--------------------------------------------------------------------------------
+--/*
+-- == Layout (management)
+--*/
+--------------------------------------------------------------------------------
+public function IupRefresh(atom dialog)
+    return doC("IupRefresh", {C_INT}, {dialog})
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Updates the size and layout of all controls in the same ##dialog##.
+--
+-- To be used after changing size attributes, or attributes that affect the
+-- size of the control. Can be used for any element inside a dialog, but the
+-- layout of the dialog and all controls will be updated.
+-- It can change the layout of all the controls inside the dialog because of
+-- the dynamic layout positioning.
+--*/
+--------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.34
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.08.19
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetAttribute## defined
+--  * ##IupSetInt## defined
+--  * //dll.e// made public, to pass on //NULL//
+--  * ##IupGetDialog## defined
+--  * ##IupReparent## defined
+--  * ##IupRefresh## defined
+--  * ##IupDetachBox## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.33
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.07.04
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupCbox## defined
+--  * ##IupFlatButton## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.32
 -- Euphoria Version: v4.0.5 and later
