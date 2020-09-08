@@ -9,19 +9,20 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.35
+--[[[Version: 4.0.5.38
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2020.08.20
+-- Date: 2020.09.08
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * modified all procedures to functions
---  * changed all calls to ##doC##
---  * ##IupExitLoop## defined
---  * ##IupFlush## defined
---  * ##IupCalendar## defined
---  * ##IupColorbar## defined
---  * ##IupGauge## defined
+--  * ##IupGridBox## defined
+--  * ##IupMultiBox## defined
+--  * ##IupZbox## defined
+--  * ##IupRadio## defined
+--  * ##IupSbox## defined
+--  * ##IupExpander## defined
+--  * ##IupSplit## defined
+--  * ##IupNormalizer## defined
 --
 ------
 --
@@ -66,7 +67,7 @@
 --*/
 --------------------------------------------------------------------------------
 include iup.e           -- for IUPLIB, or abort
-public include std/dll.e		-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER
+public include std/dll.e		-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER, NULL
 include std/machine.e	-- for allocate, allocate_pointer_array, allocate_string, free, peek_string & poke_pointer
 include std/os.e		-- for platform constants
 include std/text.e      -- for upper
@@ -416,6 +417,34 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+public function IupExpander(integer child = NULL) -- creates a container that can interactively show or hide its child
+    return doC("IupExpander", {C_INT}, {child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It does not have a native representation, but it contains also several
+-- elements to implement the bar handler.
+--
+-- Parameter: ##child## - Identifier of an interface element.
+-- It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+public function IupFlatFrame(atom child = NULL)	-- creates a native container, which draws a frame with a title around its child
+    return doC("IupFlatFrame", {C_INT}, {child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter:
+--# ##child##: Identifier of an interface element which the frame surrounds.
+-- It can be NULL.
+--
+-- The decorations are manually drawn.
+-- The control inherits from IupBackgroundBox.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--------------------------------------------------------------------------------
 public function IupFrame(atom child = NULL)	-- creates a native container, which draws a frame with a title around its child
     return doC("IupFrame", {C_INT}, {child}, C_INT)
 end function
@@ -426,6 +455,25 @@ end function
 -- It can be NULL.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
+--------------------------------------------------------------------------------
+public function IupGridBox(sequence children = {})  -- creates a void container composing elements in a regular grid
+    return doCN("IupGridBox", C_INT, children, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It is a box that arranges the elements it contains from top to bottom and
+-- from left to right, but can distribute the elements in lines or in columns.
+--
+-- Parameter:
+--# //children//: an array of compositional elements to be displayed in the box.
+-- It can be empty (the default).
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
 --------------------------------------------------------------------------------
 public function IupHbox(sequence children = {})  -- creates a void container for composing elements horizontally; it is a box that arranges the elements it contains from left to right.
     return doCN("IupHbox", C_INT, children, C_INT)
@@ -443,6 +491,105 @@ end function
 -- the identifier of the created element, or NULL if an error occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+public function IupMultiBox(sequence children = {})  -- creates a void container for composing elements in a irregular grid
+    return doCN("IupMultiBox", C_INT, children, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It is a box that arranges the elements it contains from top to bottom and
+-- from left to right, by distributing the elements in lines or in columns.
+-- But its EXPAND attribute does not behave as a regular container,
+-- instead it behaves as a regular element expanding into the available space.
+--
+-- Parameter:
+--# //children//: an array of compositional elements to be displayed in the box.
+-- It can be empty (the default).
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+public function IupNormalizer(sequence ih_first = {})  -- creates a void container that does not affect the dialog layout
+    return doCN("IupNormalizer", C_INT, ih_first, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It acts by normalizing all the controls in a list so their natural size
+-- becomes the biggest natural size amongst them.
+-- All natural widths will be set to the biggest width, and all natural heights
+-- will be set to the biggest height.
+-- The controls of the list must be inside a valid container in the dialog.
+--
+-- Parameter:
+--# //ih_first//: List of the identifiers that will be normalized.
+-- It can be empty (the default).
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+public function IupRadio(atom child = NULL) -- creates a void container for grouping mutual exclusive toggles
+    return doC("IupRadio", {C_INT}, {child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Only one of its descendent toggles will be active at a time.
+-- The toggles can be at any composition.
+--
+-- It does not have a native representation.
+--
+-- Parameter:
+--# ##child##: Identifier of an interface element.
+-- Usually it is a vbox or an hbox containing the toggles associated with the radio.
+-- It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+public function IupSbox(atom child = NULL) -- creates a void container that allows its child to be resized
+    return doC("IupSbox", {C_INT}, {child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+--  Allows expanding and contracting the child size in one direction.
+--
+-- It does not have a native representation but it contains also a IupFlatSeparator
+-- to implement the bar handler.
+--
+-- Parameter:
+--# ##child##: Identifier of an interface element which will receive the box.
+-- It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+public function IupSplit(atom child1 = NULL, atom child2 = NULL) -- creates a void container that split its client area in two
+    return doC("IupSplit", {C_INT, C_INT}, {child1, child2}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Allows the provided controls to be enclosed in a box that allows expanding
+-- and contracting the element size in one direction,
+-- but when one is expanded the other is contracted.
+--
+-- It does not have a native representation, but it contains also a
+-- IupFlatSeparator to implement the bar handler.
+--
+-- Parameters:
+--# ##child1##: Identifier of an interface element that will be at left or top.
+-- It can be NULL.
+--# ##child2##: Identifier of an interface element that will be at right or bottom.
+-- It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 public function IupVbox(sequence children = {})  -- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.
@@ -470,9 +617,45 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+public function IupScrollBox(integer child = NULL) -- creates a native container that allows its child to be scrolled
+    return doC("IupScrollBox", {C_INT}, {child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It inherits from {{{IupCanvas.}}}
+--
+-- Parameter: ##child##: Identifier of an interface element,
+-- which will receive the box. It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
 public function IupTabs(sequence children = {})  -- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.
     return doCN("IupTabs", C_INT, children, C_INT)
 end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter: an array of compositional elements to be displayed in the box.
+-- It can be empty (the default).
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+public function IupZbox(sequence children = {})  -- creates a void container for composing elements in hidden layers with only one layer visible
+    return doCN("IupZbox", C_INT, children, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It is a box that piles up the children it contains;
+-- only the one child is visible.
+--
+-- It does not have a native representation.
+--
+-- Parameter: ##children##: Identifier of an interface element,
+-- that will be placed in the box. It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
 --------------------------------------------------------------------------------
 --/*
 --*/
@@ -975,6 +1158,25 @@ end function
 -- == Layout (management)
 --*/
 --------------------------------------------------------------------------------
+public function IupInsert(atom container, atom ref_child, atom new_child) -- inserts an interface element before another child of the container
+    return doC("IupInsert", {C_INT, C_INT, C_INT}, {container, ref_child, new_child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Valid for any element that contains other elements like dialog, frame, hbox,
+-- vbox, zbox, menu, etc.
+--
+-- Parameters: ##container## - identifier of the container interface element,
+-- ##new_child## - identifier of the element to be used as reference.
+-- Can be NULL to insert as the first element,
+-- ##ref_child## - identifier of the element to be inserted before the reference.
+--
+-- Returns: the actual parent if the interface element was successfully inserted.
+-- Otherwise returns NULL. Notice that the desired parent can
+-- contains a set of elements and containers where the child will be actually
+-- attached so the function returns the actual parent of the element.
+--*/
+--------------------------------------------------------------------------------
 public function IupRefresh(atom dialog)
     return doC("IupRefresh", {C_INT}, {dialog})
 end function
@@ -990,6 +1192,37 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.37
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.08.22
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupScrollBox## defined
+--  * ##IupInsert## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.36
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.08.21
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupFlatFrame## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.35
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.08.20
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * modified all procedures to functions
+--  * changed all calls to ##doC##
+--  * ##IupExitLoop## defined
+--  * ##IupFlush## defined
+--  * ##IupCalendar## defined
+--  * ##IupColorbar## defined
+--  * ##IupGauge## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.34
 -- Euphoria Verion: v4.0.5 and later
