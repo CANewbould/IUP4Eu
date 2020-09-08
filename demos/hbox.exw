@@ -6,7 +6,7 @@
 --*/
 --------------------------------------------------------------------------------
 --/*
---=  Application: (iup4eu)(demos) hbox.exw
+--=  Application: (iup4eu)(demos)hbox.exw
 -- Description: creates a dialog with buttons placed side by side, with the purpose of showing the organization
 -- possibilities of elements inside an hbox. The "ALIGNMENT" attribute is explored in all its possibilities
 -- to obtain the given effect.
@@ -75,7 +75,7 @@ procedure main()
     b11 = IupButton("1", "")
     b12 = IupButton("2", "")
     b13 = IupButton("3", "")
-    h1 = IupHbox( 
+    h1 = IupHbox(
             {
                IupFill(),
                b11,
@@ -127,7 +127,7 @@ procedure main()
     IupSetAttribute(b32, "SIZE", "30x40")
     IupSetAttribute(b33, "SIZE", "30x50")
     IupSetAttributes(h3, "ALIGNMENT = ABOTTOM, SIZE = 150") -- Sets hbox's alignment and size
-    
+
     -- Creates dialog with the three frames
     dialog = IupDialog
     (

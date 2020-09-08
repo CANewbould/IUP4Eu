@@ -1,0 +1,84 @@
+--------------------------------------------------------------------------------
+-- gridbox.ex
+--------------------------------------------------------------------------------
+/*  IupGridBox example in Euphoria
+    creates a grid box and places labels and buttons within
+    the grid box is placed within a frame, within the top-level dialog
+*/
+--------------------------------------------------------------------------------
+-- Version 4.0.5.1
+-- Dated 2020.09.08
+-- Author C A Newbould
+-- Changes: documented in common FONTSTYLE
+--------------------------------------------------------------------------------
+-- includes
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+-- constants
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- types
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+-- routines
+--------------------------------------------------------------------------------
+procedure GridBoxTest()
+    Ihandle gbox = IupGridBox
+        ( {
+            IupSetAttributes(IupLabel(""), ""),
+            IupSetAttributes(IupLabel("col1"), "FONTSTYLE=Bold"),
+            IupSetAttributes(IupLabel("col2"), "FONTSTYLE=Bold"),
+
+            IupSetAttributes(IupLabel("lin1"), "FONTSTYLE=Bold"),
+            IupSetAttributes(IupLabel("lbl"), "XSIZE=50x12"),
+            IupSetAttributes(IupButton("but"), "XSIZE=50"),
+            IupSetAttributes(IupLabel("lin2"), "FONTSTYLE=Bold"),
+            IupSetAttributes(IupLabel("label"), "XSIZE=x12"),
+            IupSetAttributes(IupButton("button"), "XEXPAND=Horizontal"),
+            IupSetAttributes(IupLabel("lin3"), "FONTSTYLE=Bold"),
+            IupSetAttributes(IupLabel("label large"), "XSIZE=x12"),
+            IupSetAttributes(IupButton("button large"), "")
+            }
+        )
+    Ihandle fr1 = IupFrame(gbox)
+        IupSetAttribute(gbox, "SIZECOL", "2")
+        IupSetAttribute(gbox, "SIZELIN", "3")
+        IupSetAttribute(gbox, "NUMDIV", "3")
+        IupSetAttribute(gbox, "ALIGNMENTLIN", "ACENTER")
+        IupSetAttribute(gbox, "MARGIN", "10x10")
+        IupSetAttribute(gbox, "GAPLIN", "5")
+        IupSetAttribute(gbox, "GAPCOL", "5")
+    Ihandle dlg = IupDialog
+        (
+        IupHbox
+        ( {
+          fr1
+          }
+        )
+        )
+        IupSetAttribute(dlg, "TITLE", "IupGridBox Test")
+        IupSetAttribute(dlg, "MARGIN", "10x10")
+        IupSetAttribute(fr1, "MARGIN", "0x0")    /*  avoid attribute propagation */
+        IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+        /*  Shows dlg in the center of the screen */ 
+        IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+end procedure
+--------------------------------------------------------------------------------
+procedure main()
+    IupOpen()
+    GridBoxTest()
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

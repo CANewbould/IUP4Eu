@@ -1,0 +1,117 @@
+--------------------------------------------------------------------------------
+-- Demonstration: label.exw
+--------------------------------------------------------------------------------
+-- Notes:
+--
+-- Tested successfully on v4.0.5 and on v4.1.0(32-bit and 64-bit)
+--------------------------------------------------------------------------------
+--/*
+--= Program: (iup4eu)(demos)label.exw
+-- Description: displays examples of different trypes of label controls 
+------
+--[[[Version: 4.0.5.0
+--Euphoria Versions: 4.0.5 upwards 
+--Author: C A Newbould
+--Date: 2020.08.22
+--Status: operational
+--Changes:]]]
+--* set out in standard arrangement
+--
+--==Label Example
+--
+-- Creates three labels, one using all attributes except for image,
+-- another with normal text and the last one with an image.
+------
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Euphoria types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--  image to put on label-
+atom pixmap_star = allocate_image(
+{
+  1,1,1,1,1,1,2,1,1,1,1,1,1,
+  1,1,1,1,1,1,2,1,1,1,1,1,1,
+  1,1,1,1,1,2,2,2,1,1,1,1,1,
+  1,1,1,1,1,2,2,2,1,1,1,1,1,
+  1,1,2,2,2,2,2,2,2,2,2,1,1,
+  2,2,2,2,2,2,2,2,2,2,2,2,2,
+  1,1,1,2,2,2,2,2,2,2,1,1,1,
+  1,1,1,1,2,2,2,2,2,1,1,1,1,
+  1,1,1,1,2,2,2,2,2,1,1,1,1,
+  1,1,1,2,2,1,1,2,2,2,1,1,1,
+  1,1,2,2,1,1,1,1,1,2,2,1,1,
+  1,2,2,1,1,1,1,1,1,1,2,2,1,
+  2,2,1,1,1,1,1,1,1,1,1,2,2
+}) 
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+procedure main(string title)
+  /*  IUP identifiers */ 
+  Ihandle  dlg 
+  Ihandle  img_star 
+  Ihandle  lbl,  lbl_explain,  lbl_star 
+  /*  Initializes IUP */ 
+  IupOpen()
+  /*  Creates the star image */ 
+  img_star = IupImage(13, 13, pixmap_star) 
+  /*  Sets star image colors */ 
+  IupSetAttribute(img_star, "1", "0 0 0") 
+  IupSetAttribute(img_star, "2", "0 198 0") 
+  /*  Associates "img_star" to image img_star */ 
+  IupSetHandle("img_star", img_star ) 
+  /*  Creates a label */ 
+  lbl = IupLabel("This label has the following attributes set:\nBGCOLOR = 255 255 0\nFGCOLOR = 0 0 255\nFONT = COURIER_NORMAL_14\nTITLE = All text contained here\nALIGNMENT = ACENTER" ) 
+  /*  Sets all the attributes of label lbl, except for IMAGE */ 
+  IupSetAttributes(lbl, "BGCOLOR = \"255 255 0\", FGCOLOR = \"0 0 255\", FONT = COURIER_NORMAL_14, ALIGNMENT = ACENTER") 
+  /*  Creates a label to explain that the label on the right has an image */ 
+  lbl_explain = IupLabel("The label on the right has the image of a star") 
+  /*  Creates a label whose title is not important, because it will have an image */ 
+  lbl_star = IupLabel() 
+  /*  Associates image "img_star" with label lbl_star */ 
+  IupSetAttribute(lbl_star, "IMAGE", "img_star") 
+  /*  Creates dialog with the label */ 
+  dlg = IupDialog(IupVbox({lbl, IupHbox({lbl_explain, lbl_star, NULL}), NULL})) 
+  /*  Sets title of the dialog */ 
+  IupSetAttribute(dlg, "TITLE", title) 
+  /*  Shows dialog in the centre of the screen */ 
+  IupShowXY(dlg, IUP_CENTRE, IUP_CENTRE) 
+  /*  Initializes IUP main loop */ 
+  IupMainLoop() 
+  /*  Finishes IUP */ 
+  IupClose() 
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main("IupLabel Example")
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

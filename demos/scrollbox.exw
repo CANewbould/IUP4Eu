@@ -1,0 +1,83 @@
+--------------------------------------------------------------------------------
+--	Test application: scrollbox.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)scrollbox.exw
+-- Description: adds scrollbar to an IUP dialog
+------
+--[[[Version: 4.0.5.0
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.08.22
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* simplified to accept revised iup.ew arrangement
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- This example creates a dialog with a vertical scrollbar.
+-- It also shows IupInsert and how IupSetAttributes returns an identifier.
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter set to the location of the IUP shared library you wish to incorporate
+-- into the test.
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+procedure main(string title)
+    IupOpen()
+    atom s_box = IupSetAttributes(IupScrollBox(NULL), "SCROLLBAR=YES")
+    atom dlg = IupDialog(IupVbox({s_box, IupButton("This button shows the scrollbar doesn't fill the window")}))
+    IupSetAttributes(dlg, "TITLE=" & title & ",SIZE=250x100")
+    IupInsert(s_box, NULL, IupSetAttributes(IupLabel("This element is a label"),"SIZE= 150x90,EXPAND = YES"))
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main("\"IupScrollBox\"")
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

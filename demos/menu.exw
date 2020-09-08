@@ -1,0 +1,107 @@
+--------------------------------------------------------------------------------
+--	Test application: menu.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)menu.exw
+-- Description: IUP Menu Example
+------
+--[[[Version: 4.0.5.0
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.08.22
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* simplified to accept revised iup.ew arrangement
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- This example creates a dialog with a menu with two submenus.
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter set to the location of the IUP shared library you wish to incorporate
+-- into the test.
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+function exit_cb()
+  return IUP_CLOSE
+end function
+--------------------------------------------------------------------------------
+procedure main(string title)
+    IupOpen()
+    Ihandle item_open = IupItem("Open", NULL)
+    IupSetAttribute(item_open, "KEY", "O")
+    Ihandle item_save = IupItem("Save", NULL)
+    IupSetAttribute(item_save, "KEY", "S")
+    Ihandle item_undo = IupItem("Undo", NULL)
+    IupSetAttribute(item_undo, "KEY", "U")
+    IupSetAttribute(item_undo, "ACTIVE", "NO")
+    Ihandle item_exit = IupItem("Exit", NULL)
+    IupSetAttribute(item_exit, "KEY", "x")
+    IupSetCallback(item_exit, "ACTION", Icallback("exit_cb"))
+    Ihandle file_menu = IupMenu({item_open,
+                      item_save,
+                      IupSeparator(),
+                      item_undo,
+                      item_exit})
+    Ihandle sub1_menu = IupSubmenu("File", file_menu)
+    Ihandle menu = IupMenu({sub1_menu})
+    IupSetHandle("mymenu", menu)
+    Ihandle dlg = IupDialog(0)
+    IupSetAttribute(dlg, "MENU", "mymenu")
+    IupSetAttribute(dlg, "TITLE", title)
+    IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+    IupShow(dlg)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main("IupMenu")
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

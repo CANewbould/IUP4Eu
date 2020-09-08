@@ -1,26 +1,25 @@
 --------------------------------------------------------------------------------
--- Demonstration: counter.exw(euphoria405)(demos)(gui)(iup)
+-- Demonstration: message.exw
 --------------------------------------------------------------------------------
 -- Notes:
 --
--- Tested successfully on v4.0.5 and on v4.1.0(32-bit)
+-- Tested successfully on v4.0.5 and on v4.1.0(32-bit and 64-bit)
 --------------------------------------------------------------------------------
 --/*
---= Program: (iup4eu)(demos)counter.exw
--- Description: displays a counter which can increment
+--= Program: (iup4eu)(demos)vbox.exw
+-- Description: displays examples of different trypes of label controls 
 ------
---[[[Version: 4.0.5.3
+--[[[Version: 4.0.5.0
 --Euphoria Versions: 4.0.5 upwards 
 --Author: C A Newbould
---Date: 2020.05.16
+--Date: 2020.08.22
 --Status: operational
 --Changes:]]]
---* simplfied to accept revised iup.ew arrangement
+--* set out in standard arrangement
 --
---==Counter example
+--==IupMessage Example
 --
--- This demo shows a text, which holds a running count, and a button to
--- increment the count.
+-- Simply shows a message box.
 ------
 --------------------------------------------------------------------------------
 --/*
@@ -32,7 +31,6 @@
 --*/
 --------------------------------------------------------------------------------
 include iup.ew
-include std/text.e	-- for sprint
 --------------------------------------------------------------------------------
 --
 --=== Constants
@@ -48,54 +46,25 @@ include std/text.e	-- for sprint
 --=== Variables
 --
 --------------------------------------------------------------------------------
-integer count = 0
-integer T	-- for IupText
 --------------------------------------------------------------------------------
 --
 --=== Routines
 --
 --------------------------------------------------------------------------------
-function B_onClick()
-	count += 1
-	IupSetAttribute(T, "VALUE", sprint(count))
-	return IUP_CONTINUE
-end function
---------------------------------------------------------------------------------
-procedure main(string title) 
-	IupOpen()
-	T = IupText()
-	integer B = IupButton("Count")
-	integer box = IupHbox({T, B})
-	integer dlg = IupDialog(box)
-	IupSetAttributes(T, "VALUE=0")
-	IupSetAttributes(box, "GAP=10, MARGIN=15x15,EXPANDCHILDREN=YES")
-	IupSetAttributes(dlg, "TITLE=" & title & ", SIZE = 100x60, MAXBOX=NO, MINBOX=NO")
-	IupSetCallback(B, "ACTION", Icallback("B_onClick"))
-	IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
-	IupMainLoop()
-    -- Program finished successfully
-	IupClose()
+procedure main(string title)
+    /* Initializes IUP */
+    IupOpen()
+    /* Executes IupMessage */
+    IupMessage(title, "Press the button")
+    /* Finishes IUP */
+    IupClose ()
+    /* Program finished successfully */
 end procedure
 --------------------------------------------------------------------------------
 -- execution
 --------------------------------------------------------------------------------
-main("Counter")
+main("IupMessage Example")
 --------------------------------------------------------------------------------
 -- Previous versions
 --------------------------------------------------------------------------------
---[[[Version: 4.0.5.2
---Euphoria Versions: 4.0.5 upwards 
---Author: C A Newbould
---Date: 2020.04.24
---Status: operational
---Changes:]]]
---* modified location of //iup.ew//
---------------------------------------------------------------------------------
---[[[Version: 4.0.5.1
---Euphoria Versions: 4.0.5 upwards 
---Author: C A Newbould
---Date: 2019.05.07
---Status: operational
---Changes:]]]
---* modified from earlier 4.1.0 version
 --------------------------------------------------------------------------------
