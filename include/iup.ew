@@ -9,20 +9,20 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.38
+--[[[Version: 4.0.5.39
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2020.09.08
+-- Date: 2020.09.11
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupGridBox## defined
---  * ##IupMultiBox## defined
---  * ##IupZbox## defined
---  * ##IupRadio## defined
---  * ##IupSbox## defined
---  * ##IupExpander## defined
---  * ##IupSplit## defined
---  * ##IupNormalizer## defined
+--  * ##IupGetChildCount## defined
+--  * ##IupGetFloat## defined
+--  * ##IupProgressBar## defined
+--  * ##IupTimer## defined
+--  * ##IupImageLibOpen## defined
+--  * ##IupSpin## defined
+--  * ##IupSpinbox## defined
+--  * Key constants added
 --
 ------
 --
@@ -105,6 +105,29 @@ public constant IUP_BUTTON5 = '5'
 public constant IUP_CURRENT = 65531
 public constant IUP_CENTER = #FFFF
 public constant IUP_CENTRE = IUP_CENTER
+--------------------------------------------------------------------------------
+--/*
+--==== Keys
+--*/
+--------------------------------------------------------------------------------
+public constant K_asterisk = '*'
+public constant K_BS = 8
+public constant K_CR = '\r'
+public constant K_DEL = #FFFF
+public constant K_DOWN = #FF54
+public constant K_END = #FF57
+public constant K_ESC = #FF1B
+public constant K_HOME = #FF50
+public constant K_INS = #FF63
+public constant K_LEFT = #FF51
+public constant K_MIDDLE = #FF0B
+public constant K_PGDN = #FF56
+public constant K_PGUP = #FF55
+public constant K_RIGHT = #FF53
+public constant K_SP = ' '
+public constant K_TAB = '\t'
+public constant K_UP = #FF52
+public constant K_g = 'g' -- 103
 --------------------------------------------------------------------------------
 --
 --=== Variables
@@ -770,6 +793,49 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+public function IupProgressBar() -- creates a progress bar control
+    return doC("IupProgressBar", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Shows a percent value that can be updated to simulate a progression.
+--
+-- It is similar of IupGauge, but uses native controls internally.
+-- Also does not have support for text inside the bar.
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+public function IupSpin() -- create a control set with a vertical box containing two buttons
+    return doC("IupSpin", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+public function IupSpinbox(atom child) -- create a control set with a vertical box containing two buttons
+    return doC("IupSpinbox", {C_INT}, {child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- The buttons, one with an up arrow and the other with a down arrow,
+-- are used to increment and decrement values.
+--
+-- Unlike the SPIN attribute of the IupText element, the IupSpin element
+-- can NOT automatically increment the value and it is NOT inserted inside
+-- the IupText area. But they can be used with any element.
+--
+-- Parameter:
+-- # //child//: the widget enclosed by the spinbox
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
 public function IupText(object action = NULL)  -- creates an editable text field
     return doC("IupText", {C_POINTER}, {toCOrNot(action)}, C_INT)
 end function
@@ -945,6 +1011,18 @@ end function
 --
 -- Returns: the attribute value or
 -- NULL, if the attribute is not set or does not exist.
+--*/
+--------------------------------------------------------------------------------
+public function IupGetFloat(atom widget, string attr)	-- gets an atom attribute value
+    return doC("IupGetFloat", {C_INT, C_POINTER}, {widget, allocate_string(attr)}, C_FLOAT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Gets the attribute value, where this is an atom.
+--
+-- Use upper-case for the attribute.
+--
+-- Returns: the floating-point value of an interface element attribute.
 --*/
 --------------------------------------------------------------------------------
 public function IupGetInt(atom widget, string attr)	-- gets an integer attribute value
@@ -1137,8 +1215,24 @@ public function IupImage(atom width, atom height, object pixmap)
     return doC("IupImage", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
 end function
 --------------------------------------------------------------------------------
+public function IupImageLibOpen() -- opens a library of pre-defined stock images for buttons and labels
+    atom iupimagelib = open_dll({"iupimglib.dll", "libiupimglib.so"})
+    c_proc(define_c_proc(iupimagelib, "+IupImageLibOpen", {}), {})
+    return 0
+end function
+--------------------------------------------------------------------------------
 --/*
 -- == Layout (hierarchy)
+--*/
+--------------------------------------------------------------------------------
+public function IupGetChildCount(atom widget) -- returns the number of children of the given control
+    return doC("IupGetChildCount", {C_INT}, {widget}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter: the ##widget## to investigate.
+--
+-- Returns: number of children.
 --*/
 --------------------------------------------------------------------------------
 public function IupReparent(integer child, integer new_parent, integer ref_child)
@@ -1152,6 +1246,20 @@ end function
 -- ##new_parent##: Identifier of the new parent
 -- ##ref_child##: Identifier of the element to be used as reference, where
 -- the child will be inserted before it. It can be NULL.
+--*/
+--------------------------------------------------------------------------------
+public function IupTimer() -- creates a timer which periodically invokes a callback when the time is up
+    return doC("IupTimer", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Each timer should be destroyed using IupDestroy.
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -1192,6 +1300,21 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.38
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.09.08
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGridBox## defined
+--  * ##IupMultiBox## defined
+--  * ##IupZbox## defined
+--  * ##IupRadio## defined
+--  * ##IupSbox## defined
+--  * ##IupExpander## defined
+--  * ##IupSplit## defined
+--  * ##IupNormalizer## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.37
 -- Euphoria Verion: v4.0.5 and later
