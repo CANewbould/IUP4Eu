@@ -1,0 +1,73 @@
+--------------------------------------------------------------------------------
+-- getattribute.exw
+--------------------------------------------------------------------------------
+-- Example which uses IupGetAttribute/IupGetinteger and IupGetFloat to print
+-- a number entered by the user.
+-- The printing will occur when the user exits the program.
+-- The value will be printed as an integer, an atom and as the attribute's text.
+-------------------------------------------------------------------------------
+-- Version 4.0.5.2
+-- Dated 2020.09.11
+-- Author C A Newbould
+-- Changes: no default value to delete on opening
+--------------------------------------------------------------------------------
+-- includes
+--------------------------------------------------------------------------------
+include iup.ew
+--include std/types.e
+--------------------------------------------------------------------------------
+-- constants
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- types
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+-- routines
+--------------------------------------------------------------------------------
+function k_any(Ihandle self, integer c)
+    if equal(c, K_CR) then return IUP_CLOSE
+    else return IUP_CONTINUE
+    end if
+end function
+--------------------------------------------------------------------------------
+function number_action(Ihandle self, integer c)
+    sequence valid_chars = "0123456789.+-Ee"
+    if (find(c, valid_chars)) then /*  c is a valid character */
+        return IUP_DEFAULT
+    elsif (t_cntrl(c)) then /*  c is a control character (TAB, BACKSPACE, ...) */
+        return IUP_DEFAULT
+    end if
+    return IUP_IGNORE
+end function
+--------------------------------------------------------------------------------
+procedure main()
+    IupOpen()  /*  initializes IUP */
+    Ihandle field = IupText(NULL) /*  TEXT integer interface element */
+    IupSetCallback(field, "ACTION", Icallback("number_action"))    /*  registers callback */
+    IupSetCallback(field, "K_ANY", Icallback("k_any"))    /*  registers callback */
+    IupSetAttribute(field, "VALUE", "")                 /*  defines initial value */
+    Ihandle message = IupLabel("Please, type any number: ")  /*  LABEL integer interface element */
+    Ihandle prompt = IupHbox({message, field})   /*  box containing the message and the field */
+    Ihandle dlg = IupDialog(prompt)
+    IupShow(dlg)  /*  displays and creates dialog */
+    IupMainLoop()                /*  interacts with user */
+    printf(1, "Integer number: %d\n", IupGetInt(field, "VALUE"))          /*  print the integer number entered by the user */
+    printf(1, "Real number...: %g\n", IupGetFloat(field, "VALUE"))        /*  print the real number entered by the user */
+    printf(1, "Text entered..: %s\n", {IupGetAttribute(field, "VALUE")})  /*  print the actual (full) text entered by the user */
+    IupClose()   /*  ends IUP */
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+-- Version 4.0.5.1
+-- Dated 2020.09.11
+-- Author C A Newbould
+-- Changes: documented in common format
+--------------------------------------------------------------------------------

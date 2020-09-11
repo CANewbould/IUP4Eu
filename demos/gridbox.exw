@@ -9,7 +9,7 @@
 -- Version 4.0.5.1
 -- Dated 2020.09.08
 -- Author C A Newbould
--- Changes: documented in common FONTSTYLE
+-- Changes: documented in common format
 --------------------------------------------------------------------------------
 -- includes
 --------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ procedure GridBoxTest()
         IupSetAttribute(dlg, "MARGIN", "10x10")
         IupSetAttribute(fr1, "MARGIN", "0x0")    /*  avoid attribute propagation */
         IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
-        /*  Shows dlg in the center of the screen */ 
+        /*  Shows dlg in the center of the screen */
         IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
 end procedure
 --------------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 --== Testing the Euphoria IUP Wrapper
 --
 -- This example creates a dialog with a vertical scrollbar.
--- It also shows IupInsert and how IupSetAttributes returns an identifier.
+-- It also uses IupInsert and shows how IupSetAttributes returns an identifier.
 --
 -- Run the test using your desired version of Euphoria, with, if required, the
 -- parameter set to the location of the IUP shared library you wish to incorporate
@@ -65,7 +65,7 @@ procedure main(string title)
     atom dlg = IupDialog(IupVbox({s_box, IupButton("This button shows the scrollbar doesn't fill the window")}))
     IupSetAttributes(dlg, "TITLE=" & title & ",SIZE=250x100")
     IupInsert(s_box, NULL, IupSetAttributes(IupLabel("This element is a label"),"SIZE= 150x90,EXPAND = YES"))
-    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTRE)
     IupMainLoop()
     IupClose()
 end procedure
