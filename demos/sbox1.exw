@@ -1,0 +1,94 @@
+--------------------------------------------------------------------------------
+--	Test application: sbox1.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)detachbox.exw
+-- Description: example to display an IUP detach box
+------
+--[[[Version: 4.0.5.0
+-- Date: 2020.10.21
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified for simpler call to IUP shared library
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- This example illustrates the use of an IupSbox widget.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+procedure main(string title)
+    IupOpen()
+    Ihandle bt = IupButton("Button", NULL)
+    IupSetAttribute(bt, "EXPAND", "VERTICAL")   /*  This is the only necessary EXPAND */
+    IupSetAttribute(bt, "EXPAND", "YES")
+    IupSetAttribute(bt, "TIP", "Move the green bar to my right!")
+    Ihandle box = IupSbox(bt)
+    IupSetAttribute(box, "DIRECTION", "EAST")   /*  place at the right of the button */
+    IupSetAttribute(box, "COLOR", "0 255 0")
+    Ihandle ml = IupText()
+    IupSetAttributes(ml, "EXPAND=YES, VISIBLELINES=5, MULTILINE=yes")
+    IupSetAttribute(ml, "VALUE","I am a multi-line widget,\n" &
+                "created using IupText\n" & "and the MULTILINE attribute")
+    Ihandle vbox = IupVbox({box, ml})
+    Ihandle lbl = IupLabel("Label")
+    IupSetAttribute(lbl, "EXPAND", "VERTICAL")
+    Ihandle dlg = IupDialog(IupHbox({vbox, lbl}))
+    IupSetAttribute(dlg, "TITLE", title)
+    IupSetAttributes(dlg, "MARGIN=10x10, GAP=10, SIZE = QUARTERxHALF")
+    IupShow(dlg)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main("IupSbox Example")
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
