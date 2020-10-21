@@ -8,7 +8,6 @@
 --/*
 --=  Library: (iup4eu)(include)iup.e
 -- Description: Load module for Open Euphoria's access to the IUP GUI Toolkit
-------
 --[[[Version: 4.0.5.2
 -- Euphoria Version: v4.0.5 and later
 -- Date: 2020.05.10
@@ -16,6 +15,7 @@
 -- Status: complete; operational]]]
 -- Changes in this version:
 --  * corrected error on ##doCN##
+------
 --
 ------
 --
@@ -221,4 +221,3 @@ end if
 --  * addNull defined
 --  * ##doCN## defined
 --------------------------------------------------------------------------------
-
