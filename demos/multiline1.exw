@@ -1,0 +1,95 @@
+--------------------------------------------------------------------------------
+--	Test application: multiline.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)multiline1.exw
+-- Description:example to display an IUP multi-line edit widget, using the Newbould
+-- style.
+------
+--[[[Version: 4.0.5.0
+-- Date: 2020.10.21
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified for simpler call to IUP shared library
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--  Shows a multiline that ignores the treatment of the 'g' key,
+--  cancelling its effect.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+function mlaction(Ihandle  self, integer c)
+    if equal(c ,K_g) then return IUP_IGNORE
+    else return IUP_DEFAULT
+    end if
+end function
+--------------------------------------------------------------------------------
+procedure main(string title)
+    IupOpen()
+    --ml = IupMultiLine(NULL)
+    -- replaced by IupText with MULTILINE attribute set
+    Ihandle ml = IupText()
+    IupSetCallback(ml, "ACTION", Icallback("mlaction") )
+    IupSetAttribute(ml, "EXPAND", "YES")
+    IupSetAttribute(ml, "VALUE",  "I ignore the \"g\" key!")
+    IupSetAttribute(ml, "BORDER", "YES")
+    IupSetAttribute(ml, "MULTILINE", "YES")
+    Ihandle dlg = IupDialog(ml)
+    IupSetAttribute(dlg, "TITLE", title)
+    IupSetAttribute(dlg, "SIZE",  "QUARTERxQUARTER")
+    IupShow(dlg)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main("IupMultiline Example")
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
