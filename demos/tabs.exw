@@ -1,0 +1,85 @@
+--------------------------------------------------------------------------------
+-- Demonstration: tabs.exw
+--------------------------------------------------------------------------------
+-- Notes:
+--
+-- Tested successfully on v4.0.5 and on v4.1.0(32-bit and 64-bit)
+--------------------------------------------------------------------------------
+--/*
+--= Program: (iup4eu)(demos)tabs.exw
+-- Description: creates IupTabs controls
+------
+--[[[Version: 4.0.5.0
+--Euphoria Versions: 4.0.5 upwards
+--Author: C A Newbould
+--Date: 2020.10.15
+--Status: operational
+--Changes:]]]
+--* set out in standard arrangement
+--
+--==IupTabs Example in Euphoria
+--   Creates a dialog with buttons and labels.
+--   These are placed on four different tabs, with different layouts.
+------
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Euphoria types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+procedure main()
+    IupOpen()
+    Ihandle vbox1 = IupVbox({IupLabel("Inside Tab A"), IupButton("Button A", "")}),
+        vbox2 = IupVbox({IupLabel("Inside Tab B"), IupButton("Button B", "")})
+    IupSetAttribute(vbox1, "TABTITLE", "Tab A")
+    IupSetAttribute(vbox2, "TABTITLE", "Tab B")
+    Ihandle tabs1 = IupTabs({vbox1, vbox2})
+    vbox1 = IupVbox({IupLabel("Inside Tab C"), IupButton("Button C", "")})
+    vbox2 = IupVbox({IupLabel("Inside Tab D"), IupButton("Button D", "")})
+    IupSetAttribute(vbox1, "TABTITLE", "Tab C")
+    IupSetAttribute(vbox2, "TABTITLE", "Tab D")
+    Ihandle tabs2 = IupTabs({vbox1, vbox2})
+    IupSetAttribute(tabs2, "TABTYPE", "LEFT")
+    Ihandle box = IupHbox({tabs1, tabs2})
+    IupSetAttribute(box, "MARGIN", "10x10")
+    IupSetAttribute(box, "GAP", "10")
+    Ihandle dlg = IupDialog(box)
+    IupSetAttribute(dlg, "TITLE", "IupTabs")
+    IupSetAttribute(dlg, "SIZE", "200x80")
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

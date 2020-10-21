@@ -1,0 +1,114 @@
+--------------------------------------------------------------------------------
+-- Demonstration: zbox.exw
+--------------------------------------------------------------------------------
+-- Notes:
+--
+-- Tested successfully on v4.0.5 and on v4.1.0(32-bit and 64-bit)
+--------------------------------------------------------------------------------
+--/*
+--= Program: (iup4eu)(demos)zbox.exw
+-- Description: shows the structure of an IupZbox
+------
+--[[[Version: 4.0.5.0
+--Euphoria Versions: 4.0.5 upwards
+--Author: C A Newbould
+--Date: 2020.10.13
+--Status: operational
+--Changes:]]]
+--* set out in standard arrangement
+--
+--==IupZbox Example in Euphoria
+-- An application of a zbox could be a program requesting several entries
+-- from the user according to a previous selection.
+-- In this example, a list of possible layouts, each one consisting of an element,
+-- is presented, and according to the selected option the dialog below the list
+-- is changed.
+------
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Euphoria types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+function list_cb(Ihandle h, object t, integer o, integer selected)
+    if (selected = 1)
+    then
+        Ihandle zbox = IupGetHandle("zbox")
+        IupSetAttribute(zbox, "VALUE", peek_string(t))
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+procedure main()
+    IupOpen()
+    Ihandle list1 = IupList()
+    Ihandle frame = IupFrame(list1)
+    IupSetAttributes(list1, "DROPDOWN=YES, 1=Test, 2=XXX, VALUE=1")
+    IupSetAttribute(frame, "TITLE", "List")
+    Ihandle text = IupText()
+    IupSetAttributes(text, "EXPAND = YES, VALUE = \"Enter your text here\"")
+    -- Creates a label
+    Ihandle lbl = IupLabel("This element is a label")
+    -- Creates a button
+    Ihandle btn = IupButton("This button does nothing")
+    -- Creates handles for manipulating the zbox VALUE
+    IupSetHandle("frame", frame)
+    IupSetHandle("text", text)
+    IupSetHandle("lbl", lbl)
+    IupSetHandle("btn", btn)
+    -- Creates zbox with four elements
+    Ihandle zbox = IupZbox({frame, text, lbl, btn})
+    -- Associates handle "zbox" with zbox
+    IupSetHandle("zbox", zbox)
+    -- Sets zbox alignment
+    IupSetAttribute(zbox, "ALIGNMENT", "ACENTER")
+    IupSetAttribute(zbox, "VALUE", "text")
+    Ihandle list = IupList()
+    -- Creates frame
+    Ihandle frm = IupFrame(IupHbox({list}))
+    -- Creates dialog
+    Ihandle dlg = IupDialog(IupVbox({frm, zbox}))
+    IupSetAttributes(list, "1 = frame, 2 = text, 3 = lbl, 4 = btn, VALUE=2")
+    IupSetAttribute(frm, "TITLE", "Select an element")
+    IupSetAttribute(frm, "SIZE", "200x100")
+    IupSetAttributes(dlg, "MARGIN=10x10, GAP=10, SIZE=Quarterxhalf, TITLE = \"IupZbox Example\"")
+    IupSetCallback(list, "ACTION", Icallback("list_cb"))
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

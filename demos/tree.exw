@@ -1,0 +1,148 @@
+--------------------------------------------------------------------------------
+-- Demonstration: tree.exw
+--------------------------------------------------------------------------------
+-- Notes:
+--
+-- Tested successfully on v4.0.5 and on v4.1.0(32-bit and 64-bit)
+-- Callback routines not (yet?) utilised
+--------------------------------------------------------------------------------
+--/*
+--= Program: (iup4eu)(demos)tree.exw
+-- Description: tree example
+------
+--[[[Version: 4.0.5.0
+--Euphoria Versions: 4.0.5 upwards
+--Author: C A Newbould
+--Date: 2020.10.17
+--Status: operational
+--Changes:]]]
+--* set out in standard arrangement
+--
+--==IupTree Example in Euphoria
+--
+------
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Euphoria types
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+-- Callback called when a leaf is added by the menu
+function addleaf()
+    atom tree = IupGetHandle("tree")
+    integer id = IupGetInt(tree, "VALUE")
+    sequence attr = sprintf("ADDLEAF%d", id)
+    IupSetAttribute(tree, attr, "")
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+-- Callback called when a branch is added by the menu
+function addbranch()
+    atom tree = IupGetHandle("tree")
+    integer id = IupGetInt(tree, "VALUE")
+    sequence attr = sprintf("ADDBRANCH%d", id)
+    IupSetAttribute(tree, attr, "")
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+-- From the menu
+function renamenode()
+    atom tree = IupGetHandle("tree")
+    IupSetAttribute(tree, "DELNODE", "MARKED")
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+function executeleaf_cb(atom h, integer id)
+    printf(1, "executeleaf_cb (%d)\n", id)
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+function rename_cb(atom h, integer id, string name)
+    printf(1, "rename_cb (%d=%s)\n", {id, name})
+    if (equal(name, "fool")) then
+        return IUP_IGNORE
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+-- Callback called when a node is removed by the menu
+function removenode()
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+-- Initializes IupTree and registers callbacks
+procedure init_tree()
+    atom tree = IupTree()
+    IupSetHandle("tree", tree)
+end procedure
+--------------------------------------------------------------------------------
+-- Initializes the dialog
+procedure init_dlg()
+    atom tree = IupGetHandle("tree"),
+        btn =  IupButton("test"),
+        hbox = IupHbox({tree, btn}),
+        box = IupVbox({hbox}),
+        dlg = IupDialog(box)
+    IupSetAttribute(dlg, "TITLE", "IupTree")
+    IupSetAttribute(box, "MARGIN", "20x20")
+    IupSetHandle("dlg", dlg)
+end procedure
+--------------------------------------------------------------------------------
+-- Initializes the IupTree's attributes
+procedure init_tree_attributes()
+    atom this = IupGetHandle("tree")
+    IupSetAttribute(this, "NAME", "Figures")
+    IupSetAttribute(this, "ADDBRANCH", "3D")
+    IupSetAttribute(this, "ADDBRANCH", "2D")
+    IupSetAttribute(this, "ADDLEAF", "test")
+    IupSetAttribute(this, "ADDBRANCH1", "parallelogram")
+    IupSetAttribute(this, "ADDLEAF2", "diamond")
+    IupSetAttribute(this, "ADDLEAF2", "square")
+    IupSetAttribute(this, "ADDBRANCH1", "triangle")
+    IupSetAttribute(this, "ADDLEAF2", "scalenus")
+    IupSetAttribute(this, "ADDLEAF2", "isoceles")
+    IupSetAttribute(this, "ADDLEAF2", "equilateral")
+    IupSetAttribute(this, "VALUE", "6")
+end procedure
+--------------------------------------------------------------------------------
+-- Main program
+procedure main()
+    IupOpen()                               -- IUP initialization
+    init_tree()                             -- Initializes IupTree
+    init_dlg()                              -- Initializes the dialog
+    atom dlg = IupGetHandle("dlg")          -- Retrieves the dialog handle
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)  -- Displays the dialog
+    init_tree_attributes()                  -- Initializes attributes, can be done here or anywhere
+    IupMainLoop()                           -- Main loop
+    IupClose()                              -- Ends IUP
+end procedure
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

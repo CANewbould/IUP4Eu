@@ -1,0 +1,76 @@
+--------------------------------------------------------------------------------
+-- radio.exw
+--------------------------------------------------------------------------------
+-- IupRadio Example in Euphoria
+--
+-- Creates a dialog for the user to select his/her gender.
+-- In this case, the radio element is essential to prevent the user from
+-- selecting both options.
+--------------------------------------------------------------------------------
+-- Version 4.0.5.2
+-- Dated 2020.09.11
+-- Author C A Newbould
+-- Changes: re-cast as embedded example
+--------------------------------------------------------------------------------
+-- includes
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+-- constants
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- types
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+-- routines
+--------------------------------------------------------------------------------
+function Radio()
+    Ihandle male = IupToggle("Male", ""),
+    female = IupToggle("Female", ""),
+    exclusive = IupRadio
+                (
+                IupVbox
+                ({
+                    male,
+                    female
+                })
+                )
+    IupSetAttribute(exclusive, "VALUE", "female")
+    IupSetAttribute(male, "TIP", "Two state button - Exclusive - RADIO")
+    IupSetAttribute(female, "TIP", "Two state button - Exclusive - RADIO")
+    Ihandle frame = IupFrame(exclusive)
+    IupSetAttribute(frame, "TITLE", "Gender")
+    Ihandle dialog = IupDialog
+                (
+                IupHbox
+                ({
+                    IupFill(),
+                    frame,
+                    IupFill()
+                })
+                )
+    return IupSetAttributes(dialog, "SIZE=140, TITLE=IupRadio, RESIZE=NO, MINBOX=NO, MAXBOX=NO")
+end function
+--------------------------------------------------------------------------------
+procedure main()
+    IupOpen()
+    Ihandle tlw = Radio()
+    IupShow(tlw)
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+-- Version 4.0.5.1
+-- Dated 2020.09.11
+-- Author C A Newbould
+-- Changes: documented in common format
+--------------------------------------------------------------------------------

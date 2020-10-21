@@ -6,10 +6,12 @@
     the grid box is placed within a frame, within the top-level dialog
 */
 --------------------------------------------------------------------------------
--- Version 4.0.5.1
--- Dated 2020.09.08
+-- Version 4.0.5.2
+-- Dated 2020.09.11
 -- Author C A Newbould
--- Changes: documented in common format
+-- Changes:
+-- * revised embedded routine to a common format
+-- * passed dialog's caption through main
 --------------------------------------------------------------------------------
 -- includes
 --------------------------------------------------------------------------------
@@ -26,7 +28,7 @@ end type
 --------------------------------------------------------------------------------
 -- routines
 --------------------------------------------------------------------------------
-procedure GridBoxTest()
+function Dialog(string caption)
     Ihandle gbox = IupGridBox
         ( {
             IupSetAttributes(IupLabel(""), ""),
@@ -60,25 +62,28 @@ procedure GridBoxTest()
           }
         )
         )
-        IupSetAttribute(dlg, "TITLE", "IupGridBox Test")
-        IupSetAttribute(dlg, "MARGIN", "10x10")
+        IupSetAttribute(dlg, "TITLE", caption)
         IupSetAttribute(fr1, "MARGIN", "0x0")    /*  avoid attribute propagation */
-        IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
-        /*  Shows dlg in the center of the screen */
-        IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
-end procedure
+    return IupSetAttributes(dlg,"MARGIN=10x10,SIZE=QUARTERxQUARTER")
+end function
 --------------------------------------------------------------------------------
-procedure main()
+procedure main(string title)
     IupOpen()
-    GridBoxTest()
+    Ihandle tlw = Dialog(title)
+    /*  Shows top-level window in the centre of the screen */
+    IupShowXY(tlw, IUP_CENTER, IUP_CENTER)
     IupMainLoop()
     IupClose()
 end procedure
 --------------------------------------------------------------------------------
 -- execution
 --------------------------------------------------------------------------------
-main()
+main("IupGridBox Test")
 --------------------------------------------------------------------------------
 -- Previous versions
 --------------------------------------------------------------------------------
+-- Version 4.0.5.1
+-- Dated 2020.09.08
+-- Author C A Newbould
+-- Changes: documented in common format
 --------------------------------------------------------------------------------

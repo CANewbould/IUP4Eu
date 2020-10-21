@@ -1,16 +1,15 @@
 --------------------------------------------------------------------------------
--- spinbox.exw
+-- normalise.exw
 --------------------------------------------------------------------------------
--- Example of an IupSpinbox where the terminal window shows the result of
--- clicking the up/down arrows.
+-- This example displays three buttons, which are in a normalized state
 --
--- The example is presented in a contrasting style, with the variable
--- elements in the application stored in a separate routine.
--------------------------------------------------------------------------------
+-- The example is set out in an embedded format and only assigns values to
+-- widgets that are referred to directly.
+--------------------------------------------------------------------------------
 -- Version 4.0.5.1
--- Dated 2020.09.11
+-- Dated 2020.09.08
 -- Author C A Newbould
--- Changes: documented in common format
+-- Changes: set out in embedded format
 --------------------------------------------------------------------------------
 -- includes
 --------------------------------------------------------------------------------
@@ -24,28 +23,22 @@ include iup.ew
 --------------------------------------------------------------------------------
 -- routines
 --------------------------------------------------------------------------------
-function spin_cb(integer self, atom inc)
-    -- does nothing, just print the call
-    printf(1, "SPIN_CB(%d)\n", inc)
-    return IUP_DEFAULT
+function Dialog()
+    atom
+        button_box = IupHbox({
+                IupFill(),
+                IupButton("OK"),
+                IupButton("Cancel"),
+                IupButton("Help")}),
+        dlg = IupDialog(button_box)
+    IupSetAttribute(button_box, "NORMALIZESIZE", "HORIZONTAL")
+    return dlg
 end function
---------------------------------------------------------------------------------
-procedure SpinTest()
-    atom text = IupText(),
-    spin = IupSpinbox(text),
-    dlg = IupDialog(IupVbox({spin}))
-    IupSetAttribute(dlg, "SIZE", "quarterxquarter")
-    IupSetAttribute(dlg, "TITLE", "IupSpinbox test")
-    IupSetAttribute(dlg, "MARGIN", "10x10")
-    IupSetAttributes(spin, "SIZE=50x, XXXBORDER=NO, EXPAND=HORIZONTAL, FONT=\"Times, 24\"")
-    IupSetAttribute(text, "MASK", "/d+|AUTO")
-    IupSetCallback(spin, "SPIN_CB", Icallback("spin_cb"))
-    IupShow(dlg)
-end procedure
 --------------------------------------------------------------------------------
 procedure main()
     IupOpen()
-    SpinTest()
+    atom tlw = Dialog()
+    IupShow(tlw)
     IupMainLoop()
     IupClose()
 end procedure
