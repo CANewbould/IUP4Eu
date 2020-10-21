@@ -7,14 +7,14 @@
 --------------------------------------------------------------------------------
 --/*
 --=  Application: (iup4eu)(demos)detachbox.exw
--- Description: example to display an IUP detach box
+-- Description: example to display an IUP Sbox
 ------
---[[[Version: 4.0.5.0
+--[[[Version: 4.0.5.1
 -- Date: 2020.10.21
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* modified for simpler call to IUP shared library
+--* corrected Description error
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -91,4 +91,10 @@ main("IupSbox Example")
 --Previous versions
 --
 --------------------------------------------------------------------------------
+--[[[Version: 4.0.5.0
+-- Date: 2020.10.21
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified for simpler call to IUP shared library
 --------------------------------------------------------------------------------
