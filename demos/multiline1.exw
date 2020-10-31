@@ -7,7 +7,7 @@
 --------------------------------------------------------------------------------
 --/*
 --=  Application: (iup4eu)(demos)multiline1.exw
--- Description:example to display an IUP multi-line edit widget, using the Newbould
+-- Description:example to display an IUP multi-line edit widget, using the new
 -- style.
 ------
 --[[[Version: 4.0.5.0
