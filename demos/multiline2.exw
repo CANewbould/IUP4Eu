@@ -1,0 +1,334 @@
+--------------------------------------------------------------------------------
+--	Test application: multiline2.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)multiline2.exw
+-- Description:example to display an IUP multi-line edit widget, using the new
+-- style.
+------
+--[[[Version: 4.0.5.0
+-- Date: 2020.11.01
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified for simpler call to IUP shared library
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- Shows a dialog with a multiline, a text, a list and some buttons.
+-- You can test the multiline attributes by clicking on the buttons.
+-- Each button is related to an attribute.
+-- Select if you want to set or get an attribute using the dropdown list.
+-- The value in the text will be used as value when a button is pressed.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Set Attribute
+   Description:
+   Sets an attribute with the value in the text
+   Parameters received:
+   attribute - attribute to be set
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function set_attribute(sequence attribute)
+    Ihandle  mltline = IupGetHandle("mltline"),
+            text = IupGetHandle("text")
+    IupSetAttribute(mltline, attribute, IupGetAttribute(text, "VALUE"))
+    sequence string_message
+    string_message = sprintf("Attribute %s set with value %s",
+                {attribute, IupGetAttribute(text, "VALUE")})
+    IupMessage("Set attribute", string_message)
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Get attribute
+   Description:
+   Get an attribute of the multiline and shows it in the text
+   Parameters received:
+   attribute - attribute to be get
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function get_attribute(sequence  attribute)
+    Ihandle mltline = IupGetHandle("mltline"),
+            text = IupGetHandle("text")
+    IupSetAttribute(text, "VALUE", IupGetAttribute(mltline, attribute))
+    sequence string_message
+    string_message = sprintf("Attribute %s get with value %s",
+                {attribute, IupGetAttribute(text, "VALUE")} )
+    IupMessage("Get attribute", string_message)
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Functions:
+   Append button callback
+   Description:
+   Appends text to the multiline. Value: text to be appended
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_append_cb()
+  Ihandle list = IupGetHandle("list")
+  if equal(IupGetInt(list, "VALUE"), 1) then set_attribute("APPEND")
+  else get_attribute("APPEND")
+  end if
+  return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Insert button callback
+   Description:
+   Inserts text in the multiline. Value: text to be inserted
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_insert_cb()
+    Ihandle list = IupGetHandle("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute("INSERT")
+    else get_attribute("INSERT")
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Border button callback
+   Description:
+   Border of the multiline. Value: "YES" or "NO"
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_border_cb()
+    Ihandle list = IupGetHandle("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute ("BORDER")
+    else get_attribute ("BORDER")
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Caret button callback
+   Description:
+   Position of the caret. Value: lin,col
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_caret_cb()
+    Ihandle list = IupGetHandle("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute ("CARET")
+    else get_attribute ("CARET")
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Read-only button callback
+   Description:
+   Readonly attribute. Value: "YES" or "NO"
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_readonly_cb()
+    Ihandle list = IupGetHandle("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute ("READONLY")
+    else get_attribute ("READONLY")
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Selection button callback
+
+   Description:
+   Changes the selection attribute. Value: lin1,col1:lin2,col2
+
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_selection_cb()
+    Ihandle list = IupGetHandle("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute("SELECTION")
+    else get_attribute("SELECTION")
+    end if
+  return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Selected text button callback
+   Description:
+   Changes the selected text attribute. Value: lin1,col1:lin2,col2
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_selectedtext_cb( object void )
+    Ihandle list = IupGetHandle ("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute("SELECTEDTEXT")
+    else get_attribute("SELECTEDTEXT")
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Number of characters button callback
+   Description:
+   Limit number of characters in the multiline
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_nc_cb()
+    Ihandle list = IupGetHandle ("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute("NC")
+    else get_attribute ("NC")
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*
+   Function:
+   Vaue button callback
+   Description:
+   Text in the multiline.
+   Value returned:
+   IUP_DEFAULT
+*/
+--------------------------------------------------------------------------------
+function btn_value_cb()
+    Ihandle list = IupGetHandle ("list")
+    if equal(IupGetInt(list, "VALUE"), 1) then set_attribute("VALUE")
+    else get_attribute ("VALUE")
+    end if
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+/*  Main program */
+--------------------------------------------------------------------------------
+procedure main()
+    /*  Initializes IUP */
+    IupOpen()
+    /*  Program begin */
+    /*  Creates a multiline, a text and a list*/
+    Ihandle mltline = IupText(NULL)
+    IupSetAttribute(mltline, "MULTILINE", "YES")
+    Ihandle text = IupText(NULL),
+            list = IupList(NULL)
+    /*  Turns on multiline expand ans text horizontal expand */
+    IupSetAttribute(mltline, "EXPAND", "YES")
+    IupSetAttribute(text, "EXPAND", "HORIZONTAL")
+    /*  Associates handles to multiline, text and list */
+    IupSetHandle("mltline", mltline)
+    IupSetHandle("text", text)
+    IupSetHandle("list", list)
+    /*  Sets list items and dropdown */
+    IupSetAttributes(list, "1 = SET, 2 = GET, DROPDOWN = YES")
+    /*  Creates buttons */
+    Ihandle
+        btn_append = IupButton("Append", NULL),
+        btn_insert = IupButton("Insert", NULL),
+        btn_border = IupButton("Border", NULL),
+        btn_caret = IupButton("Caret", NULL),
+        btn_readonly = IupButton("Read only", NULL),
+        btn_selection = IupButton("Selection", NULL),
+        btn_selectedtext = IupButton("Selected Text", NULL),
+        btn_nc = IupButton("Number of characters", NULL),
+        btn_value = IupButton("Value", NULL)
+    /*  Registers callbacks */
+    IupSetCallback(btn_append, "ACTION", Icallback("btn_append_cb"))
+    IupSetCallback(btn_insert, "ACTION", Icallback("btn_insert_cb"))
+    IupSetCallback(btn_border, "ACTION", Icallback("btn_border_cb"))
+    IupSetCallback(btn_caret, "ACTION", Icallback("btn_caret_cb"))
+    IupSetCallback(btn_readonly, "ACTION", Icallback("btn_readonly_cb"))
+    IupSetCallback(btn_selection, "ACTION", Icallback("btn_selection_cb"))
+    IupSetCallback(btn_selectedtext, "ACTION", Icallback("btn_selectedtext_cb"))
+    IupSetCallback(btn_nc, "ACTION", Icallback("btn_nc_cb"))
+    IupSetCallback(btn_value, "ACTION", Icallback("btn_value_cb"))
+    /*  Creates dialog */
+    Ihandle dlg = IupDialog (IupVbox (
+                   {
+                   mltline,
+                   IupHbox ({text, list}),
+                   IupHbox ({btn_append, btn_insert, btn_border, btn_caret, btn_readonly, btn_selection}),
+                   IupHbox ({btn_selectedtext, btn_nc, btn_value})
+                   } ))
+    /*  Sets title and size of the dialog */
+    IupSetAttributes(dlg, "TITLE=\"IupMultiLine Example\", SIZE=HALFxQUARTER")
+    /*  Shows dialog in the center of the screen */
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    /*  Initializes IUP main loop */
+    IupMainLoop()
+    /*  Finishes IUP */
+    IupClose()
+    /*  Program finished successfully */
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
