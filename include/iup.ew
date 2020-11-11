@@ -9,18 +9,13 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.43
+--[[[Version: 4.0.5.44
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2020.10.17
+-- Date: 2020.11.11
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupGetParent## defined
---  * ##IupGetChildPos## defined
---  * ##IupTree## defined
---  * ##IupVal## defined
---  * ##IupSetStrAttribute## defined
---  * ##IupGetName## defined
+--  * ##IupHide## defined
 --
 ------
 --
@@ -324,6 +319,22 @@ end function
 --------------------------------------------------------------------------------
 --/*
 --==== Dialog actions
+--*/
+--------------------------------------------------------------------------------
+public function IupHide(integer widget) -- hides an interface element
+    return doC("IupHide", {C_INT}, {widget}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- This function has the same effect as attributing value "NO" to the interface
+-- element’s VISIBLE attribute.
+--
+-- Parameter:
+--# //widget//: the dialog or menu to hide
+--
+-- Returns:
+--
+-- IUP_NOERROR always.
 --*/
 --------------------------------------------------------------------------------
 public function IupPopup(integer widget, integer x, integer y) -- shows a dialog or menu and restricts user interaction only to the specified element
@@ -1493,6 +1504,19 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.43
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.10.17
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetParent## defined
+--  * ##IupGetChildPos## defined
+--  * ##IupTree## defined
+--  * ##IupVal## defined
+--  * ##IupSetStrAttribute## defined
+--  * ##IupGetName## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.42
 -- Euphoria Verion: v4.0.5 and later
