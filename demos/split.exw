@@ -1,0 +1,130 @@
+--------------------------------------------------------------------------------
+--	Test application: split.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)split.exw
+-- Description: demonstrates IupSplit widget
+------
+--[[[Version: 4.0.5.0
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.11.11
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* simplfied to accept revised iup.ew arrangement
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter set to the location of the IUP shared library you wish to incorporate
+-- into the test.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+Ihandle dlg2
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+function bt_cb()
+    IupShow(dlg2)
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+function bt2_cb()
+    IupHide(dlg2)
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+procedure SplitTest()
+    Ihandle bt = IupButton("See Horizontal example") 
+    IupSetAttribute(bt, "EXPAND", "YES")
+    IupSetCallback(bt, "ACTION", Icallback("bt_cb"))
+    Ihandle ml = IupText() 
+    IupSetAttribute(ml, "EXPAND", "YES") 
+    IupSetAttribute(ml, "MULTILINE", "YES") 
+    IupSetAttribute(ml, "VISIBLELINES", "5") 
+    IupSetAttribute(ml, "VISIBLECOLUMNS", "10") 
+    Ihandle split = IupSplit(bt, ml)
+    -- Default ORIENTATION is VERTICAL 
+    IupSetAttribute(split, "COLOR", "127 127 255") 
+    Ihandle vbox = IupVbox({split}) 
+    IupSetAttribute(vbox, "MARGIN", "10x10") 
+    IupSetAttribute(vbox, "GAP", "10") 
+    Ihandle dlg = IupDialog(vbox) 
+    IupSetAttribute(dlg, "TITLE", "IupSplit Vertical") 
+    IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER") 
+    Ihandle bt2 = IupButton("Close this dialog") 
+    IupSetAttribute(bt2, "EXPAND", "YES")
+    IupSetCallback(bt2, "ACTION", Icallback("bt2_cb"))
+    Ihandle ml2 = IupText() 
+    IupSetAttribute(ml2, "EXPAND", "YES") 
+    IupSetAttribute(ml2, "MULTILINE", "YES") 
+    IupSetAttribute(ml2, "VISIBLELINES", "5") 
+    IupSetAttribute(ml2, "VISIBLECOLUMNS", "10") 
+    Ihandle split2 = IupSplit(bt2, ml2) 
+    IupSetAttribute(split2, "COLOR", "127 127 255") 
+    IupSetAttribute(split2, "ORIENTATION", "HORIZONTAL") 
+    Ihandle vbox2 = IupVbox({split2}) 
+    IupSetAttribute(vbox2, "MARGIN", "10x10") 
+    IupSetAttribute(vbox2, "GAP", "10") 
+    dlg2 = IupDialog(vbox2) 
+    IupSetAttribute(dlg2, "TITLE", "IupSplit Horizontal") 
+    IupSetAttribute(dlg2, "SIZE", "QUARTERxQUARTER") 
+    IupShow(dlg) 
+end procedure
+--------------------------------------------------------------------------------
+procedure main()
+    IupOpen()
+    SplitTest() 
+    IupMainLoop() 
+    IupClose() 
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
