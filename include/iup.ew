@@ -9,13 +9,14 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.44
+--[[[Version: 4.0.5.45
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2020.11.11
+-- Date: 2020.11.18
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupHide## defined
+--  * ##IupImageRGB## defined
+--  * ##IupImageRGBA## defined
 --
 ------
 --
@@ -1396,6 +1397,14 @@ public function IupImage(atom width, atom height, object pixmap)
     return doC("IupImage", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
 end function
 --------------------------------------------------------------------------------
+public function IupImageRGB(atom width, atom height, object pixmap)
+    return doC("IupImageRGB", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
+end function
+--------------------------------------------------------------------------------
+public function IupImageRGBA(atom width, atom height, object pixmap)
+    return doC("IupImageRGBA", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
+end function
+--------------------------------------------------------------------------------
 public function IupImageLibOpen() -- opens a library of pre-defined stock images for buttons and labels
     atom iupimagelib = open_dll({"iupimglib.dll", "libiupimglib.so"})
     c_proc(define_c_proc(iupimagelib, "+IupImageLibOpen", {}), {})
@@ -1504,6 +1513,14 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.44
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.11.11
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupHide## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.43
 -- Euphoria Verion: v4.0.5 and later
