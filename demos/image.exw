@@ -1,0 +1,178 @@
+--------------------------------------------------------------------------------
+--	Test application: image.exw
+--------------------------------------------------------------------------------
+--/*
+--%%disallow={camelcase}
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=  Application: (iup4eu)(demos)image.exw
+-- Description: creates a button, a label, a toggle and a radio using an image.
+-- Uses an image for the cursor as well.
+------
+--[[[Version: 4.0.5.0
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.12.18
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* simplfied to accept revised iup.ew arrangement
+------
+--
+-- Details of earlier incremental changes can be found embedded in the source
+-- code at the end of this module, with the title "Previous Versions".
+--
+--== Testing the Euphoria IUP Wrapper
+--
+-- Run the test using your desired version of Euphoria, with, if required, the
+-- parameter set to the location of the IUP shared library you wish to incorporate
+-- into the test.
+--*/
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+constant pixmap_x = allocate_image(
+  {
+    1,2,3,3,3,3,3,3,3,2,1, 
+    2,1,2,3,3,3,3,3,2,1,2, 
+    3,2,1,2,3,3,3,2,1,2,3, 
+    3,3,2,1,2,3,2,1,2,3,3, 
+    3,3,3,2,1,2,1,2,3,3,3, 
+    3,3,3,3,2,1,2,3,3,3,3, 
+    3,3,3,2,1,2,1,2,3,3,3, 
+    3,3,2,1,2,3,2,1,2,3,3, 
+    3,2,1,2,3,3,3,2,1,2,3, 
+    2,1,2,3,3,3,3,3,2,1,2, 
+    1,2,3,3,3,3,3,3,3,2,1
+  }),
+  pixmap_cursor = allocate_image(
+{
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,2,0,0,2,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+})
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+procedure main()
+    IupOpen() 
+    Ihandle img_x = IupImage(11, 11, pixmap_x) 
+    IupSetAttribute(img_x, "1", "0 1 0") 
+    IupSetAttribute(img_x, "2", "255 0 0")  
+    IupSetAttribute(img_x, "3", "255 255 0") 
+    IupSetHandle("img_x", img_x) 
+    Ihandle  img_cursor = IupImage(32, 32, pixmap_cursor) 
+    IupSetAttribute(img_cursor, "1", "255 0 0")  
+    IupSetAttribute(img_cursor, "2", "128 0 0")  
+    IupSetAttribute(img_cursor, "HOTSPOT", "21:10") 
+    IupSetHandle("img_cursor", img_cursor) 
+    Ihandle btn = IupButton("Dummy") 
+    IupSetAttribute(btn, "IMAGE", "img_x")
+    IupSetAttribute(btn, "TIP", "Button can have both text & image") 
+    Ihandle lbl = IupLabel("Dummy") 
+    IupSetAttribute(lbl, "TIP", "Label can have image or text") 
+    Ihandle lbl2 = IupLabel() 
+    IupSetAttribute(lbl2, "IMAGE", "img_x")
+    IupSetAttribute(lbl2, "TIP", "Label can have image or text") 
+    Ihandle tgl = IupToggle("Dummy") 
+    IupSetAttribute(tgl, "3STATE", "YES")
+    IupSetAttribute(tgl, "TIP", "Three-state toggle") 
+    Ihandle tgl_radio_1 = IupToggle("First") 
+    Ihandle tgl_radio_2 = IupToggle("Second") 
+    IupSetAttribute(tgl_radio_1, "TIP", "Toggle can have image or text") 
+    IupSetAttribute(tgl_radio_2, "IMAGE", "img_x") 
+    IupSetAttribute(tgl_radio_2, "TIP", "Toggle can have image or text") 
+    sequence     string_size = sprintf("\"X\" image width = %s  \"X\" image height = %s", {IupGetAttribute(img_x, "WIDTH"),
+                        IupGetAttribute(img_x, "HEIGHT") })  
+    Ihandle lbl_size = IupLabel(string_size) 
+    Ihandle frm_btn = IupFrame(btn) 
+    Ihandle frm_lbl = IupFrame(IupHbox({lbl, lbl2})) 
+    Ihandle frm_tgl = IupFrame(tgl) 
+    Ihandle frm_tgl_radio = IupFrame(IupRadio(IupVbox({tgl_radio_1, tgl_radio_2}))) 
+    IupSetAttributes(frm_btn, "TITLE=button, SIZE=EIGHTHxEIGHTH") 
+    IupSetAttributes(frm_lbl, "TITLE=label, SIZE=EIGHTHxEIGHTH")
+    IupSetAttributes(frm_tgl, "TITLE=toggle, SIZE=EIGHTHxEIGHTH") 
+    IupSetAttributes(frm_tgl_radio, "TITLE=radio, SIZE=EIGHTHxEIGHTH") 
+    Ihandle dlg = IupDialog
+       (
+          IupVbox
+         ({
+            IupHbox({frm_btn, frm_lbl, frm_tgl, frm_tgl_radio}),
+            IupFill(),
+            IupHbox({ IupFill(), lbl_size, IupFill()})
+          })
+       ) 
+    IupSetAttributes(dlg, "TITLE=\"IupImage Example\", SIZE=HALFxQUARTER, CURSOR=img_cursor")
+    IupSetAttribute(dlg, "TIP", "Changed cursor") 
+    IupShowXY(dlg, IUP_CENTRE, IUP_CENTRE) 
+    IupMainLoop() 
+    IupClose() 
+end procedure
+--------------------------------------------------------------------------------
+--/*
+--=== Execution
+--*/
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+--
+--Previous versions
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
