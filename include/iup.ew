@@ -9,14 +9,13 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.45
+--[[[Version: 4.0.5.46
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2020.11.18
+-- Date: 2020.12.23
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupImageRGB## defined
---  * ##IupImageRGBA## defined
+--  * ##IupLink## defined
 --
 ------
 --
@@ -864,6 +863,23 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+public function IupLink(string url, string title = "") -- creates a label that displays an underlined clickable text
+	return doC("IupLink", {C_POINTER, C_POINTER}, {allocate_string(url), allocate_string(title)}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It inherits from IupLabel.
+-- Parameters:
+--# //url//: the destination address of the link.
+--# //title//: the text to be shown on the link. It can be EMPTY. It will set the TITLE attribute.
+--
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
 public function IupList(object action = NULL) -- creates an interface element that displays a list of items
     if atom(action) then -- action = action
     else action = allocate_string(action)
@@ -1513,6 +1529,15 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.45
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.11.18
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupImageRGB## defined
+--  * ##IupImageRGBA## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.44
 -- Euphoria Verion: v4.0.5 and later
