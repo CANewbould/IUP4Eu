@@ -17,14 +17,13 @@
 
 <hr />
 
-<p>Version: 4.0.5.21<br />
- Euphoria Version: v4.0.5 and later<br />
- Date: 2020.03.14<br />
+<p>Version: 4.0.5.46<br />
+ Euphoria Verion: v4.0.5 and later<br />
+ Date: 2020.12.23<br />
  Author: Charles Newbould<br />
  Status: incomplete; operational<br /> </p>
- Changes in this version: </p>
-<ul><li><tt>IupOpen</tt> turned into a function
-</li><li><tt>IupVersionNumber</tt> defined
+ Changes in this version:   </p>
+<ul><li><tt>IupLink</tt> defined
 </li></ul>
 <hr />
  Details of earlier incremental changes can be found embedded in the source  code at the end of this module, with the title "Previous Versions".</p>
@@ -32,24 +31,34 @@
 <a name="_1_theeuphoriaiupwrapper"></a><a name="theeuphoriaiupwrapper"></a><h2>The Euphoria IUP Wrapper</h2>
 <p>  The wrapper is called by including the module <em>iup.ew</em> in the source code.</p>
 
-<p>  To initialised the library call the <tt>IupOpen</tt> procedure, with the single  parameter value which is either <em>""</em> or is set to a string value which  designates the folder in which the shared library (.dll or .so) is to be found.  This facility allows users to call 32-bit or 64-bit versions of IUP and/or  test their code using different versions of the source IUP library.</p>
+<p>  To initialised the library call the <tt>IupOpen</tt> procedure.</p>
+
+<p>  Note that this library works with both 32-bit and 64-bit versions of IUP.  The user needs to ensure that the path to the appropriate shared/dynamic  library is "pointed" to before IUP is initiated.</p>
 
 <p>  A typical IUP code block is as follows:</p>
 
 <pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup.ew</font>
 <font color="#FF0055"> --</font>
-<font color="#330033"> IupOpen</font><font color="#880033">()</font>
-<font color="#FF0055"> --</font>
-<font color="#FF0055"> -- the IUP-based code</font>
-<font color="#FF0055"> --</font>
-<font color="#330033"> IupMainLoop</font><font color="#880033">()</font>
-<font color="#FF0055"> --</font>
-<font color="#330033"> IupClose</font><font color="#880033">()</font>
+<font color="#330033"> definition of any callback functions</font>
+<font color="#FF0055"> -- [definition of a main routine, containing]</font>
+<font color="#0000FF"> if </font><font color="#330033">IupOpen</font><font color="#880033">() </font><font color="#0000FF">then</font>
+<font color="#FF0055">     -- definition of the widgets;</font>
+<font color="#FF0055">     -- their attributes;</font>
+<font color="#FF0055">     -- associated callbacks</font>
+<font color="#FF0055">     -- display of the dialog (top-level window)</font>
+<font color="#330033">     IupMainLoop</font><font color="#880033">()</font>
+<font color="#330033">     IupClose</font><font color="#880033">()</font>
+<font color="#0000FF"> else</font>
+<font color="#FF0055">     -- any desired error management</font>
+<font color="#0000FF"> end if</font>
 </pre>
 
 <a name="_2_interface"></a><a name="interface"></a><h2>Interface</h2>
 <a name="_3_includes"></a><a name="includes"></a><h3>Includes</h3>
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/dll.e		</font><font color="#FF0055">-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER</font>
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup.e           </font><font color="#FF0055">-- for IUPLIB, or abort</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public include </font><font color="#330033">std/dll.e		</font><font color="#FF0055">-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER, NULL</font>
 </pre>
 
 <pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/machine.e	</font><font color="#FF0055">-- for allocate, allocate_pointer_array, allocate_string, free, peek_string &amp; poke_pointer</font>
@@ -58,26 +67,49 @@
 <pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/os.e		</font><font color="#FF0055">-- for platform constants</font>
 </pre>
 
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">std/text.e      </font><font color="#FF0055">-- for upper</font>
+</pre>
+
 <pre class="examplecode"><font color="#0000FF">public include </font><font color="#330033">std/types.e     </font><font color="#FF0055">-- for string</font>
 </pre>
 
 <a name="_4_constants"></a><a name="constants"></a><h3>Constants</h3>
-<p>   <em>flags</em> </p>
-
-<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">EXIT_SUCCESS = 0</font>
-</pre>
-
-<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_IGNORE = -1</font>
-</pre>
-
-<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_DEFAULT = -2</font>
+<a name="_5_events"></a><a name="events"></a><h4>Events</h4>
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CONTINUE = -4</font>
 </pre>
 
 <pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CLOSE = -3</font>
 </pre>
 
-<p>   <em>IupPopup and IupShowXY Parameter Values</em> </p>
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_DEFAULT = -2</font>
+</pre>
 
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">EXIT_SUCCESS = 0    </font><font color="#FF0055">-- successful completion of IUP loop</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">EXIT_FAILURE = 1    </font><font color="#FF0055">-- unsuccessful completion of IUP loop</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_IGNORE = -1</font>
+</pre>
+
+<a name="_6_mousebuttonvaluesandmacros"></a><a name="mousebuttonvaluesandmacros"></a><h4>Mouse Button Values and Macros</h4>
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_BUTTON1 = </font><font color="#330033">'1'</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_BUTTON2 = </font><font color="#330033">'2'</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_BUTTON3 = </font><font color="#330033">'3'</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_BUTTON4 = </font><font color="#330033">'4'</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_BUTTON5 = </font><font color="#330033">'5'</font>
+</pre>
+
+<a name="_7_iuppopupandiupshowxyparametervalues"></a><a name="iuppopupandiupshowxyparametervalues"></a><h4>IupPopup and IupShowXY Parameter Values</h4>
 <pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CURRENT = 65531</font>
 </pre>
 
@@ -87,8 +119,71 @@
 <pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">IUP_CENTRE = IUP_CENTER</font>
 </pre>
 
-<a name="_5_routines"></a><a name="routines"></a><h3>Routines</h3>
-<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupOpen</font><font color="#880033">(</font><font color="#330033">string path = </font><font color="#330033">""</font><font color="#880033">)  </font><font color="#FF0055">-- initializes the IUP toolkit</font>
+<a name="_8_keys"></a><a name="keys"></a><h4>Keys</h4>
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_asterisk = </font><font color="#330033">'*'</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_BS = 8</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_CR = </font><font color="#330033">'\r'</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_DEL = #FFFF</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_DOWN = #FF54</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_END = #FF57</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_ESC = #FF1B</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_HOME = #FF50</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_INS = #FF63</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_LEFT = #FF51</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_MIDDLE = #FF0B</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_PGDN = #FF56</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_PGUP = #FF55</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_RIGHT = #FF53</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_SP = </font><font color="#330033">' '</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_TAB = </font><font color="#330033">'\t'</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_UP = #FF52</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public constant </font><font color="#330033">K_g = </font><font color="#330033">'g' </font><font color="#FF0055">-- 103</font>
+</pre>
+
+<a name="_9_routines"></a><a name="routines"></a><h3>Routines</h3>
+<a name="_10_management"></a><a name="management"></a><h4>Management</h4>
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupClose</font><font color="#880033">() </font><font color="#FF0055">-- ends access to the IUP toolkit and releases internal memory</font>
+</pre>
+
+<p> Note:</p>
+
+<p>  <tt>IupClose</tt> will also automatically destroy all dialogs and all elements  that have names. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupOpen</font><font color="#880033">()  </font><font color="#FF0055">-- initializes the IUP toolkit</font>
 </pre>
 
 <p> Parameter: </p>
@@ -102,17 +197,782 @@
 <ul><li>To avoid runtime errors, use the return value to test for success in finding the shared library.
 </li><li>This routine must be called before any other IUP function, except IupVersion and its associated routines.
 </li></ul>
-<pre class="examplecode"><font color="#0000FF">public procedure </font><font color="#330033">IupClose</font><font color="#880033">() </font><font color="#FF0055">-- ends access to the IUP toolkit and releases internal memory</font>
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSetLanguage</font><font color="#880033">(</font><font color="#330033">string name = </font><font color="#330033">"ENGLISH"</font><font color="#880033">) </font><font color="#FF0055">-- sets the language name used by some pre-defined dialogs</font>
 </pre>
 
-<p> Note:</p>
+<p>  Language can also be changed using the global attribute LANGUAGE.</p>
 
-<p>  <tt>IupClose</tt> will also automatically destroy all dialogs and all elements  that have names. </p>
-
+<p>  Parameter: </p>
+<ol><li><em>name</em>: one of "ENGLISH" [Default], "PORTUGUESE", "SPANISH"
+</li></ol>
 <pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupVersionNumber</font><font color="#880033">()  </font><font color="#FF0055">-- returns the version number as an integer</font>
 </pre>
 
 <p>  Returns:</p>
 
-<p>  an <strong>integer</strong>: the version number including any bug fixes.</p>
+<p>  an <strong>integer</strong>: the version number including any bug fixes. </p>
+
+<a name="_11_dialogs"></a><a name="dialogs"></a><h4>Dialogs</h4>
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupAlarm</font><font color="#880033">(</font><font color="#330033">string title, string mess, string b1, </font><font color="#0000FF">object </font><font color="#330033">b2 = NULL, </font><font color="#0000FF">object </font><font color="#330033">b3 = NULL</font><font color="#880033">)</font>
+</pre>
+
+<p>  Shows a modal dialog containing a message and up to three buttons.</p>
+
+<p>  Parameters: the first button is obligatory and is named by <tt>b1</tt>.  To set the second button set <tt>b2</tt> to a text string; ditto for <tt>b3</tt>.  (Note: you cannot set <tt>b3</tt> and not <tt>b2</tt>!)</p>
+
+<p>  Returns: an integer - the number of the button selected by the user (1, 2 or 3),  or 0 if failed. It fails only if <tt>b1</tt> is not defined.</p>
+
+<p>  Example:  </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 2</font>
+
+<font color="#0000FF"> include </font><font color="#330033">iup.ew</font>
+<font color="#330033"> IupOpen</font><font color="#880033">()</font>
+
+<font color="#0000FF"> constant </font><font color="#330033">b = IupAlarm</font><font color="#880033">(</font><font color="#330033">"IupAlarm Example"</font><font color="#330033">, </font><font color="#330033">"File not saved! Save it now?" </font><font color="#330033">,</font><font color="#330033">"Yes" </font><font color="#330033">,</font><font color="#330033">"No" </font><font color="#330033">,</font><font color="#330033">"Cancel"</font><font color="#880033">)</font>
+<font color="#FF0055"> -- Shows a message for each selected button</font>
+<font color="#0000FF"> if </font><font color="#330033">b = 0 </font><font color="#0000FF">then</font>
+<font color="#330033">         IupMessage</font><font color="#880033">(</font><font color="#330033">"Save file"</font><font color="#330033">, </font><font color="#330033">"Dialog closed, without selection"</font><font color="#880033">)</font>
+<font color="#0000FF"> elsif </font><font color="#330033">b = 1 </font><font color="#0000FF">then</font>
+<font color="#330033">         IupMessage</font><font color="#880033">(</font><font color="#330033">"Save file"</font><font color="#330033">, </font><font color="#330033">"File saved sucessfully - leaving program"</font><font color="#880033">)</font>
+<font color="#0000FF"> elsif </font><font color="#330033">b = 2 </font><font color="#0000FF">then</font>
+<font color="#330033">         IupMessage</font><font color="#880033">(</font><font color="#330033">"Save file"</font><font color="#330033">, </font><font color="#330033">"File not saved - leaving program anyway"</font><font color="#880033">)</font>
+<font color="#0000FF"> elsif </font><font color="#330033">b = 3 </font><font color="#0000FF">then</font>
+<font color="#330033">         IupMessage</font><font color="#880033">(</font><font color="#330033">"Save file"</font><font color="#330033">, </font><font color="#330033">"Operation cancelled"</font><font color="#880033">)</font>
+<font color="#0000FF"> end if</font>
+<font color="#330033"> IupClose</font><font color="#880033">()</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupDialog</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">child = NULL</font><font color="#880033">)  </font><font color="#FF0055">-- creates a dialog element</font>
+</pre>
+
+<p>  A dialog manages user interaction with the interface elements.  For any interface element to be shown, it must be encapsulated in a dialog.</p>
+
+<p>  Parameter: </p>
+<ol><li><em>child</em>: the (<strong>integer</strong>) identifier of an interface element. The dialog has only one child. It can be NULL.
+</li></ol>
+<p> Returns:</p>
+
+<p>  the (<strong>integer</strong>) identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupFileDlg</font><font color="#880033">() </font><font color="#FF0055">-- creates the File Dialog element</font>
+</pre>
+
+<p>  It is a predefined dialog for selecting files or a directory.  The dialog can be shown with the IupPopup function only.</p>
+
+<p>  Returns:</p>
+
+<p>  the (<strong>integer</strong>) identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupMessage</font><font color="#880033">(</font><font color="#330033">string title, string message</font><font color="#880033">)  </font><font color="#FF0055">-- shows a modal dialog containing a message</font>
+</pre>
+
+<p>  This procedure simply creates and then pops up a <tt>MessageDlg</tt>.</p>
+
+<p>  Parameters: </p>
+<ol><li><tt>title</tt>: the <strong>string</strong> to put in the title
+</li><li><tt>message</tt>: the <strong>string</strong> to put in the body of the dialog
+</li></ol>
+<p> Notes:</p>
+
+<p>  The <tt>Message</tt> routine shows a dialog centralised on the screen, showing  the message and the "OK" button.  The '\n' character can be added to the message to indicate a line change.</p>
+
+<p>  The dialog uses a global attribute called "PARENTDIALOG" as the parent  dialog if it is defined.  It also uses a global attribute called "ICON" as the dialog icon if it is  defined (used only in Motif; in Windows MessageBox does not have an icon in  the title bar). </p>
+
+<a name="_12_dialogactions"></a><a name="dialogactions"></a><h4>Dialog actions</h4>
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupHide</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">widget</font><font color="#880033">) </font><font color="#FF0055">-- hides an interface element</font>
+</pre>
+
+<p>  This function has the same effect as attributing value "NO" to the interface  element’s VISIBLE attribute.</p>
+
+<p>  Parameter: </p>
+<ol><li><em>widget</em>: the dialog or menu to hide
+</li></ol>
+<p> Returns:</p>
+
+<p>  IUP_NOERROR always. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupPopup</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">widget, </font><font color="#0000FF">integer </font><font color="#330033">x, </font><font color="#0000FF">integer </font><font color="#330033">y</font><font color="#880033">) </font><font color="#FF0055">-- shows a dialog or menu and restricts user interaction only to the specified element</font>
+</pre>
+
+<p>  <tt>IupPopup</tt> is equivalent of creating a Modal dialog is some toolkits.</p>
+
+<p>  If another dialog is shown after IupPopup using IupShow, then its interaction  will not be inhibited. Every IupPopup call creates a new popup level that  inhibits all previous dialogs interactions, but does not disable new ones  (even if they were disabled by the Popup, calling IupShow will re-enable the  dialog because it will change its popup level).  IMPORTANT: The popup levels must be closed in the reverse order they were  created or unpredictable results will occur.</p>
+
+<p>  For a dialog this function will only return the control to the application  after a callback returns IUP_CLOSE, IupExitLoop is called, or when the popup  dialog is hidden, for example using IupHide. For a menu it returns  automatically after a menu item is selected.  IMPORTANT: If a menu item callback returns IUP_CLOSE, it will also ends the  current popup level dialog.</p>
+
+<p>  Parameters: </p>
+<ol><li><em>widget</em>: the dialog or menu to display
+</li><li><em>x</em>: horizontal position of the top-left corner of the window or menu, relative to the origin of the main screen
+</li><li><em>y</em>: vertical position of the top-left corner of the window or menu, relative to the origin of the main screen
+</li></ol>
+<p> Returns:</p>
+
+<p>  an <strong>integer: one of IUP_NOERROR (if successful), IUP_INVALID  (if not a dialog or menu); IUP_ERROR (if there was an error) </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupShow</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">dialog</font><font color="#880033">)   </font><font color="#FF0055">-- displays a dialog in the current display space</font>
+</pre>
+
+<p>  Parameter: # <em>dialog</em>: the dialog to be displayed</p>
+
+<p>  Returns:</p>
+
+<p>  IUP_NOERROR if successful. If there was an error returns IUP_ERROR.</p>
+
+<p>  Notes:</p>
+
+<p>  For dialogs it is equivalent to call IupShowXY using IUP_CURRENT.  See <tt>IupShowXY</tt> for more details.</p>
+
+<p>  For other controls, to call <tt>IupShow </tt>is the same as setting VISIBLE=YES.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">dialog, </font><font color="#0000FF">integer </font><font color="#330033">x, </font><font color="#0000FF">integer </font><font color="#330033">y</font><font color="#880033">)   </font><font color="#FF0055">-- displays a dialog in a specific position</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupDestroy</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">widget</font><font color="#880033">)  </font><font color="#FF0055">-- destroys an interface element and all its children</font>
+</pre>
+
+<p>  Only dialogs, timers, popup menus and images should be normally destroyed,  but detached controls can also be destroyed.</p>
+
+<p>  Parameter: # <em>widget</em>: the control to be destroyed</p>
+
+<p>  Notes:</p>
+
+<p>  The procedure <tt>destroy</tt> will automatically unmap and detach the element,  if necessary, and then destroy the element.</p>
+
+<p>  This routine also deletes the main names associated to the interface element  being destroyed, but if it has more than one name then some names may be  left behind.</p>
+
+<p>  Menu bars associated with dialogs are automatically destroyed when the dialog  is destroyed.</p>
+
+<p>  Images associated with controls are NOT automatically destroyed,  because images can be reused in several controls the application must  destroy them when they are not used anymore.</p>
+
+<p>  All dialogs and all elements that have names are automatically destroyed when  #close<tt> is invoked. ==== Containers </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupBackgroundBox</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">child = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates a simple native container with no decorations</font>
+</pre>
+
+<p>  Parameter: # </tt>child<tt>: Identifier of an interface element which will receive the box.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. 
+<hr />
+blic function IupCbox(sequence children = {})  <del> creates a void container for position elements in absolute coordinates. It is a concrete layout container.   return doCN("IupCbox", C_INT, children, C_INT) d function 
+<hr />
+</del> /*</p>
+</tt>IupCbox<tt> does not have a native representation.</p>
+</tt>IupCbox<tt> is the equivalent of an </tt>IupVbox<tt> or an </tt>IupHbox<tt>  where all the children have the FLOATING attribute set to YES,  but children must use CX and CY attributes instead of the POSITION attribute.</p>
+
+<p>  Parameter: # <em>children</em>: an array of compositional elements to be displayed in the box.  It can be empty (the default).</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupDetachBox</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">child = NULL</font><font color="#880033">)</font>
+</pre>
+
+<p>  Creates a detachable void container.</p>
+
+<p>  Dragging and dropping this element, it creates a new dialog composed by  its child or elements arranged in it (for example, a child like IupVbox or
+ IupHbox). During the drag, the ESC key can be pressed to cancel the action.</p>
+
+<p>  It does not have a native representation, but it contains also a IupCanvas  to implement the bar handler.</p>
+
+<p>  Parameter: </tt>child<tt> - Identifier of an interface element.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupExpander</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">child = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates a container that can interactively show or hide its child</font>
+</pre>
+
+<p>  It does not have a native representation, but it contains also several  elements to implement the bar handler.</p>
+
+<p>  Parameter: </tt>child<tt> - Identifier of an interface element.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupFlatFrame</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">child = NULL</font><font color="#880033">)	</font><font color="#FF0055">-- creates a native container, which draws a frame with a title around its child</font>
+</pre>
+
+<p>  Parameter: # </tt>child<tt>: Identifier of an interface element which the frame surrounds.  It can be NULL.</p>
+
+<p>  The decorations are manually drawn.  The control inherits from IupBackgroundBox.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. 
+<hr />
+blic function IupFrame(atom child = NULL)	<del> creates a native container, which draws a frame with a title around its child   return doC("IupFrame", {C_INT}, {child}, C_INT) d function 
+<hr />
+</del> /*  Parameter: # </tt>child<tt>: Identifier of an interface element which the frame surrounds.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. 
+<hr />
+blic function IupGridBox(sequence children = {})  <del> creates a void container composing elements in a regular grid   return doCN("IupGridBox", C_INT, children, C_INT) d function 
+<hr />
+</del> /*  It is a box that arranges the elements it contains from top to bottom and  from left to right, but can distribute the elements in lines or in columns.</p>
+
+<p>  Parameter: # <em>children</em>: an array of compositional elements to be displayed in the box.  It can be empty (the default).</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupHbox</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">children = </font><font color="#993333">{}</font><font color="#880033">)  </font><font color="#FF0055">-- creates a void container for composing elements horizontally; it is a box that arranges the elements it contains from left to right.</font>
+</pre>
+</tt>Hbox<tt> does not have a native representation.</p>
+
+<p>  Parameter: # <em>children</em>: an array of compositional elements to be displayed in the box.  It can be empty (the default).</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupMultiBox</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">children = </font><font color="#993333">{}</font><font color="#880033">)  </font><font color="#FF0055">-- creates a void container for composing elements in a irregular grid</font>
+</pre>
+
+<p>  It is a box that arranges the elements it contains from top to bottom and  from left to right, by distributing the elements in lines or in columns.  But its EXPAND attribute does not behave as a regular container,  instead it behaves as a regular element expanding into the available space.</p>
+
+<p>  Parameter: # <em>children</em>: an array of compositional elements to be displayed in the box.  It can be empty (the default).</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupNormalizer</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">ih_first = </font><font color="#993333">{}</font><font color="#880033">)  </font><font color="#FF0055">-- creates a void container that does not affect the dialog layout</font>
+</pre>
+
+<p>  It acts by normalizing all the controls in a list so their natural size  becomes the biggest natural size amongst them.  All natural widths will be set to the biggest width, and all natural heights  will be set to the biggest height.  The controls of the list must be inside a valid container in the dialog.</p>
+
+<p>  Parameter: # <em>ih_first</em>: List of the identifiers that will be normalized.  It can be empty (the default).</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupRadio</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">child = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates a void container for grouping mutual exclusive toggles</font>
+</pre>
+
+<p>  Only one of its descendent toggles will be active at a time.  The toggles can be at any composition.</p>
+
+<p>  It does not have a native representation.</p>
+
+<p>  Parameter: # </tt>child<tt>: Identifier of an interface element.  Usually it is a vbox or an hbox containing the toggles associated with the radio.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSbox</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">child = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates a void container that allows its child to be resized</font>
+</pre>
+
+<p>   Allows expanding and contracting the child size in one direction.</p>
+
+<p>  It does not have a native representation but it contains also a IupFlatSeparator  to implement the bar handler.</p>
+
+<p>  Parameter: # </tt>child<tt>: Identifier of an interface element which will receive the box.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSplit</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">child1 = NULL, </font><font color="#0000FF">atom </font><font color="#330033">child2 = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates a void container that split its client area in two</font>
+</pre>
+
+<p>  Allows the provided controls to be enclosed in a box that allows expanding  and contracting the element size in one direction,  but when one is expanded the other is contracted.</p>
+
+<p>  It does not have a native representation, but it contains also a  IupFlatSeparator to implement the bar handler.</p>
+
+<p>  Parameters: # </tt>child1<tt>: Identifier of an interface element that will be at left or top.  It can be NULL. # </tt>child2<tt>: Identifier of an interface element that will be at right or bottom.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupVbox</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">children = </font><font color="#993333">{}</font><font color="#880033">)  </font><font color="#FF0055">-- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupVboxv</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">children = </font><font color="#993333">{}</font><font color="#880033">)  </font><font color="#FF0055">-- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.</font>
+</pre>
+</tt>Vbox<tt> does not have a native representation.</p>
+
+<p>  Parameter: # <em>children</em>: an array of compositional elements to be displayed in the box.  It can be empty (the default).</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupScrollBox</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">child = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates a native container that allows its child to be scrolled</font>
+</pre>
+
+<p>  It inherits from IupCanvas.</p>
+
+<p>  Parameter: </tt>child<tt>: Identifier of an interface element,  which will receive the box. It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupTabs</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">children = </font><font color="#993333">{}</font><font color="#880033">)  </font><font color="#FF0055">-- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.</font>
+</pre>
+
+<p>  Parameter: an array of compositional elements to be displayed in the box.  It can be empty (the default).</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupZbox</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">children = </font><font color="#993333">{}</font><font color="#880033">)  </font><font color="#FF0055">-- creates a void container for composing elements in hidden layers with only one layer visible</font>
+</pre>
+
+<p>  It is a box that piles up the children it contains;  only the one child is visible.</p>
+
+<p>  It does not have a native representation.</p>
+
+<p>  Parameter: </tt>children</strong>integer<strong>) identifier of the created element, or NULL if an error  occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupCalendar</font><font color="#880033">() </font><font color="#FF0055">-- creates a month calendar interface element, where the user can select a date</font>
+</pre>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupColorbar</font><font color="#880033">() </font><font color="#FF0055">-- creates a color palette to enable a color selection from several samples</font>
+</pre>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupFill</font><font color="#880033">() 	</font><font color="#FF0055">-- creates a void element, which dynamically occupies empty spaces always trying to expand itself</font>
+</pre>
+
+<p>  Its parent should be an IupHbox, an IupVbox or a IupGridBox, or else this  type of expansion will not work.  If <em>EXPAND</em> is set on at least one of the other children of the box, then  the fill expansion is ignored.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupFlatButton</font><font color="#880033">(</font><font color="#330033">string title = </font><font color="#330033">""</font><font color="#880033">)  </font><font color="#FF0055">-- creates an interface element that is a button, but it does not have native decorations</font>
+</pre>
+
+<p>  Parameter: # <em>title</em>: the text to be shown on the button.  It can be EMPTY. It will set the TITLE attribute.</p>
+
+<p>  Returns:</p>
+
+<p>  the (</strong>integer<strong>) identifier of the created element, or NULL if an error  occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGauge</font><font color="#880033">() </font><font color="#FF0055">-- creates a Gauge control</font>
+</pre>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupLabel</font><font color="#880033">(</font><font color="#330033">string title = </font><font color="#330033">""</font><font color="#880033">)  </font><font color="#FF0055">-- creates a label interface element, which displays a separator, a text or an image</font>
+</pre>
+
+<p>  Parameter: # <em>title</em>: the text to be shown on the label. It can be EMPTY. It will set the TITLE attribute.</p>
+
+<p>  Returns:</p>
+
+<p>  the (</strong>integer<strong>) identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupLink</font><font color="#880033">(</font><font color="#330033">string url, string title = </font><font color="#330033">""</font><font color="#880033">) </font><font color="#FF0055">-- creates a label that displays an underlined clickable text</font>
+</pre>
+
+<p>  It inherits from IupLabel.  Parameters: # <em>url</em>: the destination address of the link. # <em>title</em>: the text to be shown on the link. It can be EMPTY. It will set the TITLE attribute.</p>
+
+<p>  Returns:</p>
+
+<p>  the (</strong>integer<strong>) identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupList</font><font color="#880033">(</font><font color="#0000FF">object </font><font color="#330033">action = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates an interface element that displays a list of items</font>
+</pre>
+
+<p>  The list can be visible or can be dropped down.  It also can have an edit box for text input.  So it is a 4 in 1 element.  In native systems the dropped down case is called a Combo Box.</p>
+
+<p>  Parameter: # <em>action</em>: the name of the action generated when the button is selected.  It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupProgressBar</font><font color="#880033">() </font><font color="#FF0055">-- creates a progress bar control</font>
+</pre>
+
+<p>  Shows a percent value that can be updated to simulate a progression.</p>
+
+<p>  It is similar of IupGauge, but uses native controls internally.  Also does not have support for text inside the bar.</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSpin</font><font color="#880033">() </font><font color="#FF0055">-- create a control set with a vertical box containing two buttons</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSpinbox</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">child</font><font color="#880033">) </font><font color="#FF0055">-- create a control set with a vertical box containing two buttons</font>
+</pre>
+
+<p>  The buttons, one with an up arrow and the other with a down arrow,  are used to increment and decrement values.</p>
+
+<p>  Unlike the SPIN attribute of the IupText element, the IupSpin element  can NOT automatically increment the value and it is NOT inserted inside  the IupText area. But they can be used with any element.</p>
+
+<p>  Parameter:  # <em>child</em>: the widget enclosed by the spinbox</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupText</font><font color="#880033">(</font><font color="#0000FF">object </font><font color="#330033">action = NULL</font><font color="#880033">)  </font><font color="#FF0055">-- creates an editable text field</font>
+</pre>
+
+<p>  Parameter: # <tt>action</tt>: the name of the action generated when the user types something,  or </strong>integer<strong>) identifier of the created element, or <em>NULL</em> if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupToggle</font><font color="#880033">(</font><font color="#330033">string title = </font><font color="#330033">""</font><font color="#330033">, </font><font color="#0000FF">object </font><font color="#330033">action = NULL</font><font color="#880033">)  </font><font color="#FF0055">-- the toggle interface element</font>
+</pre>
+
+<p>  A toggle is a two-state (on/off) button that, when selected, generates an  action that activates a function in the associated application.  Its visual representation can contain a text or an image.</p>
+
+<p>  Parameters: # <em>title</em>: the text to be shown on the button.  It can be EMPTY. It will set the TITLE attribute. # <em>action</em>: the name of the action generated when the button is selected.  It can be NULL.</p>
+
+<p>  Returns:</p>
+
+<p>  the (</strong>integer<strong>) identifier of the created element, or NULL if an error  occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupTree</font><font color="#880033">() </font><font color="#FF0055">-- creates a tree containing nodes of branches or leaves</font>
+</pre>
+
+<p>  Both branches and leaves can have an associated text and image.</p>
+
+<p>  The branches can be expanded or collapsed. When a branch is expanded,  its immediate children are visible, and when it is collapsed they are hidden.</p>
+
+<p>  The leaves can generate an "executed" or "renamed" actions, branches can only   generate a "renamed" action.</p>
+
+<p>  The focus node is the node with the focus rectangle, marked nodes have their  background inverted.</p>
+
+<p>  Parameter: *none*</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupVal</font><font color="#880033">(</font><font color="#0000FF">object </font><font color="#330033">orientation = NULL</font><font color="#880033">) </font><font color="#FF0055">-- creates a Valuator control</font>
+</pre>
+
+<p> ==== Menus </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupMenu</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">items</font><font color="#880033">)</font>
+</pre>
+
+<p>  Creates a menu element, which groups 3 types of interface elements:  item, submenu and separator.  Any other interface element defined inside a menu will be an error.</p>
+
+<p>  Parameter: <em>items</em> - sequence containing one or more items in the menu.  It can be empty.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupItem</font><font color="#880033">(</font><font color="#0000FF">object </font><font color="#330033">title = NULL, </font><font color="#0000FF">object </font><font color="#330033">action = NULL</font><font color="#880033">)</font>
+</pre>
+
+<p>  Creates an item of the menu interface element.  It is so created that to generate an action, when selected, a specific  call-back function is needed.</p>
+
+<p>  Parameter: <tt>title</tt> - text to be shown on the toggle. It can be NULL.  It will set the TITLE attribute.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSeparator</font><font color="#880033">()</font>
+</pre>
+
+<p>  Creates the separator interface element. It shows a line between two menu items.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">export function </font><font color="#330033">IupSubmenu</font><font color="#880033">(</font><font color="#0000FF">object </font><font color="#330033">title = NULL, </font><font color="#0000FF">object </font><font color="#330033">menu = NULL</font><font color="#880033">)</font>
+</pre>
+
+<p>  Creates a menu item that, when selected, opens another menu.</p>
+
+<p>  Parameters: * <tt>title</tt> - text to be shown on the toggle. It can be NULL.  It will set the TITLE attribute. * <tt>menu</tt> - optional child menu identifier. It can be NULL.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs.  Example, using all menu elements:  </p>
+
+<pre class="examplecode"><font color="#FF0055">--menus.exw</font>
+
+<font color="#0000FF"> include </font><font color="#330033">iup.ew</font>
+
+<font color="#0000FF"> function </font><font color="#330033">selected_cb</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">self</font><font color="#880033">)</font>
+<font color="#330033">     IupMessage</font><font color="#880033">(</font><font color="#330033">"IupMenu"</font><font color="#330033">, </font><font color="#330033">"You selected: " </font><font color="#330033">&amp; IupGetAttribute</font><font color="#993333">(</font><font color="#330033">self, </font><font color="#330033">"TITLE"</font><font color="#993333">) </font><font color="#330033">&amp; </font><font color="#330033">"!"</font><font color="#880033">)</font>
+<font color="#0000FF">     return </font><font color="#330033">IUP_CONTINUE</font>
+<font color="#0000FF"> end function</font>
+
+<font color="#0000FF"> function </font><font color="#330033">exit_cb</font><font color="#880033">()</font>
+<font color="#0000FF">     return </font><font color="#330033">IUP_CLOSE</font>
+<font color="#0000FF"> end function</font>
+
+<font color="#330033"> IupOpen</font><font color="#880033">()</font>
+
+<font color="#0000FF"> constant</font>
+<font color="#330033"> 	item_open = IupItem</font><font color="#880033">(</font><font color="#330033">"&amp;Open"</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033"> 	item_save = IupItem</font><font color="#880033">(</font><font color="#330033">"&amp;Save"</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033"> 	item_undo = IupItem</font><font color="#880033">(</font><font color="#330033">"&amp;Undo"</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033"> 	item_exit = IupItem</font><font color="#880033">(</font><font color="#330033">"E&amp;xit"</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033"> 	menu_file = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">item_open, item_save, item_undo, IupSeparator</font><font color="#0000FF">()</font><font color="#330033">, item_exit</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033"> 	sub1_menu = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"File"</font><font color="#330033">, menu_file</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033"> 	menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">sub1_menu</font><font color="#993333">}</font><font color="#880033">)</font>
+
+<font color="#330033"> IupSetHandle</font><font color="#880033">(</font><font color="#330033">"mymenu"</font><font color="#330033">, menu</font><font color="#880033">)</font>
+
+<font color="#0000FF"> constant </font><font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">IupCanvas</font><font color="#993333">()</font><font color="#880033">)</font>
+
+<font color="#330033"> IupSetAttribute</font><font color="#880033">(</font><font color="#330033">item_undo, </font><font color="#330033">"ACTIVE"</font><font color="#330033">, </font><font color="#330033">"NO"</font><font color="#880033">)</font>
+<font color="#330033"> IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_exit, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#0000FF">routine_id</font><font color="#0000FF">(</font><font color="#330033">"exit_cb"</font><font color="#0000FF">)</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033"> IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_open, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#0000FF">routine_id</font><font color="#0000FF">(</font><font color="#330033">"selected_cb"</font><font color="#0000FF">)</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033"> IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_save, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#0000FF">routine_id</font><font color="#0000FF">(</font><font color="#330033">"selected_cb"</font><font color="#0000FF">)</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033"> IupSetAttributes</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE = HALFxHALF, TITLE = Menus, MENU = mymenu"</font><font color="#880033">)</font>
+
+<font color="#330033"> IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">)</font>
+<font color="#330033"> IupMainLoop</font><font color="#880033">()</font>
+
+<font color="#330033"> IupClose</font><font color="#880033">()</font>
+ 
+</pre>
+
+<p> ==== Events </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupExitLoop</font><font color="#880033">() </font><font color="#FF0055">-- terminates the current message loop</font>
+</pre>
+
+<p>  It has the same effect of a callback returning IUP_CLOSE. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupFlush</font><font color="#880033">() </font><font color="#FF0055">-- processes all pending messages in the message queue</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupMainLoop</font><font color="#880033">()  </font><font color="#FF0055">-- executes the user interaction until a callback returns IUP_CLOSE, or IupExitLoop is called, or the last visible dialog is hidden</font>
+</pre>
+
+<p>  Returns:</p>
+
+<p>  IUP_NOERROR always. ==== Attributes </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetAttribute</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, string attr</font><font color="#880033">) </font><font color="#FF0055">-- gets an interface element attribute</font>
+</pre>
+
+<p>  Use only when the attribute value is a string.</p>
+
+<p>  (For other value types use the relevant function. For example:  for an integer value use IupGetInt.)</p>
+
+<p>  Returns: the attribute value or  NULL, if the attribute is not set or does not exist. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetFloat</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, string attr</font><font color="#880033">)	</font><font color="#FF0055">-- gets an atom attribute value</font>
+</pre>
+
+<p>  Gets the attribute value, where this is an atom.</p>
+
+<p>  Use upper-case for the attribute.</p>
+
+<p>  Returns: the floating-point value of an interface element attribute. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetInt</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, string attr</font><font color="#880033">)	</font><font color="#FF0055">-- gets an integer attribute value</font>
+</pre>
+
+<p>  Gets the attribute value, where this is an integer.</p>
+
+<p>  Use upper-case for the attribute.</p>
+
+<p>  Returns: the integer value of an interface element attribute. </p>
+
+<pre class="examplecode"><font color="#0000FF">public procedure </font><font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">widget, string attribute, </font><font color="#0000FF">object </font><font color="#330033">val = NULL</font><font color="#880033">)    </font><font color="#FF0055">-- sets an interface element attribute to the stated val(ue)</font>
+</pre>
+
+<p>  Parameters: # <em>widget</em>: identifier of the interface element. If NULL will set the  attribute in the global environment # <em>attribute</em>: the (upper-case) name of the attribute to change. If the name  is given in the wrong case then it will be converted to upper-case. # <em>val: the value to be set.  If NULL then the default value for that attribute will be used.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, string attributes</font><font color="#880033">)  </font><font color="#FF0055">-- sets several attributes of an interface element</font>
+</pre>
+
+<p>  Parameters: # </em>widget<em>: identifier of the interface element. # </em>attributes//: the attributes in the format "v1=a1, v2=a2,..." where vi is  the name of an attribute and ai is its value</p>
+
+<p>  Returns:</p>
+
+<p>   an </strong>integer<strong>: the (same) identifier</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSetAttributeHandle</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, string attribute, </font><font color="#0000FF">atom </font><font color="#330033">ih_named</font><font color="#880033">)    </font><font color="#FF0055">-- creates a non conflict name and associates the name with the attribute</font>
+</pre>
+
+<p>  Parameters: # <em>widget</em>: identifier of the interface element. # <em>attribute</em>: the (upper-case) name of the attribute to change. If the name  is given in the wrong case then it will be converted to upper-case. # <em>ih_named</em> element to associate using a name</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSetGlobal</font><font color="#880033">(</font><font color="#330033">string name, </font><font color="#0000FF">object </font><font color="#330033">val</font><font color="#880033">)</font>
+</pre>
+
+<p>  Sets an attribute in the public environment.  If the driver process the attribute then it will not be stored internally.</p>
+
+<p>  Use upper-case for the attribute.</p>
+
+<p>  If the value is set to NULL (as it is by default) then the attribute setting  will be removed. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSetInt</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, string attr, </font><font color="#0000FF">integer </font><font color="#330033">val</font><font color="#880033">)</font>
+</pre>
+
+<p>  Sets the integer value of an interface element attribute. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSetStrAttribute</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, string attr, string val</font><font color="#880033">) </font><font color="#FF0055">-- sets an interface element attribute</font>
+</pre>
+
+<p>  Parameters: # <em>widget</em>: the widget whose attribute is to be changed # <em>attr</em>: the attribute to be changed # <em>val</em>: the new value</p>
+
+<p>  Use only when the attribute value is a string.</p>
+
+<p>  Use upper-case for the attribute and for many of the values. ==== Call back handling </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">Icallback</font><font color="#880033">(</font><font color="#330033">string name, </font><font color="#0000FF">atom </font><font color="#330033">rid = </font><font color="#0000FF">routine_id</font><font color="#993333">(</font><font color="#330033">name</font><font color="#993333">)</font><font color="#880033">) </font><font color="#FF0055">-- converts a routine_id to the appropriate form</font>
+</pre>
+
+<p>  Parameter: # <tt>name</tt>: the identifier of the appropriate callback routine for the given  action.</p>
+
+<p>  Returns: the callback. 
+<hr />
+blic function IupSetCallback(atom widget, string action, atom rid)  <del> associates a callback to an event equence arg = {widget, allocate_string(action), rid} eturn c_func(hIupSetCallback, arg) d function 
+<hr />
+</del> /*  Parameters: # <tt>widget</tt>: the (</strong>integer<strong>) identifier of an interface element # <tt>action</tt>: the name of the action to be trapped # <tt>rid</tt>: the id of the routine to be called when the action occurs</p>
+
+<p>  Returns: the address of the previous function associated with the action</p>
+
+<p> ==== Handles </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetHandle</font><font color="#880033">(</font><font color="#330033">string title</font><font color="#880033">)    </font><font color="#FF0055">-- get handle from name</font>
+</pre>
+
+<p>  Returns the identifier of an interface element that has an associated name  using IupSetHandle.</p>
+
+<p>  Parameter: the <tt>title</tt> of an interface element.</p>
+
+<p>  Returns: the element handle or NULL if not found. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetName</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget</font><font color="#880033">) </font><font color="#FF0055">-- finds the name of an interface element</font>
+</pre>
+
+<p>  Parameter: identifier of the interface, <em>widget</em></p>
+
+<p>  Returns: the name associated with the widget, set using <tt>IupSetHandle</tt> </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupSetHandle</font><font color="#880033">(</font><font color="#330033">string title, </font><font color="#0000FF">atom </font><font color="#330033">widget</font><font color="#880033">)    </font><font color="#FF0055">-- associate name with a handle</font>
+</pre>
+
+<p>  Associates a name with an interface element.</p>
+
+<p>  Parameters: * <tt>title</tt> - name of the interface element; * <tt>widget</tt> - identifier of the interface element.  Use NULL to remove the association. ==== Resources </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">allocate_image</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">data, </font><font color="#0000FF">integer </font><font color="#330033">cleanup = 0</font><font color="#880033">)</font>
+</pre>
+
+<p>  Creates an image to be shown on a label, button, toggle, or as a cursor.</p>
+
+<p>  Parameters: <tt>width</tt> - image width in pixels;  <tt>height</tt> - image height in pixels;  <tt>pixels</tt> - vector containing the value of each pixel.</p>
+
+<p> * IupImage uses 1 value per pixel, * IupImageRGB uses 3 values and * IupImageRGBA uses 4 values per pixel.</p>
+
+<p>  Returns: the identifier of the created element, or NULL if an error occurs. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetDialog</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">handle</font><font color="#880033">)</font>
+</pre>
+
+<p>  Gets the handle of the dialog that contains that interface element.  It works also for children of a menu that is associated with a dialog.</p>
+
+<p>  Parameter: the <tt>handle</tt> to an interface element.</p>
+
+<p>  Returns: the handle of the dialog or NULL if not found. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupImage</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">width, </font><font color="#0000FF">atom </font><font color="#330033">height, </font><font color="#0000FF">object </font><font color="#330033">pixmap</font><font color="#880033">)</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupImageRGB</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">width, </font><font color="#0000FF">atom </font><font color="#330033">height, </font><font color="#0000FF">object </font><font color="#330033">pixmap</font><font color="#880033">)</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupImageRGBA</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">width, </font><font color="#0000FF">atom </font><font color="#330033">height, </font><font color="#0000FF">object </font><font color="#330033">pixmap</font><font color="#880033">)</font>
+</pre>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupImageLibOpen</font><font color="#880033">() </font><font color="#FF0055">-- opens a library of pre-defined stock images for buttons and labels</font>
+</pre>
+
+<p>  == Layout (hierarchy) </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetChildCount</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget</font><font color="#880033">) </font><font color="#FF0055">-- returns the number of children of the given control</font>
+</pre>
+
+<p>  Parameter: the <tt>widget</tt> to investigate.</p>
+
+<p>  Returns: number of children. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetChildPos</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget, </font><font color="#0000FF">atom </font><font color="#330033">child</font><font color="#880033">) </font><font color="#FF0055">-- gets the position of a child of the given control</font>
+</pre>
+
+<p>  Parameters: the <tt>widget</tt> to investigate,  the <tt>child</tt> of interest</p>
+
+<p>  Returns: the position of the desire child starting at 0,  or -1 if the child is not found. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupGetParent</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">widget</font><font color="#880033">) </font><font color="#FF0055">-- gets the parent of a widget</font>
+</pre>
+
+<p>  Parameter: the <tt>widget</tt> to investigate.</p>
+
+<p>  Returns: the handle of the parent or NULL,  if the widget does not have a parent. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupReparent</font><font color="#880033">(</font><font color="#0000FF">integer </font><font color="#330033">child, </font><font color="#0000FF">integer </font><font color="#330033">new_parent, </font><font color="#0000FF">integer </font><font color="#330033">ref_child</font><font color="#880033">)</font>
+</pre>
+
+<p>  Moves an interface element from one position in the hierarchy tree to another.</p>
+
+<p>  Parameters: <tt>child</tt>: Identifier of the element to be moved,  <tt>new_parent</tt>: Identifier of the new parent  <tt>ref_child</tt>: Identifier of the element to be used as reference, where  the child will be inserted before it. It can be NULL. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupTimer</font><font color="#880033">() </font><font color="#FF0055">-- creates a timer which periodically invokes a callback when the time is up</font>
+</pre>
+
+<p>  Each timer should be destroyed using IupDestroy.</p>
+
+<p>  Returns:</p>
+
+<p>  the identifier of the created element, or NULL if an error occurs.</p>
+
+<p>  See the IUP documentation for the appropriate set of Attributes.  == Layout (management) </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupInsert</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">container, </font><font color="#0000FF">atom </font><font color="#330033">ref_child, </font><font color="#0000FF">atom </font><font color="#330033">new_child</font><font color="#880033">) </font><font color="#FF0055">-- inserts an interface element before another child of the container</font>
+</pre>
+
+<p>  Valid for any element that contains other elements like dialog, frame, hbox,  vbox, zbox, menu, etc.</p>
+
+<p>  Parameters: <tt>container</tt> - identifier of the container interface element,  <tt>new_child</tt> - identifier of the element to be used as reference.  Can be NULL to insert as the first element,  <tt>ref_child</tt> - identifier of the element to be inserted before the reference.</p>
+
+<p>  Returns: the actual parent if the interface element was successfully inserted.  Otherwise returns NULL. Notice that the desired parent can  contains a set of elements and containers where the child will be actually  attached so the function returns the actual parent of the element. </p>
+
+<pre class="examplecode"><font color="#0000FF">public function </font><font color="#330033">IupRefresh</font><font color="#880033">(</font><font color="#0000FF">atom </font><font color="#330033">dialog</font><font color="#880033">)</font>
+</pre>
+
+<p>  Updates the size and layout of all controls in the same <tt>dialog</tt>.</p>
+
+<p>  To be used after changing size attributes, or attributes that affect the  size of the control. Can be used for any element inside a dialog, but the  layout of the dialog and all controls will be updated.  It can change the layout of all the controls inside the dialog because of  the dynamic layout positioning.</strong></p>
 </body></html>
