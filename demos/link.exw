@@ -1,0 +1,97 @@
+--------------------------------------------------------------------------------
+-- Demonstration: link.exw
+--------------------------------------------------------------------------------
+-- Notes:
+--
+-- Tested successfully on v4.0.5 and on v4.1.0(32-bit and 64-bit)
+--------------------------------------------------------------------------------
+--/*
+--= Program: (iup4eu)(demos)link.exw
+-- Description: creates a label with a link 
+------
+--[[[Version: 4.0.5.0
+--Euphoria Versions: 4.0.5 upwards 
+--Author: C A Newbould
+--Date: 2020.12.23
+--Status: operational
+--Changes:]]]
+--* set out in standard arrangement
+--
+--==Link Example
+--
+-- Creates a label on which is placed an IupLink widget.
+------
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Euphoria types
+--
+--------------------------------------------------------------------------------
+type Ihandle(object x)
+    return 1
+end type
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+function btn_quit()
+	return IUP_CLOSE
+end function
+--------------------------------------------------------------------------------
+-- Main program
+procedure main() 
+    -- Initializes IUP
+    IupOpen()
+    -- Program begins 
+    -- Creates a label; align it; colour it
+    Ihandle lbl = IupLabel("This example shows how to link a text to a URL") 
+    IupSetAttributes(lbl, "ALIGNMENT=ACENTER, FGCOLOR = \"255 0 0\"")	-- RED
+    -- Creates a link; align it
+    Ihandle link = IupLink("http://openeuphoria.org/", "Euphoria")	-- BLUE for links 
+    IupSetAttribute(link, "ALIGNMENT", "ACENTER")
+    -- Creates a button, with exit routine
+    Ihandle btn = IupButton("Exit, when finished")
+    IupSetCallback(btn, "ACTION", Icallback("btn_quit"))
+    -- Creates the box; force children to expand
+    Ihandle box = IupVbox({lbl, link, btn})
+    IupSetAttributes(box, "EXPANDCHILDREN=YES, GAP=30")
+    -- Creates dialog with the label
+    Ihandle dlg = IupDialog(box)
+    -- Sets title of the dialog 
+    IupSetAttributes(dlg, "TITLE=\"IupLink Example\", SIZE=Quarterxquarter") 
+    -- Shows dialog in the centre of the screen
+    IupShowXY(dlg, IUP_CENTRE, IUP_CENTER)	-- English or US OK
+    -- Initializes IUP main loop
+    IupMainLoop() 
+    -- Finishes IUP 
+    IupClose() 
+    -- Program ends
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main()
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
