@@ -5,17 +5,22 @@
 --%%disallow={camelcase}
 --*/
 --------------------------------------------------------------------------------
+-- Notes:
+--
+-- IupGetParam needs defining next    
+--------------------------------------------------------------------------------
 --/*
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.46
+--[[[Version: 4.0.5.47
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2020.12.23
+-- Date: 2020.12.30
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupLink## defined
+--  * ##IupGetFile## defined
+--  * ##IupGetText## defined
 --
 ------
 --
@@ -292,6 +297,53 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+public function IupGetFile(string filename) -- shows a modal dialog of the native interface system to select a filename
+    atom fn = allocate_string(filename)
+    return {doC("IupGetFile", {C_POINTER}, {fn}, C_INT), peek_string(fn)}
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Uses the IupFileDlg element.
+--
+-- Parameters:
+--# //filename//: the (**string**) default filter and directory
+--
+-- Returns:
+--
+-- a **sequence** containing two elements:
+--# an **integer** status code, whose values can be:
+--* //1//: New file.
+--* //0//: Normal, existing file.
+--* //-1//: Operation cancelled.
+--# a **string**: containing the full pathname of the selected file
+--
+--*/
+--------------------------------------------------------------------------------
+public function IupGetText(string title, string text, integer maxsize=10240) -- shows a modal dialog to edit a multiline text
+    atom tn = allocate_string(text)
+    return {doC("IupGetText", {C_POINTER, C_POINTER, C_INT},
+                {allocate_string(title), tn, maxsize}, C_INT), peek_string(tn)}
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameters:
+--# //title//: the (**string**) caption of the dialog
+--# //text//: the (**string**) text value
+--# //maxsize//: maximum size for the edited string [default = 10240]
+--  If set to 0 will be the current length of text,
+--  if set to -1 the dialog will be read-only and only the OK button is displayed
+--
+-- Returns:
+--
+-- a **sequence** containing two elements:
+--# an **integer** a non zero value if successful
+--# a **string**: containing the resulting text value
+--
+-- The function does not allocate memory space to store the text entered by
+-- the user. Therefore, the text parameter must be large enough to contain the
+-- user input. The returned string is limited to //maxsize// characters.
+--*/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 public function IupMessage(string title, string message)  -- shows a modal dialog containing a message
     return doC("IupMessage", {C_POINTER, C_POINTER},
                 {allocate_string(title), allocate_string(message)})
@@ -1529,6 +1581,14 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.46
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.12.23
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupLink## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.45
 -- Euphoria Verion: v4.0.5 and later
