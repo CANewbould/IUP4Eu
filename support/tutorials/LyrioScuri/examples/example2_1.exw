@@ -1,0 +1,31 @@
+-- example2_1.exw
+
+-- LyrioScuri Tutorial
+
+/* 
+#include <stdlib.h>
+#include <iup.h>
+
+int main(int argc, char **argv)
+{
+  IupOpen(&argc, &argv);
+  
+  IupMessage("Hello World 1", "Hello world from IUP.");
+  
+  IupClose();
+  return EXIT_SUCCESS;
+}
+*/
+
+include iup.ew                                      -- 1
+
+function main()
+    IupOpen()                                       -- 2
+    IupMessage("Hello World 1", "Hello from IUP")   -- 3
+    --IupMainLoop()                                 -- 4
+    IupClose()                                      -- 5
+    return EXIT_SUCCESS                             -- 6
+end function
+
+-- execution
+main()                                              -- 7
