@@ -1,0 +1,37 @@
+-- Example 12
+-- Using a Timer
+
+include iup.ew
+
+IupOpen()
+constant timer = IupTimer(),
+	btn = IupButton("Start"),
+	dlg = IupDialog(btn)
+
+function button_action()
+	if equal(IupGetAttribute(btn, "TITLE"), "Stop") then
+		IupSetAttribute(timer, "RUN", "NO")
+		IupSetAttribute(btn, "TITLE", "Start")
+	else
+		IupSetAttribute(timer, "RUN", "YES")
+		IupSetAttribute(btn, "TITLE", "Stop")
+	end if
+	return IUP_CONTINUE
+end function
+
+function timer_cb()
+	puts(1, "timer!\t")
+	return IUP_DEFAULT
+end function
+
+IupSetAttribute(btn, "EXPAND", "YES")
+IupSetCallback(btn, "ACTION", Icallback("button_action"))
+IupSetCallback(timer, "ACTION_CB", Icallback("timer_cb"))
+IupSetAttribute(timer, "RUN", "NO")
+IupSetAttribute(timer, "TIME", "500")
+IupSetAttribute(dlg, "TITLE", "Timer!")
+IupSetAttribute(dlg, "SIZE", "200x100")
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+IupMainLoop()
+IupDestroy(timer)
+IupClose()

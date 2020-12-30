@@ -1,0 +1,31 @@
+-- Example 5c
+-- Asking for a Single String, a Number, choosing from a List and selecting a Radio Button
+
+include std/dll.e
+include std/text.e
+include std/types.e
+include std/utils.e
+include iup.ew
+
+function make_list(sequence list, string prompt)
+	string result = prompt & ": %l|"
+	for i = 1 to length(list) do
+	result &= list[i] & "|"
+	end for
+	return result & "\n"
+end function
+
+IupOpen()
+
+constant title = "Little questionnaire",
+	eyes = {"Blue", "Brown", "Green", "Grey", "Black", "Mixed"}
+sequence res = IupGetParam(title, 0, 0,
+			"Give your name: %s\n" & "Give your age: %i\n" &
+			make_list(eyes, "Eye colour") &
+			"Like ice cream: %b\n",
+			{"", 0, 0, TRUE})
+IupMessage(res[2], "My detail:" & "\nAge = " & sprint(res[3]) & 
+			"\nEyes = " & eyes[res[4]+1] &
+			"\nLike ice cream = " & iif(res[5], "Yes", "No"))
+IupClose()
+­1.0

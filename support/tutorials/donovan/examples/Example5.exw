@@ -1,0 +1,14 @@
+-- Example 5
+-- Asking for a Single String, or Number
+
+include std/dll.e
+include std/types.e
+include iup.ew
+
+IupOpen()
+string name = "IupGetParam"
+string x = ""
+sequence res = IupGetParam(name, 0, 0,
+			"Give your name: %s\n", {x})
+IupMessage("Hello", res[2])
+IupClose()

@@ -1,0 +1,33 @@
+-- Example 15a
+-- using trees (part 2))
+
+include iup.ew
+
+procedure tree_make(atom tree, sequence list)
+    IupSetAttribute(tree, "TITLE", list[1])
+    for i = 1 to length(list[2]) do
+        IupSetAttribute(tree, "ADDBRANCH", list[2][i][1])
+        if length(list[2][i]) > 1 then
+            for j = 1 to length(list[2][i][2]) do
+                IupSetAttribute(tree, "ADDLEAF1", list[2][i][2][j])
+            end for
+        end if
+    end for
+end procedure
+
+IupOpen()
+
+constant
+	tree = IupTree(),
+	dlg = IupDialog(tree),
+    list = {"Animals", {{"Mammals", {"Horse", "Whale"}},
+                        {"Crustaceans", {"Shrimp", "Lobster"}},
+                        {"Birds"}}}
+
+IupSetAttribute(dlg, "TITLE", "Tree Tests")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetAttribute(tree, "ADDEXPANDED", "YES")
+IupShow(dlg)
+tree_make(tree, list)
+IupMainLoop()
+IupClose()

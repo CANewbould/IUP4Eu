@@ -1,0 +1,18 @@
+-- Example 4
+-- Asking for Multiline Text
+
+include std/types.e
+include iup.ew
+
+procedure main( sequence cmd = command_line() )
+	IupOpen()
+	sequence resp = IupGetText("Name", "")
+	if resp[1] = 1 then
+		IupMessage("Thanks!", resp[2])
+	end if
+	IupClose()
+
+end procedure
+
+main()
+­1.0

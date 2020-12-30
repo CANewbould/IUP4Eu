@@ -1,0 +1,56 @@
+-- Example16a.exw
+
+include iup.ew
+
+function default()
+    IupMessage("Warning", "Only Exit performs an operation")
+    return IUP_DEFAULT
+end function
+
+function do_close()
+    return IUP_CLOSE
+end function
+
+
+IupOpen()
+
+constant
+-- Creates a text, sets its value and turns on text read-only mode
+    text = IupText(),
+    dlg = IupDialog(text),
+    -- build up menu structure
+    new_item = IupItem("New"),
+    open_item = IupItem("Open"),
+    close_item = IupItem("Close"),
+    exit_item = IupItem("Exit"),
+    file_menu = IupMenu({new_item, open_item, close_item, IupSeparator(),
+                exit_item}),
+    menu_file = IupSubmenu("File", file_menu),
+    copy_item = IupItem("Copy"),
+    paste_item = IupItem("Paste"),
+    dos_item = IupItem("DOS"),
+    unix_item = IupItem("UNIX"),
+    format_menu = IupMenu({dos_item, unix_item}),
+    menu_format = IupSubmenu("Format", format_menu),
+    edit_menu = IupMenu({copy_item, paste_item, IupSeparator(), menu_format}),
+    menu_edit = IupSubmenu("Edit", edit_menu),
+    the_menu = IupMenu({menu_file, menu_edit})
+    
+IupSetHandle("mymenu", the_menu)
+IupSetAttributes(text, "EXPAND=YES, READONLY=YES, VALUE=\"Some text\"")
+IupSetAttributes(dlg, "TITLE=\"Creating Menus the long way!\", MENU=mymenu, SIZE=THIRDxQUARTER")
+-- set all menu callbacks
+IupSetCallback(new_item, "ACTION", Icallback("default"))
+IupSetCallback(open_item, "ACTION", Icallback("default"))    
+IupSetCallback(close_item, "ACTION", Icallback("default"))
+IupSetCallback(exit_item, "ACTION", Icallback("do_close"))
+IupSetCallback(copy_item, "ACTION", Icallback("default"))
+IupSetCallback(paste_item, "ACTION", Icallback("default"))
+IupSetCallback(dos_item, "ACTION", Icallback("default"))
+IupSetCallback(unix_item, "ACTION", Icallback("default"))
+
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+
+IupMainLoop()
+
+IupClose()    

@@ -1,0 +1,22 @@
+-- Example 14a
+-- using lists
+
+include iup.ew
+include std/types.e
+
+IupOpen()
+
+function list_action(integer t, integer i, integer v, boolean z)
+	printf(1, "%s %d %d\n", {peek_string(i), v, z})	-- peek_string(t) yields "IUP"
+	return IUP_DEFAULT
+end function
+
+constant
+	list = IupList(),
+	dlg = IupDialog(list)
+IupSetAttributes(list, "1=Horses, 2=Dogs, 3=Pigs, 4=Humans")
+IupSetCallback(list, "ACTION", Icallback("list_action"))
+IupSetAttributes(dlg, "TITLE=Lists, SIZE=QUARTERxQUARTER")
+IupShow(dlg)
+IupMainLoop()
+IupClose()

@@ -1,0 +1,290 @@
+/* special css for MiniManual */
+
+p 	{  
+    /* standard paragraph */
+	
+    background-color: ##FFF;
+	
+	 font-family : "Dejavu Sans ", serif;  
+	 
+    
+	font-size : 14pt ; 	
+	margin-left: 3cm;
+	margin-right: 4cm;
+	page-break-before: auto;
+	}
+
+	/* eucode section */
+pre {
+
+	font-family :   "Dejavu Sans Mono";
+	font-size: 14pt;
+    	background-color: #EEF;
+    
+	padding-left: 1ex;
+	padding-top: 1ex;
+	padding-bottom: 1ex;
+    
+	width: 75%;
+
+	margin-left: 3cm;
+	margin-right: 4cm;
+    
+  
+}
+
+h1 {
+	/* chapter titles have blue background */
+	
+    /* background-color: #99ccff;*/
+	color: #00F;
+	
+    /*padding-left: 4ex;*/
+	/*padding-top: 1ex;*/
+	/*padding-bottom: 1ex;*/
+    
+	font-family: "Exo 2.0", "Sansation", sans-serif;
+    
+	font-size: 55pt;
+	
+    page-break-before: always;
+
+	
+}
+
+h2 {
+	/* major section is in left margin */
+	background-color: #ffffff;
+	color: #00F;
+	font-family: "Exo 2.0", "Sansation", sans-serif;
+	page-break-before: auto;
+	font-size: 28pt;
+	margin-left: 0.5cm;
+	margin-right: 1.5cm;
+	page-break-after: avoid;
+}
+
+h3 {
+	/* minor section is aligned with text */
+	color: #00F;
+	font-family: "Exo 2.0", "Sansation", sans-serif;
+	font-size: 14pt;
+	margin-left: 3.5cm;
+	margin-right: 1.5cm;
+	page-break-after: avoid;
+}
+
+h4 {
+	/* identifier name */
+    
+	color: #F60;
+	/*background-color: #CCCCDD;*/
+	
+	/*
+	font-family:  "Droid Sans Mono", monospace;
+	*/
+	
+	font-family: "Exo 2.0";
+	
+	font-size: 18pt;
+    
+	margin-left: 1cm;
+	/*padding-left: 2.0cm;*/
+	padding-bottom: 01.cm;
+	margin-right: 1.5cm;
+	
+    /*margin-top: 1.5cm;*/
+	margin-bottom: 0cm;
+
+    }
+
+h5 {
+     
+    /* note */ 
+     
+	color: #F60;
+	font-family: ""Exo 2.0", "Sansation", sans-serif;;
+	font-size: 18pt;
+	margin-left: 5cm;
+	margin-right: 1.5cm;
+	margin-top: 0pt;
+	margin-bottom: 0pt;
+    }
+
+h6 {
+	/* used for cover page font */
+	font-family: "Sansation", san-serif;
+	font-size: 48pt;
+    }
+
+
+
+h7 {
+	/* used for "trick" pdf search anchors 
+	 * feature invisible ink */
+	font-family: sans;  
+	color: #FF0000;
+	font-size: 10pt;
+	}
+
+
+
+
+
+div {
+	margin-left: 20px;
+	margin-left: 2.5cm;
+	margin-right: 1.5cm;
+
+}
+
+div.toc_2 {
+	margin-left: 60px;
+	color: #00F;
+	margin-left: 3.5cm;
+	margin-right: 1.5cm;
+
+}
+
+div.toc_3 {
+	margin-left: 4.5cm;
+	margin-right: 1.5cm;
+
+}
+
+div.toc_4 {
+	color: rgb(200, 000, 000 );
+	margin-left: 5.5cm;
+	margin-right: 2.5cm;
+
+}
+
+
+/* TOM */
+
+div.floatleft {
+	color: #00F;
+	float: left;
+	margin-left: 5cm;
+	margin-right: 1.5cm;
+
+}
+
+/* use for marginalia */
+
+div.floatright {
+	color: rgb(200, 000, 000);
+	float: right;
+	margin-left: 2.5cm;
+	/*margin-right: 1cm;*/
+		text-color: red;
+
+}
+
+/* output on a terminal screen */
+
+div.terminal {
+	font-family : "Dejavu Sans Mono";
+	font-size : 13pt ; 
+    font-weight : bold;
+    color : #FFF; 
+    background-color: #292421;  /* was #141471; */
+
+    
+       
+    padding-top : 1ex;
+    padding-bottom : 1ex;   
+    padding-left : 1ex; 
+        
+    width: 75%;
+    margin-left: 3cm;   /* was 6cm; */
+    margin-right: 4cm;
+   
+}
+
+
+
+dt { 
+    /* define word */
+	font-family : "Dejavu Sans", serif;  
+	font-size : 14pt ;  
+	margin-left: 3.5cm; 
+	margin-right: 3.5cm;
+   }
+   
+dd { 
+    /* define definition */
+	font-family : "Dejavu Sans", serif;  
+	font-size : 14pt;  
+	text-indent: 0.5cm;
+	margin-left: 4.5cm; 
+	margin-right: 3.5cm;
+	background-color: rgb(244, 234, 234);
+   }
+   
+   
+ul {
+		font-family : "Dejavu Sans", serif;  
+	font-size : 14pt ; 
+	margin-left: 2.5cm;
+		margin-right: 2cm;
+	}  
+	
+
+ol {
+	font-family : "Dejavu Sans", serif;  
+	font-size : 14pt ; 
+	margin-left: 2.5cm;
+	margin-right: 2cm;
+	}
+	
+
+    
+    
+table 
+	{
+	font-family: "Dejavu Sans", serif;
+	font-size: 14pt;	
+	margin-left: 2.5cm;
+	margin-right: 2cm;
+	}   
+	
+td 
+	{
+	background-color: rgb(234, 244, 234);	
+	}	
+
+
+
+/* inline ## ## marked text */
+tt {
+	font-family : "Dejavu Sans Mono";
+    	background-color: rgb(240, 240, 254);
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+	
+	}
+
+
+/* links are now in green, no underlining */
+a:link {
+	    color: #008000;
+	    text-decoration: none
+	    }
+	    
+a:visited {
+		   color: #cccccc;
+		   text-decoration: none
+		   }
+		   
+a:active {
+			color: #ff0000;
+			text_decoration: underlined
+			}
+			
+a:hover {
+			color: #3300ff;
+			text-decoration: underlined
+			}

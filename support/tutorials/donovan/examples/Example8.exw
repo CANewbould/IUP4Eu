@@ -1,0 +1,27 @@
+-- Example 8
+-- Two buttons in a box!
+
+include iup.ew
+
+function btn1_action()
+	IupMessage("Note", "I have been clicked")
+	return IUP_CONTINUE
+end function
+
+function btn2_action()
+	IupMessage("Note", "Me too!")
+	return IUP_CONTINUE
+end function
+
+IupOpen()
+constant btn1 = IupButton("Click me!"),
+	btn2 = IupButton("and me!"),
+	box = IupVbox({btn1, btn2}),
+	dlg = IupDialog(box)
+IupSetAttribute(dlg, "TITLE", "Simple Dialog")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetCallback(btn1, "ACTION", Icallback("btn1_action"))
+IupSetCallback(btn2, "ACTION", Icallback("btn2_action"))
+IupShow(dlg)
+IupMainLoop()
+IupClose()

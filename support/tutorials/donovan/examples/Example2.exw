@@ -1,0 +1,16 @@
+-- Example 2
+
+include iup.ew
+IupOpen()
+
+atom b = IupAlarm("IupAlarm Example", "File not saved! Save it now?" ,"Yes" ,"No" ,"Cancel")
+-- Shows a message for each selected button
+switch b do
+    case 1 then
+        IupMessage("Save file", "File saved sucessfully - leaving program")
+    case 2 then
+        IupMessage("Save file", "File not saved - leaving program anyway")
+    case 3 then
+        IupMessage("Save file", "Operation cancelled")
+end switch
+IupClose()

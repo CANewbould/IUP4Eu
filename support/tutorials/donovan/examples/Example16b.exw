@@ -1,0 +1,71 @@
+-- Example16b.exw
+
+include iup.ew
+
+function default()
+    IupMessage("Warning", "Only Exit performs an operation")
+    return IUP_DEFAULT
+end function
+
+function do_close()
+    return IUP_CLOSE
+end function
+
+constant
+mmenu = {{"File", {"New", "default"}, {"Open", "default"}, {"Close", "default"}, 
+                    {"-", "nil"}, {"Exit", "do_close"}}, 
+        {"Edit", {"Copy", "default"}, {"Paste", "default"}, {"-", "nil"},
+                    {"Format", {"DOS", "default"}, {"UNIX", "default"}}
+        }
+}
+
+function create_menu(sequence source)
+    sequence items = {}, the_menu = {}
+    for i = 1 to length(source) do
+        sequence menu_name = source[i][1]
+        for j = 2 to length(source[i]) do
+            atom item
+            sequence menu = source[i][j]
+            if length(menu) = 2 then
+                if equal(menu[1], "-") then
+                    item = IupSeparator()
+                    items = append(items, item)
+                else
+                    item = IupItem(menu[1])
+                    IupSetCallback(item, "ACTION", Icallback(menu[2]))
+                    items = append(items, item)
+                end if
+            else
+                sequence its = {}, mnu_name = menu[1]
+                for k = 2 to length(menu) do
+                    sequence mnu = menu[k]
+                    item = IupItem(mnu[1])
+                    IupSetCallback(item, "ACTION", Icallback(mnu[2]))
+                    its = append(its, item)
+                end for
+                items = append(items, IupSubmenu(mnu_name, IupMenu(its)))                    
+            end if
+        end for
+        the_menu = append(the_menu, IupSubmenu(menu_name, IupMenu(items)))
+        items = {}
+    end for
+    return IupMenu(the_menu)
+end function
+
+IupOpen()
+
+constant
+-- Creates a text, sets its value and turns on text read-only mode
+    text = IupText(),
+    dlg = IupDialog(text),
+    the_menu = create_menu(mmenu)
+    
+IupSetHandle("mymenu", the_menu)
+IupSetAttributes(text, "EXPAND=YES, READONLY=YES, VALUE=\"Some text\"")
+IupSetAttributes(dlg, "TITLE=\"Creating Menus With a Sequence\", MENU=mymenu, SIZE=THIRDxQUARTER")    
+
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+
+IupMainLoop()
+
+IupClose()    

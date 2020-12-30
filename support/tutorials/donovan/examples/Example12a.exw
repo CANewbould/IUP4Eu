@@ -1,0 +1,52 @@
+-- Example 12a
+-- Using a Gauge
+
+include iup.ew
+include std/text.e
+
+IupOpen()
+constant timer = IupTimer(),
+	gauge = IupProgressBar(),
+	btn = IupButton("Start"),
+	box = IupVbox({gauge, btn}),
+	dlg = IupDialog(box)
+
+atom val = 0
+
+function button_action()
+	if equal(IupGetAttribute(btn, "TITLE"), "Stop") then
+		IupSetAttribute(timer, "RUN", "NO")
+		IupSetAttribute(btn, "TITLE", "Start")
+	elsif equal(IupGetAttribute(btn, "TITLE"), "Ended") then
+		return IUP_CLOSE
+	else
+		IupSetAttribute(timer, "RUN", "YES")
+		IupSetAttribute(btn, "TITLE", "Stop")
+	end if
+	return IUP_CONTINUE
+end function
+
+function timer_cb()
+	if val < 1 then
+		val += .05
+		IupSetAttribute(gauge, "VALUE", sprint(val))
+	else
+		IupDestroy(timer)
+		IupSetAttribute(btn, "TITLE", "Ended")
+	end if
+	return IUP_DEFAULT
+end function
+
+IupSetAttribute(btn, "EXPAND", "YES")
+IupSetAttribute(gauge, "EXPAND", "YES")
+IupSetAttribute(gauge, "VALUE", "0")
+IupSetCallback(btn, "ACTION", Icallback("button_action"))
+IupSetCallback(timer, "ACTION_CB", Icallback("timer_cb"))
+IupSetAttribute(timer, "RUN", "NO")
+IupSetAttribute(timer, "TIME", "500")
+IupSetAttribute(dlg, "TITLE", "Timer!")
+IupSetAttribute(dlg, "SIZE", "200x100")
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+IupMainLoop()
+IupClose()
+­1.0

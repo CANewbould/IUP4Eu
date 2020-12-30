@@ -1,0 +1,20 @@
+-- Example 9
+-- Nested boxes
+
+include iup.ew
+
+IupOpen()
+constant btn1 = IupButton("Click me!"),
+	btn2 = IupButton("and me!"),
+	bbox = IupHbox({btn1, btn2}),
+	text = IupText(),
+	box = IupVbox({bbox, text}),
+	dlg = IupDialog(box)
+IupSetAttribute(bbox, "GAP", "6")
+IupSetAttribute(dlg, "TITLE", "Nested boxes")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetAttribute(text, "EXPAND", "YES")
+IupSetAttribute(text, "MULTILINE", "YES")
+IupShow(dlg)
+IupMainLoop()
+IupClose()

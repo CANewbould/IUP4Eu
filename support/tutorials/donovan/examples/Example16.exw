@@ -1,0 +1,44 @@
+-- Example16.exw                                      
+
+include iup.ew
+
+IupOpen()
+
+constant
+-- Creates a text, sets its value and turns on text read-only mode
+    text = IupText(),
+    item_show = IupItem("Show"),
+    item_hide = IupItem("Hide"),
+    item_exit = IupItem("Exit"),
+    menu = IupMenu({item_show, item_hide, item_exit}),
+    dlg = IupDialog(text)
+
+-- Define callbacks
+function item_show_action()
+    IupSetAttribute(text, "VISIBLE", "YES")
+    return IUP_DEFAULT
+end function
+
+function item_hide_action()
+    IupSetAttribute(text, "VISIBLE", "NO")
+    return IUP_DEFAULT
+end function
+
+function item_exit_action()
+  return IUP_CLOSE
+end function
+
+-- Assign callbacks
+IupSetCallback(item_show, "ACTION", Icallback("item_show_action"))
+IupSetCallback(item_hide, "ACTION", Icallback("item_hide_action"))
+IupSetCallback(item_exit, "ACTION", Icallback("item_exit_action"))
+-- Set all attributes
+IupSetHandle("mymenu", menu)
+IupSetAttributes(text, "EXPAND=YES, READONLY=YES, VALUE=\"Show or hide this text\"")
+IupSetAttributes(dlg, "TITLE=\"Menu Example\", MENU=mymenu, SIZE=QUARTERxQUARTER")    
+
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+
+IupMainLoop()
+
+IupClose()

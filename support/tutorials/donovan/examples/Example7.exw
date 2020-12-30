@@ -1,0 +1,20 @@
+-- Example 7
+-- Button click
+
+include std/types.e
+include iup.ew
+
+function button_action()
+	IupMessage("Note", "I have been clicked")
+	return IUP_CONTINUE
+end function
+
+IupOpen()
+constant btn = IupButton("Click me!"),
+	dlg = IupDialog(btn)
+IupSetAttribute(dlg, "TITLE", "Simple Dialog")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetCallback(btn, "ACTION", Icallback("button_action"))
+IupShow(dlg)
+IupMainLoop()
+IupClose()

@@ -1,0 +1,25 @@
+-- Example 15
+-- using trees
+
+include iup.ew
+
+IupOpen()
+
+constant
+	tree = IupTree(),
+	dlg = IupDialog(tree)
+
+IupSetAttribute(dlg, "TITLE", "Tree Tests")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetAttribute(tree, "ADDEXPANDED", "NO")
+IupShow(dlg)
+IupSetAttribute(tree, "TITLE",  "Animals")
+IupSetAttribute(tree, "ADDBRANCH", "Mammals")
+IupSetAttribute(tree, "ADDLEAF1", "Horse")
+IupSetAttribute(tree, "ADDLEAF1", "Whale")
+IupSetAttribute(tree, "ADDBRANCH", "Crustaceans")
+IupSetAttribute(tree, "ADDLEAF1", "Shrimp")
+IupSetAttribute(tree, "ADDLEAF1", "Lobster")
+IupSetAttribute(tree, "ADDBRANCH", "Birds")
+IupMainLoop()
+IupClose()

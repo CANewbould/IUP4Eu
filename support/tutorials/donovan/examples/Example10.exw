@@ -1,0 +1,26 @@
+-- Example 10
+-- Using Frames
+
+include iup.ew
+
+IupOpen()
+constant edit1 = IupText(),
+	edit2 = IupText(),
+	frame1 = IupFrame(edit1),
+	frame2 = IupFrame(edit2),
+	box = IupVbox({frame1, frame2}),
+	dlg = IupDialog(box)
+IupSetAttribute(box, "GAP", "6")
+IupSetAttribute(frame1, "TITLE", "First")
+IupSetAttribute(frame2, "TITLE", "Second")
+IupSetAttribute(dlg, "TITLE", "Using Frames")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetAttribute(edit1, "EXPAND", "YES")
+IupSetAttribute(edit2, "EXPAND", "YES")
+IupSetAttribute(edit1, "MULTILINE", "YES")
+IupSetAttribute(edit1, "MULTILINE", "YES")
+IupSetAttribute(edit1, "VALUE", "Number 1")
+IupSetAttribute(edit2, "VALUE", "Number 2")
+IupShow(dlg)
+IupMainLoop()
+IupClose()

@@ -1,0 +1,865 @@
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+ <title></title>
+ <link rel="stylesheet" media="screen, projection, print" type="text/css" href="style.css"/>
+<!-- source="donovan.cr" -->
+</head>
+<body>
+
+<a name="_0_basicguidetousingiup4eu"></a><a name="basicguidetousingiup4eu"></a><h1>Basic Guide to using iup4eu</h1>
+<p> <strong>Original by Steve Donovan, for IupLua; modified for iup4eu by Charles Newbould</strong> </p>
+
+<p> iup4eu is a cross-platform kit for creating GUI applications in Open Euphoria. There are particularly powerful facilities for getting user input that doesn't require complicated coding, so it is particularly good for getting GUI applications up-and-running quickly. </p>
+
+<p> Attributes are a very important concept in IUP. A lot of the task of programming in Iup is effected by set(ting) and get(ting) them. In iup4eu case is significant for all attributes, "SIZE" works whereas "size" doesn't. Secondly, the value assigned by setting, or obtained by getting is always a string (sequence) even if the value is numeric, eg setting "TIME" to "500". Writing to a non-existent  attribute will not give you an error, so proof-read carefully. An attribute is more than just a property that a widget ("control" in Iup) carries like a snail carries a shell; writing to an attribute often causes some action; e.g the visible attribute of controls can be used to hide them. It is best to think of them as a special kind of function call. </p>
+
+<p> All the examples presented here and some utilities can be found at the "examples" folder. </p>
+
+<a name="_1_simpleoutput"></a><a name="simpleoutput"></a><h2>Simple Output</h2>
+<p> Even simple scripts need to give the user some feedback. Otherwise people get anxious and start worrying if their files really have been backed up, for example. This is easy in iup4eu, and takes exactly one line. Note that all iup4eu programs must at least have at least three statements: </p>
+
+<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#FF0055">-- meaningful code here </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> For example: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 1 </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#330033">IupMessage</font><font color="#880033">(</font><font color="#330033">"YourApp"</font><font color="#330033">,</font><font color="#330033">"Finished Successfully!"</font><font color="#880033">) </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> is just about as short as it gets; even though it is arguable that it is not a program at all! </p>
+
+<p> Of course, many operations require confirmation from the user. The function IupAlarm is designed for this: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 2 </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#00A033">atom </font><font color="#330033">b = IupAlarm</font><font color="#880033">(</font><font color="#330033">"IupAlarm Example"</font><font color="#330033">, </font><font color="#330033">"File not saved! Save it now?" </font><font color="#330033">,</font><font color="#330033">"Yes" </font><font color="#330033">,</font><font color="#330033">"No" </font><font color="#330033">,</font><font color="#330033">"Cancel"</font><font color="#880033">) </font>
+ 
+<font color="#FF0055">-- Shows a message for each selected button </font>
+<font color="#0000FF">switch </font><font color="#330033">b </font><font color="#0000FF">do </font>
+<font color="#0000FF">    case </font><font color="#330033">1 </font><font color="#0000FF">then </font>
+<font color="#330033">        IupMessage</font><font color="#880033">(</font><font color="#330033">"Save file"</font><font color="#330033">, </font><font color="#330033">"File saved sucessfully - leaving program"</font><font color="#880033">) </font>
+<font color="#0000FF">    case </font><font color="#330033">2 </font><font color="#0000FF">then </font>
+<font color="#330033">        IupMessage</font><font color="#880033">(</font><font color="#330033">"Save file"</font><font color="#330033">, </font><font color="#330033">"File not saved - leaving program anyway"</font><font color="#880033">) </font>
+<font color="#0000FF">    case </font><font color="#330033">3 </font><font color="#0000FF">then </font>
+<font color="#330033">        IupMessage</font><font color="#880033">(</font><font color="#330033">"Save file"</font><font color="#330033">, </font><font color="#330033">"Operation cancelled"</font><font color="#880033">) </font>
+<font color="#0000FF">end switch </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> Like IupMessage, the first parameter appears in the title bar of the dialog box, the second parameter appears above the buttons, but IupAlarm allows you to specify a number of buttons. The return code will then tell you which button has been pressed, starting at 1 (which is always the way with Iup.) </p>
+
+<a name="_2_simpleinput"></a><a name="simpleinput"></a><h2>Simple Input</h2>
+<a name="_3_askingforafilename"></a><a name="askingforafilename"></a><h3>Asking for a Filename</h3>
+<p> The most common thing an interactive script will require from a user is a  file, or set of files. For simple cases, IupGetFile will do the job: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 3 </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">std/types.e </font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#330033">string name = </font><font color="#330033">"*.txt" </font>
+<font color="#00A033">sequence </font><font color="#330033">res = IupGetFile</font><font color="#880033">(</font><font color="#330033">name</font><font color="#880033">) </font>
+<font color="#330033">name = res</font><font color="#880033">[</font><font color="#330033">2</font><font color="#880033">] </font>
+ 
+<font color="#00A033">integer </font><font color="#330033">err = res</font><font color="#880033">[</font><font color="#330033">1</font><font color="#880033">] </font>
+<font color="#0000FF">if </font><font color="#330033">err = 1 </font><font color="#0000FF">then </font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"New file"</font><font color="#330033">, name</font><font color="#880033">) </font>
+<font color="#0000FF">elsif </font><font color="#330033">err = 0 </font><font color="#0000FF">then </font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"File already exists"</font><font color="#330033">, name</font><font color="#880033">) </font>
+<font color="#0000FF">elsif </font><font color="#330033">err = -1 </font><font color="#0000FF">then </font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"IupGetFile"</font><font color="#330033">, </font><font color="#330033">"Operation cancelled"</font><font color="#880033">) </font>
+<font color="#0000FF">end if </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> This will present you with the standard Windows File Open dialog box, and allow you either to choose a filename or cancel the operation. Notice that this function returns a sequence yielding two values, a code and the filename. The code will tell you whether the file does not yet exist (if you typed a new filename into the file dialog box) or is an existing file. </p>
+
+<a name="_4_askingformultilinetext"></a><a name="askingformultilinetext"></a><h3>Asking for Multiline Text</h3>
+<p> The simplest way of getting general text is to use IupGetText: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 4 </font>
+<font color="#FF0055">-- Asking for Multiline Text </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">std/types.e </font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#0000FF">procedure </font><font color="#330033">main</font><font color="#880033">( </font><font color="#00A033">sequence </font><font color="#330033">cmd = </font><font color="#00A033">command_line</font><font color="#993333">() </font><font color="#880033">) </font>
+<font color="#330033">    IupOpen</font><font color="#880033">() </font>
+<font color="#00A033">    sequence </font><font color="#330033">resp = IupGetText</font><font color="#880033">(</font><font color="#330033">"Name"</font><font color="#330033">, </font><font color="#330033">""</font><font color="#880033">) </font>
+<font color="#0000FF">    if </font><font color="#330033">resp</font><font color="#880033">[</font><font color="#330033">1</font><font color="#880033">] </font><font color="#330033">= 1 </font><font color="#0000FF">then </font>
+<font color="#330033">        IupMessage</font><font color="#880033">(</font><font color="#330033">"Thanks!"</font><font color="#330033">, resp</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">]</font><font color="#880033">) </font>
+<font color="#0000FF">    end if </font>
+<font color="#330033">    IupClose</font><font color="#880033">() </font>
+<font color="#0000FF">end procedure </font>
+ 
+<font color="#330033">main</font><font color="#880033">() </font>
+</pre>
+
+<p> Using this dialog, you can enter as many lines as you like, and press OK. </p>
+
+<a name="_5_askingforasinglestringornumber"></a><a name="askingforasinglestringornumber"></a><h3>Asking for a Single String, or Number</h3>
+<p> A better option for asking for a single string is the very versatile IupGetParam: </p>
+
+<p> This has two advantages over plain IupGetText; you can give a prompt line, and you can press Enter after entering text. </p>
+
+<p> The format of the routine, however, is quite complex and needs some explanation. The (general) title of the dialog is given first. In our examples the next two parameters are set to zero, but they could be used in some cases. The fourth defines the local prompt, a code for the type of widget to be used (see more detail below) and the fifth is a little trick to tell the routine the Euphoria type of the response - the variable doesn't hold a return value nor is it changed by the routine. [N.B. complex examples, involving multiple widgets and different response types are possible, which is why the fifth parameter is always a sequence and its length corresponds to the number of widgets defined in a single dialog.] </p>
+
+<pre class="examplecode"><font color="#330033">- Example 5 </font>
+<font color="#FF0055">-- Asking for a Single String, or Number </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">std/dll.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/types.e </font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#330033">string name = </font><font color="#330033">"IupGetParam" </font>
+<font color="#330033">string x = </font><font color="#330033">"" </font>
+<font color="#00A033">sequence </font><font color="#330033">res = IupGetParam</font><font color="#880033">(</font><font color="#330033">name, 0, 0, </font>
+<font color="#330033">			"Give your name: %s\n"</font><font color="#330033">, </font><font color="#993333">{</font><font color="#330033">x</font><font color="#993333">}</font><font color="#880033">) </font>
+<font color="#330033">IupMessage</font><font color="#880033">(</font><font color="#330033">"Hello"</font><font color="#330033">, res</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">]</font><font color="#880033">) </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> The %s code requires some further explanation. Although you might at first think it is a formating code, as you would use in, say, "printf", it actually describes how the value is going to edited;  %s here merely means that a regular text box is used; if you had used %m, then a multiline edit box (like that used by IupGetText) would be used. </p>
+
+<p> Here IupGetParam returns a two-element sequence: the first holding the user-returned value; the second a status code (which in our examples is always equal to 1.) </p>
+
+<p> If there is a limited set of choices, then the %l format is useful: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 5b </font>
+<font color="#FF0055">-- Asking for a Single String, or Number </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">std/dll.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/types.e </font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#330033">string name = </font><font color="#330033">"Give your profession" </font>
+<font color="#00A033">integer </font><font color="#330033">x = 0 </font>
+<font color="#00A033">sequence </font><font color="#330033">list = </font><font color="#880033">{</font><font color="#330033">"Teacher"</font><font color="#330033">, </font><font color="#330033">"Explorer"</font><font color="#330033">, </font><font color="#330033">"Engineer"</font><font color="#330033">, </font><font color="#330033">"None of these"</font><font color="#880033">}</font><font color="#330033">, </font>
+<font color="#330033">res = IupGetParam</font><font color="#880033">(</font><font color="#330033">name, 0, 0, </font>
+<font color="#330033">            "List: %l|Teacher|Explorer|Engineer|None of these|\n"</font><font color="#330033">, </font><font color="#993333">{</font><font color="#330033">x</font><font color="#993333">}</font><font color="#880033">) </font>
+<font color="#330033">IupMessage</font><font color="#880033">(</font><font color="#330033">"Choice!"</font><font color="#330033">, list</font><font color="#993333">[</font><font color="#330033">res</font><font color="#0000FF">[</font><font color="#330033">2</font><font color="#0000FF">] </font><font color="#330033">+ 1</font><font color="#993333">]</font><font color="#880033">)	</font><font color="#FF0055">-- zero reference </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> Note the |item1|item2|...| list after the %l format; these are the choices presented to the user. The initial value you give it, and the value you receive from it, are going to be an index into this list of choices. Somewhat confusingly, they start at 0, which is not the Euphoria way! So in this case, 0 means that 'Teacher' is to be selected, and if 'Engineer' is then selected then the value returned is 2. The first element of the return value gives us, in this case, the index (zero-based) of the list. The sequence <tt>list</tt> is used here as a device to enable the pointer returned by IupGetParam to be correctly positioned in its "mirror". </p>
+
+<p> The %i code allows you to enter an integer value, with up/down arrows for incrementing/decrementing the value. </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 5a </font>
+<font color="#FF0055">-- Asking for a Single String, or Number </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">std/dll.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/text.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/types.e </font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#330033">string name = </font><font color="#330033">"IupGetParam" </font>
+<font color="#00A033">integer </font><font color="#330033">x = 0 </font>
+<font color="#00A033">sequence </font><font color="#330033">res = IupGetParam</font><font color="#880033">(</font><font color="#330033">name, 0, 0, </font>
+<font color="#330033">            "Give your age: %i\n"</font><font color="#330033">, </font><font color="#993333">{</font><font color="#330033">x</font><font color="#993333">}</font><font color="#880033">) </font>
+<font color="#330033">IupMessage</font><font color="#880033">(</font><font color="#330033">"Age!"</font><font color="#330033">, sprint</font><font color="#993333">(</font><font color="#330033">res</font><font color="#0000FF">[</font><font color="#330033">2</font><font color="#0000FF">]</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> To show you a little of the complexity of the routine, lets put all these three ideas together. Add another type of prompt and we see how you could use IupGetParam to design a questionnaire. This example should help you to see the power of the dialog to much better effect than with just a single field. </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 5c </font>
+<font color="#FF0055">-- Asking for a Single String, a Number, choosing from a List and selecting a Radio Button </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">std/dll.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/text.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/types.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/utils.e </font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">make_list</font><font color="#880033">(</font><font color="#00A033">sequence </font><font color="#330033">list, string prompt</font><font color="#880033">) </font>
+<font color="#330033">	string result = prompt &amp; </font><font color="#330033">": %l|" </font>
+<font color="#0000FF">	for </font><font color="#330033">i = 1 </font><font color="#0000FF">to </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">list</font><font color="#880033">) </font><font color="#0000FF">do </font>
+<font color="#330033">	result &amp;= list</font><font color="#880033">[</font><font color="#330033">i</font><font color="#880033">] </font><font color="#330033">&amp; </font><font color="#330033">"|" </font>
+<font color="#0000FF">	end for </font>
+<font color="#0000FF">	return </font><font color="#330033">result &amp; </font><font color="#330033">"\n" </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">constant </font><font color="#330033">title = </font><font color="#330033">"Little questionnaire"</font><font color="#330033">, </font>
+<font color="#330033">	eyes = </font><font color="#880033">{</font><font color="#330033">"Blue"</font><font color="#330033">, </font><font color="#330033">"Brown"</font><font color="#330033">, </font><font color="#330033">"Green"</font><font color="#330033">, </font><font color="#330033">"Grey"</font><font color="#330033">, </font><font color="#330033">"Black"</font><font color="#330033">, </font><font color="#330033">"Mixed"</font><font color="#880033">} </font>
+<font color="#330033">string n = </font><font color="#330033">"" </font>
+<font color="#00A033">integer </font><font color="#330033">a = 0, e = 0 </font>
+<font color="#330033">boolean i = TRUE </font>
+<font color="#00A033">sequence </font><font color="#330033">res = IupGetParam</font><font color="#880033">(</font><font color="#330033">title, 0, 0, </font>
+<font color="#330033">			"Give your name: %s\n" </font><font color="#330033">&amp; </font><font color="#330033">"Give your age: %i\n" </font><font color="#330033">&amp; </font>
+<font color="#330033">			make_list</font><font color="#993333">(</font><font color="#330033">eyes, </font><font color="#330033">"Eye colour"</font><font color="#993333">) </font><font color="#330033">&amp; </font>
+<font color="#330033">			"Like ice cream: %b\n"</font><font color="#330033">, </font>
+<font color="#993333">			{</font><font color="#330033">n, a, e, i</font><font color="#993333">}</font><font color="#880033">) </font>
+<font color="#330033">IupMessage</font><font color="#880033">(</font><font color="#330033">res</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">]</font><font color="#330033">, </font><font color="#330033">"My detail:" </font><font color="#330033">&amp; </font><font color="#330033">"\nAge = " </font><font color="#330033">&amp; sprint</font><font color="#993333">(</font><font color="#330033">res</font><font color="#0000FF">[</font><font color="#330033">3</font><font color="#0000FF">]</font><font color="#993333">) </font><font color="#330033">&amp;  </font>
+<font color="#330033">			"\nEyes = " </font><font color="#330033">&amp; eyes</font><font color="#993333">[</font><font color="#330033">res</font><font color="#0000FF">[</font><font color="#330033">4</font><font color="#0000FF">]</font><font color="#330033">+1</font><font color="#993333">] </font><font color="#330033">&amp; </font>
+<font color="#330033">			"\nLike ice cream = " </font><font color="#330033">&amp; iif</font><font color="#993333">(</font><font color="#330033">res</font><font color="#0000FF">[</font><font color="#330033">5</font><font color="#0000FF">]</font><font color="#330033">, </font><font color="#330033">"Yes"</font><font color="#330033">, </font><font color="#330033">"No"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> The "new" features are the use of a boolean checkbox (%b) and a simple function to avoid double-keying (with the potential for making mistakes) of list items. Note, also, when you try it out, how you can use <tt>ENTER</tt> and <tt>TAB</tt> to move between fields. Note also that the returned sequence now has expanded to allow for all the specified fields. </p>
+
+<a name="_6_dialogs"></a><a name="dialogs"></a><h2>Dialogs</h2>
+<a name="_7_constructinggenerallayouts"></a><a name="constructinggenerallayouts"></a><h3>Constructing General Layouts</h3>
+<p> Although IupGetParam is a very versatile facility for asking for data, it is not very interactive. In general, you want to present something back to the user that is more complicated than a simple message. Up to now we have used the predefined dialogs available to IUP; it is now time to go beyond that and examine custom dialogs. The structure of a simple iup4eu program is straightforward: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 6 </font>
+<font color="#FF0055">-- A simple dialog </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">text = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">		dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">text</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Dialog"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> A multiline edit control is created, and put inside a window frame with a given size, which is then made visible with IupShow. We then enter the main loop of the application with IupMainLoop, which  will only finish when the window is closed. (Note that the previously defined IupMultiLine is now superceded by setting the <tt>MULTILINE</tt> attribute of IupText.) </p>
+
+<p> All controls are derived from a window, but without the frame and decorations of a top-level window; they are always meant to be inside some window frame or other container. We manage the details of the layout using IupSetAttribute. Here we set the <tt>EXPAND</tt> attribute of IupText to force it to use up all the available space in the frame, so that it takes ("inherits") its size from its container. The dialog's <tt>SIZE</tt>  attribute is a string of the form "XSIZExYSIZE", where sizes can be expressed as fractions of the desktop window size, as in this case (a quarter of both the width and the height). You can of course also use numerical sizes like "100x301" but these will not always scale well on displays with different resolutions. (See: Attributes/Common/SIZE in the manual for full details.) </p>
+
+<p> It's good to pause a moment to look at the resulting application in action; it is fully responsive and you can enter text, paste, etc., in the edit control. Common keyboard shortcuts like Ctrl+V and Ctrl+C work as expected. All this functionality comes with the windowing system you are currently using. On my system, Task Manager shows that this program uses about 7 MB of memory, which is about the same as an instance of Notepad. As even our simple dialog program includes all the  common code necessary to support a simple GUI application, you are not actually  paying much for using iup4eu at all. The equivalent C program using the Windows API would be about 150 lines, so the gain in programmer efficiency is tremendous! </p>
+
+<p> Next we shall look at two aspects which take our simple application to another level: first by making apps capable of full interaction with users; then to see how Iup deals with the details of layout and, in doing so, you are sure to be impressed by how little detailed design you need to do! </p>
+
+<p> Of course, there is not much interaction possible with such a simple program. To make a program respond to the user we define callbacks which the  system calls when some event takes place. For example, we can put a button  control in the dialog, and define its callback action: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 7 </font>
+<font color="#FF0055">-- Button click </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">std/types.e </font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">button_action</font><font color="#880033">() </font>
+<font color="#330033">	IupMessage</font><font color="#880033">(</font><font color="#330033">"Note"</font><font color="#330033">, </font><font color="#330033">"I have been clicked"</font><font color="#880033">) </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_CONTINUE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">btn = IupButton</font><font color="#880033">(</font><font color="#330033">"Click me!"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">btn</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Dialog"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"button_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> This is a responsive program, which can be repeatedly run (the <tt>IUP_CONTINUE</tt> return value ensures this; try alternatives - see documentation - for other effects), although not in itself very useful! The button has its default size, since the attribute <tt>EXPAND</tt> is not set (try setting <tt>EXPAND</tt> to see the button fill the whole window frame.) Callbacks usually return the special value <tt>IUP_DEFAULT</tt>. </p>
+
+<p> IupDialog takes only one control, so IUP defines containers into which you can pack as many controls as you like. In the next example the control IupVbox is used  to pack two buttons into the dialog vertically. </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 8 </font>
+<font color="#FF0055">-- Two buttons in a box! </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">btn1_action</font><font color="#880033">() </font>
+<font color="#330033">	IupMessage</font><font color="#880033">(</font><font color="#330033">"Note"</font><font color="#330033">, </font><font color="#330033">"I have been clicked"</font><font color="#880033">) </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_CONTINUE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">btn2_action</font><font color="#880033">() </font>
+<font color="#330033">	IupMessage</font><font color="#880033">(</font><font color="#330033">"Note"</font><font color="#330033">, </font><font color="#330033">"Me too!"</font><font color="#880033">) </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_CONTINUE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">btn1 = IupButton</font><font color="#880033">(</font><font color="#330033">"Click me!"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	btn2 = IupButton</font><font color="#880033">(</font><font color="#330033">"and me!"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	box = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">btn1, btn2</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">box</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Dialog"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn1, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"btn1_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn2, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"btn2_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> This does the job, although the buttons are sized differently according to  their contents (here simply their titles); this program would not win any design contests! Still, you now have two commands in your application. You can actually get a more pleasing result by using a horizontal packing box (IupHbox), by changing the one line, as follows: </p>
+
+<pre class="examplecode"><font color="#330033">	box = IupHbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">btn1, btn2</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+</pre>
+
+<p> You will notice that there is now a very small gap between the two buttons, which can be increased with this  modification: </p>
+
+<pre class="examplecode"><font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">box, </font><font color="#330033">"GAP"</font><font color="#330033">, </font><font color="#330033">"10"</font><font color="#880033">) </font>
+</pre>
+
+<p> You can nest boxes as much as you like, which is the way to construct more complicated layouts. Here are our horizontal buttons packed vertically with a multiline edit control: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 9 </font>
+<font color="#FF0055">-- Nested boxes </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">btn1 = IupButton</font><font color="#880033">(</font><font color="#330033">"Click me!"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	btn2 = IupButton</font><font color="#880033">(</font><font color="#330033">"and me!"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	bbox = IupHbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">btn1, btn2</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	text = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	box = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">bbox, text</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">box</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">bbox, </font><font color="#330033">"GAP"</font><font color="#330033">, </font><font color="#330033">"6"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Nested boxes"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> The result is, in effect, a crude but functional toolbar. </p>
+
+<p> A labelled frame can be put around a control using IupFrame, as shown here: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 10 </font>
+<font color="#FF0055">-- Using Frames </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">edit1 = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	edit2 = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	frame1 = IupFrame</font><font color="#880033">(</font><font color="#330033">edit1</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	frame2 = IupFrame</font><font color="#880033">(</font><font color="#330033">edit2</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	box = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">frame1, frame2</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">box</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">box, </font><font color="#330033">"GAP"</font><font color="#330033">, </font><font color="#330033">"6"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">frame1, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"First"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">frame2, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Second"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Using Frames"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit2, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"VALUE"</font><font color="#330033">, </font><font color="#330033">"Number 1"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit2, </font><font color="#330033">"VALUE"</font><font color="#330033">, </font><font color="#330033">"Number 2"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> A useful way to present various views to a user is to put them in tabs. This places each control in a separate page, accessible through the tab-bar at the top. Notice, in the example below, that the titles of the tab pages are actually set as attributes of the pages through the attribute <tt>TABTITLE</tt>. </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 11 </font>
+<font color="#FF0055">-- Using Tabs </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">edit1 = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	edit2 = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	tabs = IupTabs</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">edit1, edit2</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">tabs</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Using Tabs"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tabs, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit2, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"VALUE"</font><font color="#330033">, </font><font color="#330033">"Number 1"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit2, </font><font color="#330033">"VALUE"</font><font color="#330033">, </font><font color="#330033">"Number 2"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"TABTITLE"</font><font color="#330033">, </font><font color="#330033">"First"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit2, </font><font color="#330033">"TABTITLE"</font><font color="#330033">, </font><font color="#330033">"Second"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit1, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">edit2, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<a name="_8_timersandidleprocessing"></a><a name="timersandidleprocessing"></a><h3>Timers and Idle Processing</h3>
+<p> Sometimes a program needs to wake up and perform some operation, such as a scheduled backup or an autosave operation. IUP provides timers for this purpose. (Note at this point that there is no reason why you can't use the console in a iup4eu application; sometimes there is no better way to track  what's going on.) The following example starts and stops a timer, using the console window to show that the timer is running. </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 12 </font>
+<font color="#FF0055">-- Using a Timer </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">timer = IupTimer</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	btn = IupButton</font><font color="#880033">(</font><font color="#330033">"Start"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">btn</font><font color="#880033">) </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">button_action</font><font color="#880033">() </font>
+<font color="#0000FF">	if </font><font color="#00A033">equal</font><font color="#880033">(</font><font color="#330033">IupGetAttribute</font><font color="#993333">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#993333">)</font><font color="#330033">, </font><font color="#330033">"Stop"</font><font color="#880033">) </font><font color="#0000FF">then </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"RUN"</font><font color="#330033">, </font><font color="#330033">"NO"</font><font color="#880033">) </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Start"</font><font color="#880033">) </font>
+<font color="#0000FF">	else </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"RUN"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Stop"</font><font color="#880033">) </font>
+<font color="#0000FF">	end if </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_CONTINUE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">timer_cb</font><font color="#880033">() </font>
+<font color="#00A033">	puts</font><font color="#880033">(</font><font color="#330033">1, </font><font color="#330033">"timer!\t"</font><font color="#880033">) </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_DEFAULT </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"button_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"ACTION_CB"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"timer_cb"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"RUN"</font><font color="#330033">, </font><font color="#330033">"NO"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"TIME"</font><font color="#330033">, </font><font color="#330033">"500"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Timer!"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"200x100"</font><font color="#880033">) </font>
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupDestroy</font><font color="#880033">(</font><font color="#330033">timer</font><font color="#880033">) </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> After a timer has been started by setting its run attribute to "YES" (here inside the "button_action" routine), it will continue to call <tt>ACTION_CB</tt> using the given <tt>TIME</tt> in  milliseconds. Note that it is important to set the timer's <tt>RUN</tt> status only after the callback has been defined. It is, however, perfectly permissable to switch a timer off in the callback, which is how you can perform a single action after waiting for some time. </p>
+
+<p> (The sizing of the dialog and how it is displayed have been changed from previous examples, to illustrate some of the flexibility available here.) </p>
+
+<p> The next example shows this, by replacing the console output with an instance of an IupProgressBar (the more up-to-date version of the IupGauge control). </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 12a </font>
+<font color="#FF0055">-- Using a Gauge </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+<font color="#0000FF">include </font><font color="#330033">std/text.e </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">timer = IupTimer</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	gauge = IupProgressBar</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	btn = IupButton</font><font color="#880033">(</font><font color="#330033">"Start"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	box = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">gauge, btn</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">box</font><font color="#880033">) </font>
+ 
+<font color="#00A033">atom </font><font color="#330033">val = 0 </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">button_action</font><font color="#880033">() </font>
+<font color="#0000FF">	if </font><font color="#00A033">equal</font><font color="#880033">(</font><font color="#330033">IupGetAttribute</font><font color="#993333">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#993333">)</font><font color="#330033">, </font><font color="#330033">"Stop"</font><font color="#880033">) </font><font color="#0000FF">then </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"RUN"</font><font color="#330033">, </font><font color="#330033">"NO"</font><font color="#880033">) </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Start"</font><font color="#880033">) </font>
+<font color="#0000FF">	elsif </font><font color="#00A033">equal</font><font color="#880033">(</font><font color="#330033">IupGetAttribute</font><font color="#993333">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#993333">)</font><font color="#330033">, </font><font color="#330033">"Ended"</font><font color="#880033">) </font><font color="#0000FF">then </font>
+<font color="#0000FF">		return </font><font color="#330033">IUP_CLOSE </font>
+<font color="#0000FF">	else </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"RUN"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Stop"</font><font color="#880033">) </font>
+<font color="#0000FF">	end if </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_CONTINUE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">timer_cb</font><font color="#880033">() </font>
+<font color="#0000FF">	if </font><font color="#330033">val &lt; 1 </font><font color="#0000FF">then </font>
+<font color="#330033">		val += .05 </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">gauge, </font><font color="#330033">"VALUE"</font><font color="#330033">, sprint</font><font color="#993333">(</font><font color="#330033">val</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#0000FF">	else </font>
+<font color="#330033">		IupDestroy</font><font color="#880033">(</font><font color="#330033">timer</font><font color="#880033">) </font>
+<font color="#330033">		IupSetAttribute</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Ended"</font><font color="#880033">) </font>
+<font color="#0000FF">	end if </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_DEFAULT </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">gauge, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">gauge, </font><font color="#330033">"VALUE"</font><font color="#330033">, </font><font color="#330033">"0"</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"button_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"ACTION_CB"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"timer_cb"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"RUN"</font><font color="#330033">, </font><font color="#330033">"NO"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">timer, </font><font color="#330033">"TIME"</font><font color="#330033">, </font><font color="#330033">"500"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Timer!"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"200x100"</font><font color="#880033">) </font>
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> This version also adds a number of refinements: when the progress-bar is full the timer is destroyed and the button's text is changed to "Ended"; the event-handler is capable of catching this change and, on clicking, the returned <tt>IUP_CLOSE</tt> code ensures that the application exits. (In fact the program as a whole uses three different built-in action codes as return values.) </p>
+
+<p> It is a well-known fact that computers spend most of the time doing very little, waiting for incredibly slow humans to type something new. However, when  a computer is actually doing intense processing, users become impatient if not told about progress. If you do your lengthy processing directly, then the  windows of the application become unresponsive. The proper way to organize such  work is to do it when the system is idle. </p>
+
+<p> The next example uses the more general IupProgressDlg instead to show progress; the principles behind the program are largely the same as in the previous ones. </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 13 </font>
+<font color="#FF0055">-- Using IupProgressDlg instead </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+<font color="#0000FF">include </font><font color="#330033">std/get.e </font>
+<font color="#0000FF">include </font><font color="#330033">std/text.e </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+<font color="#0000FF">constant </font><font color="#330033">dlg = IupProgressDlg</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">cancel_cb</font><font color="#880033">() </font>
+<font color="#00A033">    integer </font><font color="#330033">ret = IupAlarm</font><font color="#880033">(</font><font color="#330033">"Warning!"</font><font color="#330033">, </font><font color="#330033">"Interrupt Processing?"</font><font color="#330033">, </font><font color="#330033">"Yes"</font><font color="#330033">, </font><font color="#330033">"No"</font><font color="#880033">) </font>
+<font color="#0000FF">    if </font><font color="#330033">ret = 1 </font><font color="#0000FF">then </font>
+<font color="#330033">    	IupExitLoop</font><font color="#880033">() </font>
+<font color="#330033">        IupHide</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#0000FF">        return </font><font color="#330033">IUP_CLOSE </font>
+<font color="#0000FF">    else </font>
+<font color="#0000FF">    	return </font><font color="#330033">IUP_CONTINUE </font>
+<font color="#0000FF">    end if </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">update_progress</font><font color="#880033">(</font><font color="#00A033">atom </font><font color="#330033">ih, </font><font color="#00A033">integer </font><font color="#330033">state</font><font color="#880033">) </font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">ih, </font><font color="#330033">"INC"</font><font color="#330033">, </font><font color="#330033">"1"</font><font color="#880033">) </font>
+<font color="#00A033">    integer </font><font color="#330033">cnt = IupGetInt</font><font color="#880033">(</font><font color="#330033">ih, </font><font color="#330033">"COUNT"</font><font color="#880033">) </font>
+<font color="#0000FF">    while </font><font color="#330033">cnt != IupGetInt</font><font color="#880033">(</font><font color="#330033">ih, </font><font color="#330033">"TOTALCOUNT"</font><font color="#880033">) </font><font color="#0000FF">do </font>
+<font color="#330033">    	cnt += 1 </font>
+<font color="#330033">        IupSetAttribute</font><font color="#880033">(</font><font color="#330033">ih, </font><font color="#330033">"COUNT"</font><font color="#330033">, sprint</font><font color="#993333">(</font><font color="#330033">cnt</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#0000FF">    end while </font>
+<font color="#330033">    IupHide</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"IupProgressDlg Test"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"DESCRIPTION"</font><font color="#330033">, </font><font color="#330033">"Description first line\nSecond Line"</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"CANCEL_CB"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"cancel_cb"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SHOW_CB"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"update_progress"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"200x100"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TOTALCOUNT"</font><font color="#330033">, </font><font color="#330033">"3000000"</font><font color="#880033">) </font>
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<a name="_9_lists"></a><a name="lists"></a><h3>Lists</h3>
+<p> It is easy to display a list of values in iup4eu. The values are added as "numbered" attributes, like so: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 14 </font>
+<font color="#FF0055">-- using lists </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#330033">	list = IupList</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">list</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">list, </font><font color="#330033">"1=Horses, 2=Dogs, 3=Pigs, 4=Humans"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Lists"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> Tracking selection changes is straightforward, as this extended example shows: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 14a </font>
+<font color="#FF0055">-- using lists </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">list_action</font><font color="#880033">(</font><font color="#00A033">integer </font><font color="#330033">t, </font><font color="#00A033">integer </font><font color="#330033">i, </font><font color="#00A033">integer </font><font color="#330033">v, boolean z</font><font color="#880033">) </font>
+<font color="#00A033">	printf</font><font color="#880033">(</font><font color="#330033">1, </font><font color="#330033">"%s %d %d\n"</font><font color="#330033">, </font><font color="#993333">{</font><font color="#00A033">peek_string</font><font color="#0000FF">(</font><font color="#330033">i</font><font color="#0000FF">)</font><font color="#330033">, v, z</font><font color="#993333">}</font><font color="#880033">)	</font><font color="#FF0055">-- peek_string(t) yields "IUP" </font>
+<font color="#0000FF">	return </font><font color="#330033">IUP_DEFAULT </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#330033">	list = IupList</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">list</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">list, </font><font color="#330033">"1=Horses, 2=Dogs, 3=Pigs, 4=Humans"</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">list, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"list_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE=Lists, SIZE=QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> Now, as we move the selection through the list, from the start to the finish, the output is: </p>
+
+<p> Horses  1       1 Horses  1       0 Dogs    2       1 Dogs    2       0 Pigs    3       1 Pigs    3       0 Humans  4       1 </p>
+
+<p> What does this mean? The boolean value z monitors item selection, so it is FALSE if we deselect it; v is the one-based index in the list, and i is a pointer to the actual string value. If you want to associate some other data with each value, then all you need to do is keep a sequence (or a map) of that data and look it up using the index v. (Note that the first value needed by the <tt>ACTION</tt> routine returns a pointer to the string "IUP" and so is not used; it is, in fact, a handle.) </p>
+
+<a name="_10_trees"></a><a name="trees"></a><h3>Trees</h3>
+<p> The most flexible way to present a hierarchy of information is a tree. A tree has a single root, and several branches. Each of these  branches may have leaves, and other branches. All of these are called nodes. Just like a family tree, a node may have child nodes, which all share the same parent node. </p>
+
+<p> A good example of this in everyday computer experience is a filesystem, where the leaves are files and the branches are directories. We start with a simple example: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 15 </font>
+<font color="#FF0055">-- using trees </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#330033">	tree = IupTree</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">tree</font><font color="#880033">) </font>
+ 
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Tree Tests"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDEXPANDED"</font><font color="#330033">, </font><font color="#330033">"NO"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"TITLE"</font><font color="#330033">,  </font><font color="#330033">"Animals"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDBRANCH"</font><font color="#330033">, </font><font color="#330033">"Mammals"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDLEAF1"</font><font color="#330033">, </font><font color="#330033">"Horse"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDLEAF1"</font><font color="#330033">, </font><font color="#330033">"Whale"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDBRANCH"</font><font color="#330033">, </font><font color="#330033">"Crustaceans"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDLEAF1"</font><font color="#330033">, </font><font color="#330033">"Shrimp"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDLEAF1"</font><font color="#330033">, </font><font color="#330033">"Lobster"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDBRANCH"</font><font color="#330033">, </font><font color="#330033">"Birds"</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> The last example begins with the branches 'collapsed', and you will have to explicitly expand them with a mouse click. By default, trees are presented in  their fully expanded form; try commenting out the IupSetAttribute line that sets the ADDEXPANDED attribute of the tree object. Note that branches can be  empty! Note that the method of adding is rather contrary to expectations: LIFO not FIFO! Note also that the building of the tree occurs  <strong>after</strong>, not before, the Dialog has been shown, that is, in the dynamic part of the program. </p>
+
+<p> In Euphoria a sequence can be used to store the elements of a tree structure. The following example illustrates: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example 15a </font>
+<font color="#FF0055">-- using trees (part 2)) </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#0000FF">procedure </font><font color="#330033">tree_make</font><font color="#880033">(</font><font color="#00A033">atom </font><font color="#330033">tree, </font><font color="#00A033">sequence </font><font color="#330033">list</font><font color="#880033">) </font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"TITLE"</font><font color="#330033">, list</font><font color="#993333">[</font><font color="#330033">1</font><font color="#993333">]</font><font color="#880033">) </font>
+<font color="#0000FF">    for </font><font color="#330033">i = 1 </font><font color="#0000FF">to </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">list</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">]</font><font color="#880033">) </font><font color="#0000FF">do </font>
+<font color="#330033">        IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDBRANCH"</font><font color="#330033">, list</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">][</font><font color="#330033">i</font><font color="#993333">][</font><font color="#330033">1</font><font color="#993333">]</font><font color="#880033">) </font>
+<font color="#0000FF">        if </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">list</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">][</font><font color="#330033">i</font><font color="#993333">]</font><font color="#880033">) </font><font color="#330033">&gt; 1 </font><font color="#0000FF">then </font>
+<font color="#0000FF">            for </font><font color="#330033">j = 1 </font><font color="#0000FF">to </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">list</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">][</font><font color="#330033">i</font><font color="#993333">][</font><font color="#330033">2</font><font color="#993333">]</font><font color="#880033">) </font><font color="#0000FF">do </font>
+<font color="#330033">                IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDLEAF1"</font><font color="#330033">, list</font><font color="#993333">[</font><font color="#330033">2</font><font color="#993333">][</font><font color="#330033">i</font><font color="#993333">][</font><font color="#330033">2</font><font color="#993333">][</font><font color="#330033">j</font><font color="#993333">]</font><font color="#880033">) </font>
+<font color="#0000FF">            end for </font>
+<font color="#0000FF">        end if </font>
+<font color="#0000FF">    end for </font>
+<font color="#0000FF">end procedure </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#330033">	tree = IupTree</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">	dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">tree</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    list = </font><font color="#880033">{</font><font color="#330033">"Animals"</font><font color="#330033">, </font><font color="#993333">{</font><font color="#0000FF">{</font><font color="#330033">"Mammals"</font><font color="#330033">, </font><font color="#5500FF">{</font><font color="#330033">"Horse"</font><font color="#330033">, </font><font color="#330033">"Whale"</font><font color="#5500FF">}</font><font color="#0000FF">}</font><font color="#330033">, </font>
+<font color="#0000FF">                        {</font><font color="#330033">"Crustaceans"</font><font color="#330033">, </font><font color="#5500FF">{</font><font color="#330033">"Shrimp"</font><font color="#330033">, </font><font color="#330033">"Lobster"</font><font color="#5500FF">}</font><font color="#0000FF">}</font><font color="#330033">, </font>
+<font color="#0000FF">                        {</font><font color="#330033">"Birds"</font><font color="#0000FF">}</font><font color="#993333">}</font><font color="#880033">} </font>
+ 
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Tree Tests"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">tree, </font><font color="#330033">"ADDEXPANDED"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#330033">IupShow</font><font color="#880033">(</font><font color="#330033">dlg</font><font color="#880033">) </font>
+<font color="#330033">tree_make</font><font color="#880033">(</font><font color="#330033">tree, list</font><font color="#880033">) </font>
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> If you think about how the function <strong>dir</strong> (in std/filesys.e) works you can imagine how it would be possible to use IupTree in this way to draw up a file/folder tree. It is not trivial but it would be a good exercise to try - and a very useful thing to share with others. </p>
+
+<a name="_11_menus"></a><a name="menus"></a><h3>Menus</h3>
+<p> Any application that can perform a number of operations needs a menu. These  are not difficult to create in IUP, although it can be rather tedious to set up an active menu structure. The basic idea is this: create some items, make a menu out of these items, and set the menu attribute of the dialog. For each of the items you create an associated action callback, which actually performs the (click) operation on the item. </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example16.exw                                       </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#FF0055">-- Creates a text, sets its value and turns on text read-only mode </font>
+<font color="#330033">    text = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">    item_show = IupItem</font><font color="#880033">(</font><font color="#330033">"Show"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    item_hide = IupItem</font><font color="#880033">(</font><font color="#330033">"Hide"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    item_exit = IupItem</font><font color="#880033">(</font><font color="#330033">"Exit"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">item_show, item_hide, item_exit</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">text</font><font color="#880033">) </font>
+ 
+<font color="#FF0055">-- Define callbacks </font>
+<font color="#0000FF">function </font><font color="#330033">item_show_action</font><font color="#880033">() </font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"VISIBLE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">) </font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">item_hide_action</font><font color="#880033">() </font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"VISIBLE"</font><font color="#330033">, </font><font color="#330033">"NO"</font><font color="#880033">) </font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">item_exit_action</font><font color="#880033">() </font>
+<font color="#0000FF">  return </font><font color="#330033">IUP_CLOSE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#FF0055">-- Assign callbacks </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_show, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"item_show_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_hide, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"item_hide_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_exit, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"item_exit_action"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#FF0055">-- Set all attributes </font>
+<font color="#330033">IupSetHandle</font><font color="#880033">(</font><font color="#330033">"mymenu"</font><font color="#330033">, menu</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"EXPAND=YES, READONLY=YES, VALUE=\"Show or hide this text\""</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE=\"Menu Example\", MENU=mymenu, SIZE=QUARTERxQUARTER"</font><font color="#880033">)     </font>
+ 
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">) </font>
+ 
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+ 
+<font color="#330033">IupClose</font><font color="#880033">() </font>
+</pre>
+
+<p> A menu may contain items and submenus. To build a complex menu structure is a time-consuming activity, as the following example shows: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example16a.exw </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">default</font><font color="#880033">() </font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"Warning"</font><font color="#330033">, </font><font color="#330033">"Only Exit performs an operation"</font><font color="#880033">) </font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">do_close</font><font color="#880033">() </font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE </font>
+<font color="#0000FF">end function </font>
+ 
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#FF0055">-- Creates a text, sets its value and turns on text read-only mode </font>
+<font color="#330033">    text = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">    dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">text</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#FF0055">    -- build up menu structure </font>
+<font color="#330033">    new_item = IupItem</font><font color="#880033">(</font><font color="#330033">"New"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    open_item = IupItem</font><font color="#880033">(</font><font color="#330033">"Open"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    close_item = IupItem</font><font color="#880033">(</font><font color="#330033">"Close"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    exit_item = IupItem</font><font color="#880033">(</font><font color="#330033">"Exit"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    file_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">new_item, open_item, close_item, IupSeparator</font><font color="#0000FF">()</font><font color="#330033">, </font>
+<font color="#330033">                exit_item</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    menu_file = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"File"</font><font color="#330033">, file_menu</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    copy_item = IupItem</font><font color="#880033">(</font><font color="#330033">"Copy"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    paste_item = IupItem</font><font color="#880033">(</font><font color="#330033">"Paste"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    dos_item = IupItem</font><font color="#880033">(</font><font color="#330033">"DOS"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    unix_item = IupItem</font><font color="#880033">(</font><font color="#330033">"UNIX"</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    format_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">dos_item, unix_item</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    menu_format = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"Format"</font><font color="#330033">, format_menu</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    edit_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">copy_item, paste_item, IupSeparator</font><font color="#0000FF">()</font><font color="#330033">, menu_format</font><font color="#993333">}</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    menu_edit = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"Edit"</font><font color="#330033">, edit_menu</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    the_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">menu_file, menu_edit</font><font color="#993333">}</font><font color="#880033">) </font>
+     
+<font color="#330033">IupSetHandle</font><font color="#880033">(</font><font color="#330033">"mymenu"</font><font color="#330033">, the_menu</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"EXPAND=YES, READONLY=YES, VALUE=\"Some text\""</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE=\"Creating Menus the long way!\", MENU=mymenu, SIZE=THIRDxQUARTER"</font><font color="#880033">) </font>
+<font color="#FF0055">-- set all menu callbacks </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">new_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"default"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">open_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"default"</font><font color="#993333">)</font><font color="#880033">)     </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">close_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"default"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">exit_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"do_close"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">copy_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"default"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">paste_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"default"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">dos_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"default"</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">unix_item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"default"</font><font color="#993333">)</font><font color="#880033">) </font>
+ 
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">) </font>
+ 
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+ 
+<font color="#330033">IupClose</font><font color="#880033">()     </font>
+</pre>
+
+<p> The case for a general-purpose menu-generating routine is well made by the last example. </p>
+
+<p> The next example illustrates how a reasonable modest function can be written to deliver arbitrarily complicated menus efficiently, allied to a sensible sequence structure for holding the data: </p>
+
+<pre class="examplecode"><font color="#FF0055">-- Example16a.exw </font>
+ 
+<font color="#0000FF">include </font><font color="#330033">iup.ew </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">default</font><font color="#880033">() </font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"Warning"</font><font color="#330033">, </font><font color="#330033">"Only Exit performs an operation"</font><font color="#880033">) </font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">do_close</font><font color="#880033">() </font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#330033">mmenu = </font><font color="#880033">{</font><font color="#993333">{</font><font color="#330033">"File"</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">"New"</font><font color="#330033">, </font><font color="#330033">"default"</font><font color="#0000FF">}</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">"Open"</font><font color="#330033">, </font><font color="#330033">"default"</font><font color="#0000FF">}</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">"Close"</font><font color="#330033">, </font><font color="#330033">"default"</font><font color="#0000FF">}</font><font color="#330033">,  </font>
+<font color="#0000FF">                    {</font><font color="#330033">"-"</font><font color="#330033">, </font><font color="#330033">"nil"</font><font color="#0000FF">}</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">"Exit"</font><font color="#330033">, </font><font color="#330033">"do_close"</font><font color="#0000FF">}</font><font color="#993333">}</font><font color="#330033">,  </font>
+<font color="#993333">        {</font><font color="#330033">"Edit"</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">"Copy"</font><font color="#330033">, </font><font color="#330033">"default"</font><font color="#0000FF">}</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">"Paste"</font><font color="#330033">, </font><font color="#330033">"default"</font><font color="#0000FF">}</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">"-"</font><font color="#330033">, </font><font color="#330033">"nil"</font><font color="#0000FF">}</font><font color="#330033">, </font>
+<font color="#0000FF">                    {</font><font color="#330033">"Format"</font><font color="#330033">, </font><font color="#5500FF">{</font><font color="#330033">"DOS"</font><font color="#330033">, </font><font color="#330033">"default"</font><font color="#5500FF">}</font><font color="#330033">, </font><font color="#5500FF">{</font><font color="#330033">"UNIX"</font><font color="#330033">, </font><font color="#330033">"default"</font><font color="#5500FF">}</font><font color="#0000FF">} </font>
+<font color="#993333">        } </font>
+<font color="#880033">} </font>
+ 
+<font color="#0000FF">function </font><font color="#330033">create_menu</font><font color="#880033">(</font><font color="#00A033">sequence </font><font color="#330033">source</font><font color="#880033">) </font>
+<font color="#00A033">    sequence </font><font color="#330033">items = </font><font color="#880033">{}</font><font color="#330033">, the_menu = </font><font color="#880033">{} </font>
+<font color="#0000FF">    for </font><font color="#330033">i = 1 </font><font color="#0000FF">to </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">source</font><font color="#880033">) </font><font color="#0000FF">do </font>
+<font color="#00A033">        sequence </font><font color="#330033">menu_name = source</font><font color="#880033">[</font><font color="#330033">i</font><font color="#880033">][</font><font color="#330033">1</font><font color="#880033">] </font>
+<font color="#0000FF">        for </font><font color="#330033">j = 2 </font><font color="#0000FF">to </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">source</font><font color="#993333">[</font><font color="#330033">i</font><font color="#993333">]</font><font color="#880033">) </font><font color="#0000FF">do </font>
+<font color="#00A033">            atom </font><font color="#330033">item </font>
+<font color="#00A033">            sequence </font><font color="#330033">menu = source</font><font color="#880033">[</font><font color="#330033">i</font><font color="#880033">][</font><font color="#330033">j</font><font color="#880033">] </font>
+<font color="#0000FF">            if </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">menu</font><font color="#880033">) </font><font color="#330033">= 2 </font><font color="#0000FF">then </font>
+<font color="#0000FF">                if </font><font color="#00A033">equal</font><font color="#880033">(</font><font color="#330033">menu</font><font color="#993333">[</font><font color="#330033">1</font><font color="#993333">]</font><font color="#330033">, </font><font color="#330033">"-"</font><font color="#880033">) </font><font color="#0000FF">then </font>
+<font color="#330033">                    item = IupSeparator</font><font color="#880033">() </font>
+<font color="#330033">                    items = </font><font color="#00A033">append</font><font color="#880033">(</font><font color="#330033">items, item</font><font color="#880033">) </font>
+<font color="#0000FF">                else </font>
+<font color="#330033">                    item = IupItem</font><font color="#880033">(</font><font color="#330033">menu</font><font color="#993333">[</font><font color="#330033">1</font><font color="#993333">]</font><font color="#880033">) </font>
+<font color="#330033">                    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">menu</font><font color="#0000FF">[</font><font color="#330033">2</font><font color="#0000FF">]</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">                    items = </font><font color="#00A033">append</font><font color="#880033">(</font><font color="#330033">items, item</font><font color="#880033">) </font>
+<font color="#0000FF">                end if </font>
+<font color="#0000FF">            else </font>
+<font color="#00A033">                sequence </font><font color="#330033">its = </font><font color="#880033">{}</font><font color="#330033">, mnu_name = menu</font><font color="#880033">[</font><font color="#330033">1</font><font color="#880033">] </font>
+<font color="#0000FF">                for </font><font color="#330033">k = 2 </font><font color="#0000FF">to </font><font color="#00A033">length</font><font color="#880033">(</font><font color="#330033">menu</font><font color="#880033">) </font><font color="#0000FF">do </font>
+<font color="#00A033">                    sequence </font><font color="#330033">mnu = menu</font><font color="#880033">[</font><font color="#330033">k</font><font color="#880033">] </font>
+<font color="#330033">                    item = IupItem</font><font color="#880033">(</font><font color="#330033">mnu</font><font color="#993333">[</font><font color="#330033">1</font><font color="#993333">]</font><font color="#880033">) </font>
+<font color="#330033">                    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">mnu</font><font color="#0000FF">[</font><font color="#330033">2</font><font color="#0000FF">]</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">                    its = </font><font color="#00A033">append</font><font color="#880033">(</font><font color="#330033">its, item</font><font color="#880033">) </font>
+<font color="#0000FF">                end for </font>
+<font color="#330033">                items = </font><font color="#00A033">append</font><font color="#880033">(</font><font color="#330033">items, IupSubmenu</font><font color="#993333">(</font><font color="#330033">mnu_name, IupMenu</font><font color="#0000FF">(</font><font color="#330033">its</font><font color="#0000FF">)</font><font color="#993333">)</font><font color="#880033">)                     </font>
+<font color="#0000FF">            end if </font>
+<font color="#0000FF">        end for </font>
+<font color="#330033">        the_menu = </font><font color="#00A033">append</font><font color="#880033">(</font><font color="#330033">the_menu, IupSubmenu</font><font color="#993333">(</font><font color="#330033">menu_name, IupMenu</font><font color="#0000FF">(</font><font color="#330033">items</font><font color="#0000FF">)</font><font color="#993333">)</font><font color="#880033">) </font>
+<font color="#330033">        items = </font><font color="#880033">{} </font>
+<font color="#0000FF">    end for </font>
+<font color="#0000FF">    return </font><font color="#330033">IupMenu</font><font color="#880033">(</font><font color="#330033">the_menu</font><font color="#880033">) </font>
+<font color="#0000FF">end function </font>
+ 
+<font color="#330033">IupOpen</font><font color="#880033">() </font>
+ 
+<font color="#0000FF">constant </font>
+<font color="#FF0055">-- Creates a text, sets its value and turns on text read-only mode </font>
+<font color="#330033">    text = IupText</font><font color="#880033">()</font><font color="#330033">, </font>
+<font color="#330033">    dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">text</font><font color="#880033">)</font><font color="#330033">, </font>
+<font color="#330033">    the_menu = create_menu</font><font color="#880033">(</font><font color="#330033">mmenu</font><font color="#880033">) </font>
+     
+<font color="#330033">IupSetHandle</font><font color="#880033">(</font><font color="#330033">"mymenu"</font><font color="#330033">, the_menu</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">text, </font><font color="#330033">"EXPAND=YES, READONLY=YES, VALUE=\"Some text\""</font><font color="#880033">) </font>
+<font color="#330033">IupSetAttributes</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE=\"Creating Menus With a Sequence\", MENU=mymenu, SIZE=THIRDxQUARTER"</font><font color="#880033">)     </font>
+ 
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">) </font>
+ 
+<font color="#330033">IupMainLoop</font><font color="#880033">() </font>
+ 
+<font color="#330033">IupClose</font><font color="#880033">()     </font>
+</pre>
+
+<p> The function create_menu does all the work; we provide it with a Euphoria sequence containing pairs of values; the first value of a pair is always a  string, and will be the item's label, unless it takes the value "-", defining a separator. The second value is a function representing an item to be associated with a callback. Menus can be embedded, as "Format" in the example shows. I have stored this useful function in the iup_utilities.e library.    </p>
+</body></html>

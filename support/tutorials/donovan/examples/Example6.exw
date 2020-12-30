@@ -1,0 +1,15 @@
+-- Example 6
+-- A simple dialog
+
+include iup.ew
+
+IupOpen()
+constant text = IupText(),
+		dlg = IupDialog(text)
+IupSetAttribute(text, "EXPAND", "YES")
+IupSetAttribute(text, "MULTILINE", "YES")
+IupSetAttribute(dlg, "TITLE", "Simple Dialog")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupShow(dlg)
+IupMainLoop()
+IupClose()

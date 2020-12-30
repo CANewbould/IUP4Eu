@@ -1,0 +1,24 @@
+-- Example 11
+-- Using Tabs
+
+include iup.ew
+
+IupOpen()
+constant edit1 = IupText(),
+	edit2 = IupText(),
+	tabs = IupTabs({edit1, edit2}),
+	dlg = IupDialog(tabs)
+IupSetAttribute(dlg, "TITLE", "Using Tabs")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetAttribute(tabs, "EXPAND", "YES")
+IupSetAttribute(edit1, "EXPAND", "YES")
+IupSetAttribute(edit2, "EXPAND", "YES")
+IupSetAttribute(edit1, "VALUE", "Number 1")
+IupSetAttribute(edit2, "VALUE", "Number 2")
+IupSetAttribute(edit1, "TABTITLE", "First")
+IupSetAttribute(edit2, "TABTITLE", "Second")
+IupSetAttribute(edit1, "MULTILINE", "YES")
+IupSetAttribute(edit2, "MULTILINE", "YES")
+IupShow(dlg)
+IupMainLoop()
+IupClose()

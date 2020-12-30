@@ -1,0 +1,41 @@
+-- Example 13
+-- Using IupProgressDlg instead
+
+include iup.ew
+include std/get.e
+include std/text.e
+
+IupOpen()
+constant dlg = IupProgressDlg()
+
+function cancel_cb()
+    integer ret = IupAlarm("Warning!", "Interrupt Processing?", "Yes", "No")
+    if ret = 1 then
+    	IupExitLoop()
+        IupHide(dlg)
+        return IUP_CLOSE
+    else
+    	return IUP_CONTINUE
+    end if
+end function
+
+function update_progress(atom ih, integer state)
+    IupSetAttribute(ih, "INC", "1")
+    integer cnt = IupGetInt(ih, "COUNT")
+    while cnt != IupGetInt(ih, "TOTALCOUNT") do
+    	cnt += 1
+        IupSetAttribute(ih, "COUNT", sprint(cnt))
+    end while
+    IupHide(dlg)
+    return IUP_CLOSE
+end function
+
+IupSetAttribute(dlg, "TITLE", "IupProgressDlg Test")
+IupSetAttribute(dlg, "DESCRIPTION", "Description first line\nSecond Line")
+IupSetCallback(dlg, "CANCEL_CB", Icallback("cancel_cb"))
+IupSetCallback(dlg, "SHOW_CB", Icallback("update_progress"))
+IupSetAttribute(dlg, "SIZE", "200x100")
+IupSetAttribute(dlg, "TOTALCOUNT", "3000000")
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+IupMainLoop()
+--no need for IupClose() as closed by one event-handler or the other

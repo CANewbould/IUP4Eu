@@ -1,0 +1,15 @@
+-- Example 5b
+-- Asking for a Single String, or Number
+
+include std/dll.e
+include std/types.e
+include iup.ew
+
+IupOpen()
+string name = "Give your profession"
+integer x = 0
+sequence list = {"Teacher", "Explorer", "Engineer", "None of these"},
+res = IupGetParam(name, 0, 0,
+			"List: %l|Teacher|Explorer|Engineer|None of these|\n", {x})
+IupMessage("Choice!", list[res[2] + 1])	-- zero reference
+IupClose()

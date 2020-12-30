@@ -1,0 +1,16 @@
+-- Example 14
+-- using lists
+
+include iup.ew
+
+IupOpen()
+
+constant
+	list = IupList(),
+	dlg = IupDialog(list)
+IupSetAttributes(list, "1=Horses, 2=Dogs, 3=Pigs, 4=Humans")
+IupSetAttribute(dlg, "TITLE", "Lists")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupShow(dlg)
+IupMainLoop()
+IupClose()
