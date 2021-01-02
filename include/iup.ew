@@ -7,20 +7,20 @@
 --------------------------------------------------------------------------------
 -- Notes:
 --
--- IupGetParam needs defining next    
+-- 
 --------------------------------------------------------------------------------
 --/*
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.47
+--[[[Version: 4.0.5.48
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2020.12.30
+-- Date: 2021.01.02
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupGetFile## defined
---  * ##IupGetText## defined
+--  * ##IupGetParam## defined
+--  * added support (service) routines
 --
 ------
 --
@@ -151,6 +151,29 @@ end type
 --/*
 --=== Routines
 --*/
+--------------------------------------------------------------------------------
+-- service routines
+--------------------------------------------------------------------------------
+function get_param_get(object param, atom p)
+    if sequence(param) then
+	   return peek_string(p)
+    else
+	   return peek4s(p)
+    end if
+end function
+--------------------------------------------------------------------------------
+function get_param_set(object param, integer len)
+    atom p
+    if sequence(param) then
+        p = allocate(len * 4)
+        mem_set(p, 0, len)
+        poke(p, param)
+    else
+        p = allocate(4)
+        poke4(p, param)
+    end if
+    return p
+end function
 --------------------------------------------------------------------------------
 --/*
 --==== Management
@@ -316,6 +339,58 @@ end function
 --* //0//: Normal, existing file.
 --* //-1//: Operation cancelled.
 --# a **string**: containing the full pathname of the selected file
+--
+--*/
+--------------------------------------------------------------------------------
+public function IupGetParam(string title, integer rid,  object data, string format, sequence args) -- shows a modal dialog for capturing parameter values using several types of controls
+    atom pTitle = allocate_string(title)
+    atom pRid = 0
+    atom pData = data
+    atom pFormat = allocate_string(format)
+    atom nargs = length(args)
+    sequence p = repeat(0, nargs)
+    if rid > 0 then		--if rid >= 0 then
+	   pRid = call_back({'+', rid})
+    end if
+    for i = 1 to nargs do
+        p[i] = get_param_set(args[i], 1024)
+    end for
+    integer hIupGetParam = define_c_func(IUPLIB, "IupGetParam",
+                {C_POINTER, C_INT, C_INT} & repeat(C_INT, nargs) &
+                {C_POINTER, C_INT}, C_INT)
+    integer result = c_func(hIupGetParam, {pTitle, pRid, pData, pFormat} & p & {NULL})
+    sequence vals = repeat(0, nargs)
+    for i = 1 to nargs do
+        vals[i] = get_param_get(args[i], p[i])
+    end for
+    return result & vals
+end function
+--------------------------------------------------------------------------------
+--/*
+-- The dialog uses the {{{IupParam and IupParamBox}}} controls internally.
+--
+-- Parameters:
+--# //title//: the dialog's title.
+--# //rid//: user callback to be called whenever a parameter value was changed,
+-- and when the user pressed the OK button. It can be NULL.
+--# //data//: user pointer passed to the user callback.
+--# //format//: a string describing all the parameters.
+-- It is a sequence of format strings for each parameter,
+-- see {{{IupParam}}}. (It is a list of variables address with initial values for the
+-- parameters. The number of lines in the format string (number of '\n') will
+-- determine the number of required parameters.
+-- The separators will not count as parameters.
+-- There is no maximum number of parameters (since 3.13), and this is now
+-- also the same in the Euphoria implementation.
+--# //args//: a sequence holding place-markers for the return data value
+-- defined in ##format##.
+--
+-- Returns:
+--
+-- a **sequence** containing two elements:
+--# a status code 1 if the button 1 was pressed,
+-- 0 if the button 2 was pressed or if an error occurred;
+--# the [1-length(##args##)] returned values, in the order set by ##format##.
 --
 --*/
 --------------------------------------------------------------------------------
@@ -1581,6 +1656,15 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.47
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2020.12.30
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetFile## defined
+--  * ##IupGetText## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.46
 -- Euphoria Verion: v4.0.5 and later
