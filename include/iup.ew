@@ -13,14 +13,13 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.48
+--[[[Version: 4.0.5.50
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.01.02
+-- Date: 2021.01.13
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupGetParam## defined
---  * added support (service) routines
+--  * ##IupMainLoopLevel## defined
 --
 ------
 --
@@ -442,6 +441,21 @@ end function
 -- It also uses a global attribute called "ICON" as the dialog icon if it is
 -- defined (used only in Motif; in Windows MessageBox does not have an icon in
 -- the title bar).
+--*/
+--------------------------------------------------------------------------------
+public function IupProgressDlg() -- creates a progress dialog element
+    return doC("IupProgressDlg", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It is a predefined dialog for displaying the progress of an operation.
+-- The dialog is meant to be shown with the show functions ##IupShow## or
+-- ##IupShowXY##.
+--
+-- Returns:
+--
+-- An **integer**: the identifier of the created element,
+-- or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -1292,6 +1306,18 @@ end function
 -- IUP_NOERROR always.
 --*/
 --------------------------------------------------------------------------------
+public function IupMainLoopLevel() --> [integer] the cascade level of IupMainLoop
+	return doC("IupMainLoopLevel", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- The cascade level.
+--
+-- When no calls were done, return value is 0.
+--*/
+--------------------------------------------------------------------------------
 --/*
 --==== Attributes
 --*/
@@ -1656,6 +1682,23 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.49
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.01.03
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupProgressDlg## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.48
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.01.02
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetParam## defined
+--  * added support (service) routines
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.47
 -- Euphoria Verion: v4.0.5 and later
