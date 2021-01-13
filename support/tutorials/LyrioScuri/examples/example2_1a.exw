@@ -1,0 +1,16 @@
+--example2_1a.exw
+
+include iup.ew                                        -- 1
+
+function main()                                       -- 2
+    IupOpen()                                         -- 3
+    IupMessage("Hello World 1a", "Hello from IUP")    -- 4  
+    if IupMainLoopLevel() = 0 then                    -- 5
+        IupExitLoop()                                 -- 6
+    end if
+    IupClose()                                        -- 7
+    return EXIT_SUCCESS                               -- 8
+end function
+
+-- execution
+main()                                                -- 9
