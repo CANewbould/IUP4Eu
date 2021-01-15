@@ -12,10 +12,10 @@
 </head>
 <body>
 
-<p> TUTORIAL </p>
+<a name="_0_aniuptutorial"></a><a name="aniuptutorial"></a><h1>An IUP Tutorial</h1>
+<p> Original authors: Gustavo H. S. de O. Lyrio &amp; Antonio E. Scuri</p>
 
-<a name="_0_tutorial"></a><a name="tutorial"></a><h2>Tutorial</h2>
-<p>  Gustavo H. S. de O. Lyrio Antonio E. Scuri</p>
+<p> Open Euphoria version: adapted by Charles A. Newbould</p>
 
 <p> 
 <p><br />
@@ -23,7 +23,6 @@ Index<br />
 1. Introduction<br />
 2. Hello World<br />
 2.1 Initialization<br />
-2.1.1 Compiling and Linking<br />
 2.2 Creating a Dialog<br />
 2.3 Adding Interaction<br />
 2.4 Adding Layout Elements<br />
@@ -98,8 +97,6 @@ Index<br />
 
 <p> Note also the numeric markers (1 to 7) as comment after the code lines; these link to the explanation which follows.</p>
 
-<p> <em>example2_1.exw</em> </p>
-
 <pre class="examplecode"><font color="#FF0055">-- example2_1.exw</font>
 
 <font color="#FF0055">-- LyrioScuri Tutorial</font>
@@ -145,874 +142,82 @@ Index<br />
 </li><li>To simulate the C-language example, the Euphoria code is cast as a function, returning a value that signifies a successful exit.
 </li><li>Again to parallel the C-language code we execute the <tt>main</tt> function. Note that Euphoria doesn't have a built-in <tt>main</tt>; note also that there is no need to trap or test the return value. (We could equally have cast <tt>main</tt> as a procedure but a function has been defined to retain the similarity with C.)
 </li></ol>
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e                                 </font><font color="#FF0055">-- 1</font>
-<font color="#0000FF">include </font><font color="#330033">iup/iup_config.e                          </font>
+<p>If you study the Lua version of this example you will find a call to  <tt>iup.MainLoopLevel</tt>.  It will check if <tt>iup.MainLoop</tt> was already called to avoid calling it again. This is useful only if your script  could be executed from inside another context, for regular applications there is no need for calling it.</p>
 
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)                                  </font><font color="#FF0055">-- 2</font>
-<font color="#330033">IupMessage</font><font color="#880033">( </font><font color="#330033">"Hello World 1"</font><font color="#330033">, </font><font color="#330033">"Hello from IUP" </font><font color="#880033">)   </font><font color="#FF0055">-- 3  </font>
+<p> The next example shows how you could address this.</p>
 
-<font color="#0000FF">if </font><font color="#330033">IupMainLoopLevel</font><font color="#880033">() </font><font color="#330033">= 0 </font><font color="#0000FF">then</font>
-<font color="#330033">    IupMainLoop</font><font color="#880033">()</font>
-<font color="#0000FF">end if                                            </font><font color="#FF0055">-- 4 </font>
-<font color="#330033">IupClose</font><font color="#880033">()                                        </font><font color="#FF0055">-- 5  </font>
+<pre class="examplecode"><font color="#FF0055">--example2_1a.exw</font>
+
+<font color="#0000FF">include </font><font color="#330033">iup.ew                                        </font><font color="#FF0055">-- 1</font>
+
+<font color="#0000FF">function </font><font color="#330033">main</font><font color="#880033">()                                       </font><font color="#FF0055">-- 2</font>
+<font color="#330033">    IupOpen</font><font color="#880033">()                                         </font><font color="#FF0055">-- 3</font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"Hello World 1a"</font><font color="#330033">, </font><font color="#330033">"Hello from IUP"</font><font color="#880033">)    </font><font color="#FF0055">-- 4  </font>
+<font color="#0000FF">    if </font><font color="#330033">IupMainLoopLevel</font><font color="#880033">() </font><font color="#330033">= 0 </font><font color="#0000FF">then                    </font><font color="#FF0055">-- 5</font>
+<font color="#330033">        IupExitLoop</font><font color="#880033">()                                 </font><font color="#FF0055">-- 6</font>
+<font color="#0000FF">    end if</font>
+<font color="#330033">    IupClose</font><font color="#880033">()                                        </font><font color="#FF0055">-- 7</font>
+<font color="#0000FF">    return </font><font color="#330033">EXIT_SUCCESS                               </font><font color="#FF0055">-- 8</font>
+<font color="#0000FF">end function</font>
+
+<font color="#FF0055">-- execution</font>
+<font color="#330033">main</font><font color="#880033">()                                                </font><font color="#FF0055">-- 9</font>
 </pre>
 
-<p> (4) Normally we also call IupMainLoop() which listens for events and matches the event owner with a suitable function. Call IupMainLoop() just once; the IupMainLoopLeel function will tell you if the main loop is already active.</p>
+<p> As above the numeric comments are used to identify the processes.</p>
+<ol><li>The main IUP library is made available.
+</li><li>We continue to cast the example inside a <tt>main</tt> function.
+</li><li>The function <tt>IupOpen</tt> initializes the toolkit.
+</li><li>The next line creates and displays a message to the user using the <tt>IupMessage</tt> function. (The message is slightly different from in the last example, to indicate a different calling application.)
+</li><li>We test for use of <tt>IupMainLoop</tt> by using <tt>IupMainLoopLevel</tt> to establish if the event loop is active.
+</li><li>TWe use <tt>IupExitLoop</tt> to force a successful exit.
+</li><li><tt>IupClose</tt> closes the toolkit.
+</li><li>We return a suitable value for the function's operation.
+</li><li>We execute <tt>main</tt>.
+</li></ol>
+<p>Note that this second example is not illustrating the conventional approach to IUP programming, which uses <tt>IupMainLoop</tt> explicitly, but rather to show that there can be multiple ways to achieve a given effect.</p>
 
-<a name="_7_211compilingandlinking"></a><a name="211compilingandlinking"></a><h3>2.1.1 Compiling and Linking</h3>
-<p> Compiling and Linking a program that uses IUP (as any other third party  library that is not installed on the system) demands that you specify where the  include files and the libraries are installed. You also need to  link with the iup library. In order to do that in a single command line for our first example is as follows: </p>
+<p> Normally we just call <tt>IupMainLoop</tt>, which listens for events and matches the event owner with a suitable function. You call <tt>IupMainLoop</tt> just once; <tt>IupMainLoopLevel</tt> is used to tell you if the main loop is already active. </p>
 
-<p> gcc -I/tecgraf/iup/include -L/tecgraf/iup/lib -liup -o example2_1 example2_1.c For programs containing several modules we suggest building a makefile (See  here how to build one: makefile tutorial).  </p>
-
-<p>  If you want more details on libraries dependencies for static linking, you  can check the Building Applications Guide. </p>
-
+<a name="_7_iupapplications"></a><a name="iupapplications"></a><h2>IUP Applications</h2>
 <a name="_8_22creatingadialog"></a><a name="22creatingadialog"></a><h3>2.2 Creating a Dialog</h3>
-<p> Let's change the first example a little bit to add our own dialog.</p>
+<p> Let's change the previos example a little bit to add our own dialog.</p>
 
-<p> example2_2.ex </p>
+<p> Dialogs are the core of IUP design and provide the structure for the "top-level-window", as it is known in other GUIs.</p>
 
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e</font>
-<font color="#0000FF">include </font><font color="#330033">iup/iup_config.e</font>
+<p> A distinguishing feature of IUP is the "bottom-up" approach to design: elements in a GUI are declared from the "inside" outwards, culminating in the declaration of the dialog as the main window.</p>
 
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)</font>
+<p> IUP also provides compositional tools. These enable grouping of associated elements and, most importantly, manage the sizes and relative arrangements within such groups.</p>
 
-<font color="#0000FF">atom </font><font color="#330033">lbl = IupLabel</font><font color="#880033">(</font><font color="#330033">"Hello world form IUP" </font><font color="#880033">)</font>
-<font color="#0000FF">atom </font><font color="#330033">dlg =  IupDialog</font><font color="#880033">( </font><font color="#330033">IupVbox</font><font color="#993333">(</font><font color="#0000FF">{</font><font color="#330033">lbl</font><font color="#0000FF">}</font><font color="#993333">) </font><font color="#880033">)</font>
-<font color="#330033">            IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Hello World 2" </font><font color="#880033">)</font>
+<p> The main reason for IUP simplicity of use, however, comes from its universal use, for all types of elements, of attributes, where specific properties are assigned specific values.</p>
+
+<pre class="examplecode"><font color="#FF0055">-- example2_2.exw</font>
+
+<font color="#0000FF">include </font><font color="#330033">iup.ew</font>
+
+<font color="#330033">IupOpen</font><font color="#880033">()</font>
+
+<font color="#0000FF">atom </font><font color="#330033">lbl = IupLabel</font><font color="#880033">(</font><font color="#330033">"Hello world from IUP"</font><font color="#880033">)</font>
+<font color="#0000FF">atom </font><font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">IupVbox</font><font color="#993333">(</font><font color="#0000FF">{</font><font color="#330033">lbl</font><font color="#0000FF">}</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Hello World 2"</font><font color="#880033">)</font>
             
-<font color="#330033">IupShowXY</font><font color="#880033">( </font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER </font><font color="#880033">)</font>
-<font color="#330033">IupMainLoop</font><font color="#880033">()</font>
-<font color="#330033">IupClose</font><font color="#880033">()</font>
-</pre>
-
-<p> Note that we have added a new line in which we declare atom variables for  IUP  elements. We also have created two different variables. One called dlg for our  main dialog and another called lbl, which will hold a label with a hello message. Next, a new line creates a iup label control and  associates it with the label Ihandle that was previously declared. Its  only argument is the text that will be displayed inside the label.  Then we reach the line in which we create our main dialog, almost in the same way that we created the button. The difference goes on the argument passed to IupDialog function.  It receives another function that will create a composition control called  IupVbox. A IupVbox is a control that aligns all controls passed to it vertically.  In this example, we are passing just one control (our label) and a NULL to sign  that we are done with our list of elements. Next line presents the way in which IUP  changes each control attributes. By calling the function IupSetAttribute the  programmer will inform which control has the attribute that needs to be changed,  which attribute is that and the new value that the attribute will assume. In our sample, we are changing the main dialog's title to "Hello from IUP Tutorial".  The next function is called IupShowXY and tells IUP that we need the main dialog displayed at  the center of the screen horizontally and vertically. Following comes one of the  most important function which is called in our program: IupMainLoop. This function tells  iup to wait for events. Otherwise, the program would go on, end and terminate  without dealing with any event. Go on, comment this line, recompile your code and execute your program, and you will see the main dialog blink in the screen and  the program ends just after it. It will be a valuable exercise.</p>
-
-<p> Note: label is a keyword in Euphoria; you can not use it as an identifier for a variable.</p>
-
-<p> From the most simple hello world to the most complex IUP application, all  will have this same code structure. </p>
-
-<a name="_9_23addinginteraction"></a><a name="23addinginteraction"></a><h3>2.3 Adding Interaction</h3>
-<p> In the previous section, we saw how to build a basic IUP application, but  without any custom interaction with the dialog. In this section,  we will add interaction to our application using a button.  </p>
-
-<p> example2_3.ex </p>
-
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e</font>
-<font color="#0000FF">include </font><font color="#330033">iup/iup_config.e</font>
-
-<font color="#0000FF">function </font><font color="#330033">btn_exit_cb</font><font color="#880033">( )</font>
-<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"Hello World Message"</font><font color="#330033">, </font><font color="#330033">"Hello from IUP" </font><font color="#880033">)</font>
-<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
-<font color="#0000FF">end function</font>
-
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)</font>
-
-<font color="#0000FF">atom </font><font color="#330033">button = IupButton</font><font color="#880033">(</font><font color="#330033">"OK"</font><font color="#330033">, NULL </font><font color="#880033">)</font>
-<font color="#0000FF">atom </font><font color="#330033">vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{ </font><font color="#330033">button </font><font color="#993333">}</font><font color="#880033">)</font>
-<font color="#0000FF">atom </font><font color="#330033">dlg = IupDialog</font><font color="#880033">( </font><font color="#330033">vbox </font><font color="#880033">)</font>
-<font color="#330033">            IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Hello World 3" </font><font color="#880033">)</font>
-<font color="#330033">            IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxEIGHTH" </font><font color="#880033">)</font>
-            
-<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">button, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"btn_exit_cb"</font><font color="#993333">) </font><font color="#880033">)</font>
-
 <font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
 <font color="#330033">IupMainLoop</font><font color="#880033">()</font>
 <font color="#330033">IupClose</font><font color="#880033">()</font>
 </pre>
 
-<p> After the usual includes, we find some new lines. These lines contain a regular function called <em>btn_exit_cb</em> that will be registered as our button callback, as will be seen next. This function does nothing special, except showing the hello message that we saw in the first example and also closing  the application returning code IUP_CLOSE.  </p>
+<p> After opening the IUP session, we declared two new (<strong>atom</strong>) variables to hold IUP elements; one called <em>dlg</em> for our main dialog and another called <em>lbl</em>, to hold a label containing our hello message. Both variables, in typical Open Euphoria-style, are initialised on declaration. The label control takes the text string as its only argument. The main dialog is created using the <tt>IupDialog</tt> function. Its parameter is always a single element, which is nearly always a compositional one. Here, because we never need to refer to it again, we make it the result of creating a composition element using <tt>IupVbox</tt>. A <em>Vbox</em> in IUP is a control that orders all controls passed to it in a vertical direction. In this example, we are only passing one control (our label), but <tt>IupVbox</tt> is programmed to take a list of elements, hence the use of a one-element sequence here. In the next line we show one way in which IUP changes each control attribute (ie. property). By calling the function <tt>IupSetAttribute</tt> the programmer is able to specify what value a named attribute should carry in the specific context. In our sample, we are setting the main dialog's caption to "Hello World 2". This concludes the compositional section of our application. (Another compositional element is provided by <tt>IupHbox</tt>, which arranges its member elements horizontally rather than vertically. Before moving on, think for a minute what, if any, the use of this function would make!)</p>
 
-<p> Note that we have added a new handle that will handle our <em>vbox</em> in a clear way.  Following is our button declaration. The first argument is the title for the  label, and the second argument is a global name for a callback which use is  now deprecated, so we simply set to NULL. The next lines are our <em>vbox</em>, which  now is using a variable. That variable is passed as  a argument to the IupDialog function.  </p>
+<p> We now move on to the "action" section! The next function, called <tt>IupShowXY</tt>, tells IUP how and where to display the main dialog. In this example it is to be displayed at the centre of the screen, both horizontally and vertically, as the repeated values indicate.</p>
 
-<p> As said before, <strong>callbacks</strong> are "special functions defined by the programmer and  called by IUP when an event needs to be handled". To create a callback, the programmer  must declare a function and put inside its body anything that he/she wants the  application to do when the event occurs. After that, it is necessary to inform IUP  that new function is, in fact, a callback. That is done calling the function  IupSetCallback. This  call will inform IUP that our regular function <em>btn_exit_cb</em> is  actually a callback that needs to be executed when our button is pressed. The first argument is our button Ihandle, followed by the name of the callback and the name of the function to be called, casted as Icallback. The names of the available callbacks can be found at each control documentation. As attribute names, they are always written in upper  case letters.</p>
+<p> Next comes that most important function, <tt>IupMainLoop</tt>, which we have introduced above. This function tells IUP to wait for events. Without it the program would simply go on, thereby ending the IUP session and terminating the Euphoria program, without dealing with any event. Why not try this out? Comment out this line, run your code and you will see the main dialog blink on the screen; the program ends just after it so you could easily miss the effect! It will prove to be a valuable exercise.</p>
 
-<p> When executed, the application's dialog box will show up, and when the user presses the button,  it displays a hello message and will close the application. It seems not a big deal, but with  this small sample of code, we have covered the process of creating an IUP application,  declare elements and callbacks, and also handle an event. From now on, we are going to see more from  IUP controls and how to improve our application using different kinds of controls. </p>
+<p> Note: <em>label</em> is a keyword in Euphoria, so you cannot use it as an identifier for a variable - hence the use of the alternative <em>lbl</em> here.</p>
 
-<a name="_10_24addinglayoutelements"></a><a name="24addinglayoutelements"></a><h3>2.4 Adding Layout Elements</h3>
-<p> Up until now we have just positioned our controls inside a vbox which, as told, aligns all controls inside it vertically. This is just a small sample of the IUP's layout concept. IUP implements an  <strong>abstract layout</strong>, "in which the positioning of controls is done relatively instead of  absolutely". For such, <strong>composition elements</strong> are necessary for composing the interface elements.  They are boxes and fills invisible to the user, but they play an important part. When a  dialog size changes, these containers expand or retract to adjust the positioning of the controls  to the new situation allowing the dialog to adapt even if the resolution of the screen changes. That would come in hand if you port your application to another system with a lower resolution, for example. Main composition elements are vertical boxes (vbox), horizontal boxes (hbox)  and filling (fill), among others. There is also a depth box (zbox), in which layers of elements can  be created for the same dialog, and the elements in each layer are only visible when that given  layer is active. </p>
+<p> Note also, that for the purposes of generating the Open Euphoria wrapper, <em>iup.ew</em>, all the IUP C-language functions have been mapped into Euphoria <em>function</em>s, but that in several cases, and most in this example, these have been called in "VOID mode", that is, without attempting to trap the return value.</p>
 
-<p> To clarify the way abstract layout works, lets modify our example adding  a label to it.</p>
+<p> All IUP applications, from the most simple "hello world" to the most complex, follow this same code structure, so it well worth studying it and getting familiar with its form. It is also worth thinking about what sort of "template" most appeals to you. This example has a simple-flow layout, whereas earlier examples adopted a <tt>main</tt> routine approach (note that it could perfectly reasonably have been cast as a <em>procedure</em>). There is also a case to be made for adopting some form of indentation to show the IUP session more clearly [from after the call to <tt>IupOpen</tt>() to before the call to <tt>IupClose</tt>()], especially in the early stages of learning, to emphasise the nature of the process.</p>
 
-<p> example2_4.c </p>
-
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e</font>
-
-<font color="#0000FF">function </font><font color="#330033">btn_exit_cb</font><font color="#880033">()</font>
-<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
-<font color="#0000FF">end function</font>
-
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)</font>
-
-<font color="#0000FF">atom </font><font color="#330033">lbl, btn, vbox, dlg </font>
-
-<font color="#FF0055">-- layout         </font>
-<font color="#330033">                                  lbl = IupLabel</font><font color="#880033">(</font><font color="#330033">"Hello world from IUP" </font><font color="#880033">)</font>
-<font color="#330033">                                  btn = IupButton</font><font color="#880033">(</font><font color="#330033">"OK"</font><font color="#880033">)</font>
-<font color="#330033">                 vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{ </font><font color="#330033">lbl, btn </font><font color="#993333">}</font><font color="#880033">)</font>
-<font color="#330033">dlg = IupDialog</font><font color="#880033">( </font><font color="#330033">vbox </font><font color="#880033">)</font>
-
-<font color="#FF0055">-- style</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Hello World 4" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER" </font><font color="#880033">)</font>
-
-
-<font color="#FF0055">-- action            </font>
-<font color="#330033">                    IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"btn_exit_cb" </font><font color="#993333">) </font><font color="#880033">)</font>
-
-<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER </font><font color="#880033">)</font>
-<font color="#330033">IupMainLoop</font><font color="#880033">()</font>
-<font color="#330033">IupClose</font><font color="#880033">()</font>
-</pre>
-
-<p> Note that there is a new label declaration and this new element  appears inside our vbox as the top element. That means it will be displayed above button, and that's all. Our example now has two different elements and is disposed vertically one above the other. An interesting  exercise would be to change the code above and use an hbox to see what happens.</p>
-
-<a name="_11_25improvingthelayout"></a><a name="25improvingthelayout"></a><h3>2.5 Improving the Layout</h3>
-<p> Now that you understand the basics of abstract layout, let us present three attributes available to both vboxes and hboxes. They are:  ALIGNMENT, GAP and MARGIN.</p>
-
-<p> ALIGNMENT defines the horizontal or vertical alignment of elements inside the  box. If you are using a vbox, it will be an horizontal alignment, or if you are  using an hbox, it will be a vertical alignment. Its values can be ALEFT | ACENTER | ARIGHT for horizontal alignment, and ATOP | ACENTER | ABOTTOM for vertical alignment. The default value is ALEFT and ATOP.</p>
-
-<p> GAP defines a space in pixels between every element inside the box. If you are using a vbox, it will be a vertical space, or if you are using a hbox, it will be a horizontal space. The default value for GAP is 0 zero (which means no  space between elements).</p>
-
-<p> MARGIN defines a margin in pixels. Its value has the format "widthxheight", in which width and height are integer values corresponding to the horizontal and vertical margins, respectively.  Its default value is "0x0" (means no margin).</p>
-
-<p> Let's see how our layout responds to these three attributes.</p>
-
-<p> example2_5.c </p>
-
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e</font>
-<font color="#0000FF">include </font><font color="#330033">iup/iup_config.e</font>
-
-<font color="#0000FF">function </font><font color="#330033">btn_exit_cb</font><font color="#880033">()</font>
-<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
-<font color="#0000FF">end function</font>
-
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)</font>
-
-
-
-<font color="#FF0055">                                -- layout</font>
-                                
-<font color="#0000FF">                                atom </font><font color="#330033">lbl, btn, vbox, dlg</font>
-                                
-<font color="#330033">                                lbl = IupLabel</font><font color="#880033">(</font><font color="#330033">"Hello world from IUP"</font><font color="#880033">)</font>
-<font color="#330033">                                btn = IupButton</font><font color="#880033">(</font><font color="#330033">"OK"</font><font color="#880033">)</font>
-<font color="#330033">               vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{ </font><font color="#330033">lbl, btn </font><font color="#993333">}</font><font color="#880033">)</font>
-<font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
-
-<font color="#FF0055">                                -- attributes</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">vbox, </font><font color="#330033">"ALIGNMENT"</font><font color="#330033">, </font><font color="#330033">"ACENTER" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">vbox, </font><font color="#330033">"GAP"</font><font color="#330033">, </font><font color="#330033">"10" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">vbox, </font><font color="#330033">"MARGIN"</font><font color="#330033">, </font><font color="#330033">"10x10" </font><font color="#880033">)</font>
-
-<font color="#FF0055">                                -- actions</font>
-<font color="#330033">                                IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"btn_exit_cb"</font><font color="#993333">) </font><font color="#880033">)</font>
-                                
-<font color="#FF0055">                                -- execute</font>
-<font color="#330033">                                IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
-<font color="#330033">                                IupMainLoop</font><font color="#880033">()</font>
-<font color="#330033">                                IupClose</font><font color="#880033">() </font>
-</pre>
-
-<p> After creating the vbox, we have added three lines that set those attributes to  values different than the default values. The result is much pleasanter to see.  Although it is still not quite as the first example, which uses a pre-defined  dialog. Can you figure out which attributes we need to set in order to obtain a more  closer appearance?</p>
-
-<a name="_12_tutorial3"></a><a name="tutorial3"></a><h1>TUTORIAL 3</h1>
-<a name="_13_31maindialog"></a><a name="31maindialog"></a><h3>3.1 Main Dialog</h3>
-<p> Until now we have seen two different controls: labels and buttons. Labels can show  text or images to the user but are not designed for interaction. Buttons allow the user to trigger an event by  pressing a mouse button. But none  allow the user to insert any data into our application. To do that,we will use a new control  called IupText. It creates an editable text field and has a lot of different  attributes available. We will be interested in one in particular for now: MULTILINE. MULTILINE turns the IupText into an  editable text field that supports many lines, which is mandatory to build a simple notepad.</p>
-
-<p> Our starting code for the simple notepad should be as follows.</p>
-
-<p> example3_1.ex </p>
-
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e</font>
-<font color="#0000FF">include </font><font color="#330033">iup/iup_config.e</font>
-
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)</font>
-<font color="#FF0055">-- layout</font>
-<font color="#0000FF">atom </font><font color="#330033">multitxt, vbox, dlg</font>
-                                 
-<font color="#330033">                                                 multitxt = IupText</font><font color="#880033">()</font>
-<font color="#330033">                                vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{ </font><font color="#330033">multitxt </font><font color="#993333">}</font><font color="#880033">)</font>
-<font color="#330033">                dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
-
-<font color="#FF0055">-- attributes</font>
-<font color="#330033">                                  IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitxt, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES" </font><font color="#880033">)</font>
-<font color="#330033">                                  IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitxt, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Notepad" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"USERSIZE"</font><font color="#330033">, NULL </font><font color="#880033">)</font>
-
-<font color="#FF0055">-- launch</font>
-<font color="#330033">      IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
-<font color="#330033">IupMainLoop</font><font color="#880033">()</font>
-<font color="#330033">IupClose</font><font color="#880033">()</font>
-</pre>
-
-<p> The previous code does not show exciting news except by the IupText declaration and the call to IupSetAttribute to set the IupText as a MULTILINE. The default value is NO, try to comment this line and see what happens.  </p>
-
-<p> Notice that the SIZE attribute of the dialog was also set. Since the IupText  is a control that does not fit its size to its contents, we have to set an  initial size for the dialog, or else the result would be a very small dialog.  We use a simple size specification that is a quarter of the screen size in both  dimensions. The SIZE attribute will also work as a minimum size, so we reset the USERSIZE  attribute, after the dialog is shown, to avoid this limitation. Try to  comment this line and check out how the dialog interactive resize behaves.</p>
-
-<p> With a few lines of code, we build an application where the user can type a huge text. But, if you type a huge  text, you probably would like to save it, and unfortunately our applications offers no such feature. We will handle this in the next sections.</p>
-
-<a name="_14_32addingamenu"></a><a name="32addingamenu"></a><h3>3.2 Adding a Menu</h3>
-<p> Almost all applications offer a menu where the user can load files, save  files, use the clipboard and do a lot of other stuff with his data. IUP also offers this resource to the applications. Menus are divided into four different interface elements: IupItem,  IupMenu, IupSeparator, IupSubmenu.</p>
-
-<p> IupItem creates a single item of the menu interface element. When selected, it generates an action.</p>
-
-<p> IupSeparator creates a  horizontal line that will appear between two menu items. It is normally used to divide and arrange different  groups of menu items.</p>
-
-<p> IupSubmenu creates an item that, when selected, opens another menu.</p>
-
-<p> IupMenu creates the menu element by itself  as a list of elements. An IupMenu  can include any number of the other 3 types of menu interface elements: IupItem | IupSubmenu | IupSeparator. Any other  type of interface element inserted in a  menu will be an error.</p>
-
-<p> Let's add a menu with a few items in our example.</p>
-
-<p> example3_2.ex </p>
-
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e</font>
-<font color="#0000FF">include </font><font color="#330033">iup/iup_config.e</font>
-
-<font color="#0000FF">function </font><font color="#330033">exit_cb</font><font color="#880033">()</font>
-<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
-<font color="#0000FF">end function</font>
-
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)</font>
-
-<font color="#FF0055">-- layout</font>
-<font color="#0000FF">atom </font><font color="#330033">multitext, item_open, item_saveas, item_exit, </font>
-<font color="#330033">     file_menu, sub1_menu, menu,</font>
-<font color="#330033">     vbox, dlg   </font>
-<font color="#330033">                    item_open = IupItem</font><font color="#880033">(</font><font color="#330033">"Open"</font><font color="#880033">) </font>
-<font color="#330033">                    item_saveas = IupItem</font><font color="#880033">(</font><font color="#330033">"Save As"</font><font color="#880033">)</font>
-<font color="#330033">                    item_exit = IupItem</font><font color="#880033">(</font><font color="#330033">"Exit"</font><font color="#880033">)</font>
-<font color="#330033">                file_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">item_open,item_saveas,IupSeparator</font><font color="#0000FF">()</font><font color="#330033">,item_exit</font><font color="#993333">}</font><font color="#880033">)</font>
-<font color="#330033">            sub1_menu = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"File"</font><font color="#330033">, file_menu</font><font color="#880033">)</font>
-<font color="#330033">        menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{ </font><font color="#330033">sub1_menu </font><font color="#993333">}</font><font color="#880033">)</font>
-                            
-<font color="#330033">        multitext = IupText</font><font color="#880033">()</font>
-<font color="#330033">    vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{ </font><font color="#330033">multitext </font><font color="#993333">}</font><font color="#880033">)</font>
-<font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
-
-<font color="#FF0055">-- attributes                 </font>
-<font color="#330033">        IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES" </font><font color="#880033">)</font>
-<font color="#330033">        IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttributeHandle</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"MENU"</font><font color="#330033">, menu</font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Notepad" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"USERSIZE"</font><font color="#330033">, NULL</font><font color="#880033">)</font>
-
-<font color="#FF0055">-- actions</font>
-<font color="#330033">                    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_exit, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"exit_cb"</font><font color="#993333">) </font><font color="#880033">)</font>
-
-<font color="#FF0055">-- launch</font>
-<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
-<font color="#330033">IupMainLoop</font><font color="#880033">()</font>
-<font color="#330033">IupClose</font><font color="#880033">()</font>
-</pre>
-
-<p> Now our example has a few menu element handlers and declarations. Also, we  used our exit callback to be called when the <em>item_exit</em> menu item is selected. The next line shows the composition of an IupMenu called <em>file_menu</em>. Note that the menu items are passed in order of appearance, which means that <em>item_open</em> will appear above <em>item_save</em> and so on. There is also an IupSeparator() dividing our file menu in two parts, the first takes items that deal direct with files, like open and save, and the second takes the exit item. It's not mandatory to have an IupSeparator in your menu. This is used just to keep things more organized. Next line is a little tricky. We created a submenu to store all of our items. Why not use <em>file_menu</em> directly? We could, but it would be used as main menu and would end up being the only menu available in our application. It's a good practice to separate menus in submenus and then pass these submenus as  items of the main menu. By doing so, an  application could have a file menu, a search menu, a help menu, and others as items of the main menu, as you can see in the  main menu declaration on the next line.</p>
-
-<p> At last, once we are done building the main menu, we must set the MENU attribute of the main dialog as the menu we have just created. But since it is neither a  string nor a number, we must use a different function to do this association, which is called  IupSetAttributeHandle.</p>
-
-<p> You should notice that the <em>Exit</em> menu  item works fine, as we set the <em>Exit</em> menu item action callback, but <em>Open</em> and  <em>Save</em> still don't work. That's because we didn't set any callback for them. Those callbacks will use another IUP feature, which is the subject of our next section.</p>
-
-<a name="_15_33usingpredefineddialogs"></a><a name="33usingpredefineddialogs"></a><h3>3.3 Using Pre-defined Dialogs</h3>
-<p> In the previous section, we added a file open and a file save menu items, but they had no callbacks associated.  That's because we will use new IUP resources to deal with file handling. These  resources are called Pre-defined Dialogs.</p>
-
-<p> Some dialogs are commonly found in a lot of different applications like file  selection dialogs, font selection dialogs, color selection dialogs, etc.  It would be annoying to have to build the same dialog again every time we need  to select a file, or to select a color or a font. So, IUP provides <strong>pre-defined dialogs</strong> with all the necessary controls to deal with these common tasks.</p>
-
-<p> We will update our last example to handle file input/output and to make use of these IUP pre-defined dialogs.</p>
-
-<p> example3_3.ex </p>
-
-<pre class="examplecode"><font color="#0000FF">include </font><font color="#330033">iup/iup.e</font>
-<font color="#0000FF">include </font><font color="#330033">iup/iup_config.e</font>
-
-<font color="#0000FF">include </font><font color="#330033">std/io.e</font>
-
-<font color="#0000FF">atom </font>
-<font color="#330033">    dlg, vbox,</font>
-<font color="#330033">    file_menu, item_exit, item_open, item_saveas,</font>
-<font color="#330033">    format_menu, item_about,</font>
-<font color="#330033">    help_menu, </font>
-<font color="#330033">    sub_menu_file, sub_menu_format, sub_menu_help, menu,</font>
-<font color="#330033">    multitext, item_font</font>
-
-<font color="#330033">IupOpen</font><font color="#880033">( </font><font color="#330033">0, </font><font color="#993333">{} </font><font color="#880033">)</font>
-
-<font color="#330033">multitext = IupText</font><font color="#880033">()</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES" </font><font color="#880033">)</font>
-<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">)</font>
-
-<font color="#330033">  item_open = IupItem</font><font color="#880033">(</font><font color="#330033">"Open..."</font><font color="#330033">, NULL</font><font color="#880033">)</font>
-<font color="#330033">  item_saveas = IupItem</font><font color="#880033">(</font><font color="#330033">"Save As..."</font><font color="#330033">, NULL</font><font color="#880033">)</font>
-<font color="#330033">  item_exit = IupItem</font><font color="#880033">(</font><font color="#330033">"Exit"</font><font color="#330033">, NULL</font><font color="#880033">)</font>
-<font color="#330033">  item_font = IupItem</font><font color="#880033">(</font><font color="#330033">"Font..."</font><font color="#330033">, NULL</font><font color="#880033">)</font>
-<font color="#330033">  item_about = IupItem</font><font color="#880033">(</font><font color="#330033">"About..."</font><font color="#330033">, NULL</font><font color="#880033">)</font>
-
-
-<font color="#330033">  IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_exit, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"exit_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
-<font color="#330033">  IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_open, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"open_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
-<font color="#330033">  IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_saveas, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"saveas_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
-<font color="#330033">  IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_font, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"font_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
-<font color="#330033">  IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_about, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"about_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
-
-
-<font color="#0000FF">function </font><font color="#330033">readfile</font><font color="#880033">( </font><font color="#0000FF">sequence </font><font color="#330033">filename </font><font color="#880033">)</font>
-<font color="#0000FF">    object </font><font color="#330033">str = read_lines</font><font color="#880033">( </font><font color="#330033">filename </font><font color="#880033">)</font>
-<font color="#0000FF">    if atom</font><font color="#880033">(</font><font color="#330033">str</font><font color="#880033">) </font><font color="#0000FF">then</font>
-<font color="#330033">        IupMessage</font><font color="#880033">(</font><font color="#330033">"Error"</font><font color="#330033">, </font><font color="#0000FF">sprintf</font><font color="#993333">( </font><font color="#330033">"Can not open file: %s"</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">filename</font><font color="#0000FF">} </font><font color="#993333">) </font><font color="#880033">)</font>
-<font color="#0000FF">        return </font><font color="#330033">0</font>
-<font color="#0000FF">    else</font>
-<font color="#0000FF">        return </font><font color="#330033">str  </font>
-<font color="#0000FF">    end if</font>
-<font color="#0000FF">end function</font>
-
-<font color="#330033"> file_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
-<font color="#330033">    item_open,</font>
-<font color="#330033">    item_saveas,</font>
-<font color="#330033">    IupSeparator</font><font color="#0000FF">()</font><font color="#330033">,</font>
-<font color="#330033">    item_exit</font>
-<font color="#993333">    }</font><font color="#880033">)</font>
-
-<font color="#330033">  format_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
-<font color="#330033">    item_font</font>
-<font color="#993333">     }</font><font color="#880033">)</font>
-
-<font color="#330033">  help_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
-<font color="#330033">    item_about</font>
-<font color="#993333">    }</font><font color="#880033">)</font>
-
-
-<font color="#330033">  sub_menu_file = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"File"</font><font color="#330033">, file_menu</font><font color="#880033">)</font>
-<font color="#330033">  sub_menu_format = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"Format"</font><font color="#330033">, format_menu</font><font color="#880033">)</font>
-<font color="#330033">  sub_menu_help = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"Help"</font><font color="#330033">, help_menu</font><font color="#880033">)</font>
-
-<font color="#330033"> menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
-<font color="#330033">    sub_menu_file, </font>
-<font color="#330033">    sub_menu_format, </font>
-<font color="#330033">    sub_menu_help</font>
-<font color="#993333">    }</font><font color="#880033">)</font>
-
-<font color="#330033"> vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font>
-<font color="#330033">    multitext</font>
-<font color="#993333">    }</font><font color="#880033">)</font>
-
-<font color="#330033"> dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
-<font color="#330033">  IupSetAttributeHandle</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"MENU"</font><font color="#330033">, menu</font><font color="#880033">)</font>
-<font color="#330033">  IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Notepad"</font><font color="#880033">)</font>
-<font color="#330033">  IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">)</font>
-
-<font color="#330033">  IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
-<font color="#330033">  IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"USERSIZE"</font><font color="#330033">, NULL</font><font color="#880033">)</font>
-
-<font color="#330033">  IupMainLoop</font><font color="#880033">()</font>
-<font color="#330033">  IupClose</font><font color="#880033">()</font>
-
-<font color="#0000FF">function </font><font color="#330033">writefile</font><font color="#880033">( </font><font color="#0000FF">sequence </font><font color="#330033">filename, </font><font color="#0000FF">sequence </font><font color="#330033">lines </font><font color="#880033">)</font>
-<font color="#0000FF">    atom </font><font color="#330033">fn = </font><font color="#0000FF">open</font><font color="#880033">( </font><font color="#330033">filename, </font><font color="#330033">"w" </font><font color="#880033">)</font>
-<font color="#0000FF">    if </font><font color="#330033">fn=0 </font><font color="#0000FF">then</font>
-<font color="#330033">        IupMessage</font><font color="#880033">(</font><font color="#330033">"Error"</font><font color="#330033">, </font><font color="#0000FF">sprintf</font><font color="#993333">( </font><font color="#330033">"Can not open file: %s"</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">filename</font><font color="#0000FF">} </font><font color="#993333">) </font><font color="#880033">)</font>
-<font color="#0000FF">        return </font><font color="#330033">0</font>
-<font color="#0000FF">    else</font>
-<font color="#330033">        write_lines</font><font color="#880033">( </font><font color="#330033">filename, lines </font><font color="#880033">)</font>
-<font color="#0000FF">        return </font><font color="#330033">1</font>
-<font color="#0000FF">    end if</font>
-<font color="#0000FF">end function</font>
-
-<font color="#0000FF">function </font><font color="#330033">open_cb</font><font color="#880033">()</font>
-<font color="#0000FF">    atom </font><font color="#330033">filedlg = IupFileDlg</font><font color="#880033">()</font>
-<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"DIALOGTYPE"</font><font color="#330033">, </font><font color="#330033">"OPEN" </font><font color="#880033">)</font>
-<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"EXTFILTER"</font><font color="#330033">, </font><font color="#330033">"Text Files|*.txt||All Files|*.*|" </font><font color="#880033">)</font>
-
-<font color="#330033">    IupPopup</font><font color="#880033">(</font><font color="#330033">filedlg, IUP_CENTER, IUP_CENTER </font><font color="#880033">)</font>
-
-<font color="#0000FF">    if  not </font><font color="#330033">IupGetInt</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"STATUS"</font><font color="#880033">) </font><font color="#330033">= 1 </font><font color="#0000FF">then</font>
-<font color="#0000FF">        sequence </font><font color="#330033">filename = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"VALUE" </font><font color="#880033">)</font>
-<font color="#0000FF">        object </font><font color="#330033">str = read_file</font><font color="#880033">( </font><font color="#330033">filename </font><font color="#880033">)</font>
-<font color="#0000FF">        if sequence</font><font color="#880033">(</font><font color="#330033">str</font><font color="#880033">) </font><font color="#0000FF">then</font>
-<font color="#330033">            IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"VALUE"</font><font color="#330033">, str </font><font color="#880033">)</font>
-<font color="#0000FF">        end if</font>
-<font color="#0000FF">    end if</font>
-<font color="#330033">    IupDestroy</font><font color="#880033">(</font><font color="#330033">filedlg</font><font color="#880033">)</font>
-<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT</font>
-<font color="#0000FF">end function</font>
-
-
-<font color="#0000FF">function </font><font color="#330033">saveas_cb</font><font color="#880033">()</font>
-<font color="#0000FF">    atom </font><font color="#330033">filedlg = IupFileDlg</font><font color="#880033">()</font>
-<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"DIALOGTYPE"</font><font color="#330033">, </font><font color="#330033">"SAVE" </font><font color="#880033">)</font>
-<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"EXTFILTER"</font><font color="#330033">, </font><font color="#330033">"Text Files|*.txt|All Files|*.*|" </font><font color="#880033">)</font>
-
-<font color="#330033">    IupPopup</font><font color="#880033">(</font><font color="#330033">filedlg, IUP_CENTER, IUP_CENTER </font><font color="#880033">)</font>
-
-<font color="#0000FF">    if not </font><font color="#330033">IupGetInt</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"STATUS"</font><font color="#880033">) </font><font color="#330033">= 1 </font><font color="#0000FF">then</font>
-<font color="#0000FF">        sequence </font><font color="#330033">filename = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"VALUE" </font><font color="#880033">)</font>
-<font color="#0000FF">        sequence </font><font color="#330033">str = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"VALUE" </font><font color="#880033">)</font>
-<font color="#0000FF">        integer </font><font color="#330033">count = IupGetInt</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"COUNT" </font><font color="#880033">)</font>
-<font color="#330033">        writefile</font><font color="#880033">(</font><font color="#330033">filename, str </font><font color="#880033">)</font>
-<font color="#0000FF">    end if</font>
-
-<font color="#330033">    IupDestroy</font><font color="#880033">(</font><font color="#330033">filedlg</font><font color="#880033">)</font>
-<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT</font>
-<font color="#0000FF">end function</font>
-
-<font color="#0000FF">function </font><font color="#330033">font_cb</font><font color="#880033">()</font>
-<font color="#0000FF">  atom </font><font color="#330033">fontdlg = IupFontDlg</font><font color="#880033">()</font>
-<font color="#0000FF">  sequence </font><font color="#330033">font = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"FONT"</font><font color="#880033">)</font>
-<font color="#330033">  IupSetStrAttribute</font><font color="#880033">(</font><font color="#330033">fontdlg, </font><font color="#330033">"VALUE"</font><font color="#330033">, font</font><font color="#880033">)</font>
-<font color="#330033">  IupPopup</font><font color="#880033">(</font><font color="#330033">fontdlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
-
-<font color="#0000FF">  if </font><font color="#330033">IupGetInt</font><font color="#880033">(</font><font color="#330033">fontdlg, </font><font color="#330033">"STATUS"</font><font color="#880033">) </font><font color="#330033">= 1 </font><font color="#0000FF">then</font>
-<font color="#330033">    font = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">fontdlg, </font><font color="#330033">"VALUE"</font><font color="#880033">)</font>
-<font color="#330033">    IupSetStrAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"FONT"</font><font color="#330033">, font</font><font color="#880033">)</font>
-<font color="#0000FF">   end if</font>
-
-<font color="#330033">  IupDestroy</font><font color="#880033">(</font><font color="#330033">fontdlg</font><font color="#880033">)</font>
-<font color="#0000FF">  return </font><font color="#330033">IUP_DEFAULT</font>
-<font color="#0000FF">end function</font>
-
-<font color="#0000FF">function </font><font color="#330033">about_cb</font><font color="#880033">() </font>
-<font color="#330033">  IupMessage</font><font color="#880033">(</font><font color="#330033">"About"</font><font color="#330033">, </font><font color="#330033">"Simple Notepad"</font><font color="#880033">)</font>
-<font color="#0000FF">  return </font><font color="#330033">IUP_DEFAULT</font>
-<font color="#0000FF">end function</font>
-
-<font color="#0000FF">function </font><font color="#330033">exit_cb</font><font color="#880033">()</font>
-<font color="#0000FF">  return </font><font color="#330033">IUP_CLOSE</font>
-<font color="#0000FF">end function</font>
-
-</pre>
-
-<p> We will need to access the multitext control from inside the menu callbacks.  There are many ways to do that; the simplest one is to declare it as a global  variable. We will do that to illustrate this example, but this is not  recommended. In the next example, we will show you how to not use a global  variable to obtain the same results.</p>
-
-<p> Now we have interesting new functions. First, let's take a look at the new callback called <em>open_cb</em>. This callback will handle the file opening when the user clicks on the <em>Open</em> menu item. For this we will use a IUP predefined dialog called IupFileDlg. This dialog is a standard file-handling dialog with all the  features that we need to select a file from the file system, and it will also save a  lot of work. Inside the callback we create our  IupFileDlg, and set it to be an  "<em>open</em>" dialog with attribute DIALOGTYPE. Also we set EXTFILTER attribute to  <em>"Text Files|*.txt|All Files|*.*|"</em>, since we want our application to  handle text files but we leave the option for listing other files.</p>
-
-<p> Now the program calls IupPopup, which is a function similar to  IupShow, but it restricts the user  interaction only in the specified dialog. It is the equivalent of creating a Modal dialog in some toolkits. Its arguments are our  file dialog Ihandle followed by<em>x</em> and <em>y</em> coordinates that we defined as the center of the screen with IUP_CENTER.</p>
-
-<p> Then we have a conditional test in which we get the value of <em>filedlg</em> STATUS with IupGetInt.  Why not use IupGetAttribute  instead? That's because IupGetAttribute returns  attributes as strings, but we know that STATUS is an integer so we can simplify  our status check using IupGetInt.</p>
-
-<p> Once our file dialog returns a valid status, we are able to recover the name of the selected file using IupGetAttribute to retrieve the VALUE attribute. Then we read the file using a simple function  and fill in its contents on the multitext control by using the  IupSetStrAttribute  function to set its VALUE attribute. We can not use the IupSetAttribute  function, because our C string returned by IupGetAttribute  is a dynamically allocated pointer. Therefore  IupSetStrAttribute will make sure that the string is duplicated  internally and not dependent on the given pointer.</p>
-
-<p> Now  we are done with this dialog.  You can simply call IupDestroy to remove <em>filedlg</em> from memory, because we will not need it anymore.</p>
-
-<p> Next there is another callback,  <em>saveas_cb</em>, which  will select a file name for saving the content of a file. It is very similar to <em>open_cb</em>,  but DIALOGTYPE is set to SAVE, so this time it will select a  file name for saving. In this case the filename can be also for a new file, if  an existing file then the user will be notified of overwriting so it can cancel  and start over. After selecting the filename we are going to save the multitext  contents to the file.</p>
-
-<p> Now comes the <em>font_cb</em> callback that, as you may have already guessed, will call a predefined dialog to  select a font. To do that, we use IupFontDlg  instead of  IupFileDlg. To set the  font, just change the FONT attribute in the multitext control.</p>
-
-<p> The next callback is <em>about_cb</em>, which does nothing special, just calls  IupMessage to  display a text to the user.</p>
-
-<p> The following lines don't show anything new, except  for the new callbacks registration. But notice that we added "..." to the text  of the menu items in which a dialog is open. This is not mandatory, but is  highly recommended by common User  Interface Guidelines.</p>
-
-<p> Finally, we now have a brand new text editor using IUP. But what happens if the dialog that  your application needs is not provided by IUP as a predefined dialog? That will be the subject of our next section.</p>
-
-<a name="_16_34customdialogs"></a><a name="34customdialogs"></a><h3>3.4 Custom Dialogs</h3>
-<p> We saw in the previous section that IUP provides predefined dialogs that can  be used by the applications to save a lot of developing  time. But if the dialog your application needs is not one of IUP's predefined  dialogs, then it's time to built your own dialog. The good news is that you have already  made this when building your main dialog. The tricky part here is how to  handle more than one dialog at the same time. </p>
-
-<p> For this we will add two new items to our <em>Edit</em> menu: <em>Find</em> and <em>Go To</em>. <em>Find</em> will search  the multitext contents while looking for a string and highlight it when found. It will  search for this string many times, and the search can also be case sensitive. <em>Go To</em> will  position the caret to a specific line in the text.</p>
-
-<p> example3_4.ex </p>
-
-<pre class="examplecode"></pre>
-
-<p> The first change is the inclusion of two utility functions (str_compare and str_find)  that will be used to implement <em>Find</em>, and which are not the object of this tutorial. If you  want to understand what is inside these functions, take a closer look into the  code.</p>
-
-<p> You will notice that several functions had their names changed from the  previous example code. We did that to illustrate the importance of function  nomenclature in a larger project, so that several callbacks can be easily  associated with their respective control. For instance, <em>open_cb</em> became  <em>item_open_action_cb</em>, <em>saveas_cb</em> became <em>item_saveas_action_cb</em>, and so on.</p>
-
-<p> Allow me to make a jump in our code and please refer now to  the <em>item_find_action_cb</em> function. This callback, despite being almost at the end of the code,  is responsible for building one of our custom dialogs. In this dialog, we will use some  elements that we have already seen in previous sections: a text field to receive the  string that the user wants to find, a button to find the next occurrence of this  string, a button to close our find dialog, and two new IUP elements: IupToggle and IupFill.</p>
-
-<p> IupToggle is a  two-state (on/off) button that, when selected, execute a callback. Toggles are  normally used to set flags. In this case, we used it to allow the user to decide  if the search will be case sensitive or not.</p>
-
-<p> IupFill is a very  peculiar element. It is, as the name says, used to fill blank spaces inside our  dialog. In other words, it positions and aligns IUP elements. The best way to  understand IupFill is to think of it as a coil spring. If you put an IupFill inside an IupHbox,  it will expand between the two elements, pushing one to the left and the other to the right. Or if you put  it in an IupVbox, above a  element, it will push the element all the way down. But IupFill also has a SIZE  attribute, that can be used to control how much space will be taken. With experience we will  find the correct way to define SIZES for  IupFill and for other elements as well. In our case, IupFill is being used to push the buttons <em>Find Next</em> and <em>Close</em> to the right, inside our hbox.</p>
-
-<p> Note that our new dialog has a lot of new arguments set. DIALOGFRAME will remove minbox, maxbox, and it will resize from the corner of the dialog. This will  provide a reduced functionality and a standard dialog box appearance.  DEFAULTENTER defines a button to be activated when the users presses ENTER, in  this case it will have the same effect as pressing the <em>next_bt</em> button.  DEFAULTESC works the same way for the ESC key by activating the <em>close_bt</em> button.  Next the attribute PARENTALDIALOG sets the dialog that holds <em>item_find</em>  (our main dialog) as the parent of our new dialog, by using IupGetDialog, which  returns the handle of the dialog that contains the element passed as argument.  This will maintain the <em>Find</em> dialog always on top of the main dialog, even if we  change the focus to the main dialog. It will also allow us to set the find  dialog position at the center of the parent dialog.</p>
-
-<p> In the next two lines, we use custom attributes to store application pointers.  Each IUP element can hold as many custom attributes as you want. If your  application needs to store some information to be retrieved later, you can just  set it as we are doing here. We created a new attribute called MULTITEXT in the dialog to store the multitext element pointer and make it available to other callbacks.  Doing this, we avoid the global attribute used in the previous example. Also, we created another new attribute called FIND_DIALOG in  the element <em>find_item</em>,  so we will be able to reuse this dialog. Everytime this function is called,  the dialog is not created again, since it is created only once.</p>
-
-<p> Next we show our dialog using IupShowXY  and pass IUP_CURRENT to it. At first, this will center the dialog according to its  parent (main dialog as we defined above). Next time it will reuse the last  position, since the dialog will not be destroyed when closed.</p>
-
-<p> Now that we have built the <em>Find</em> dialog, it is time to write the callbacks that  will effectively do the job to find the string inside our multitext. </p>
-
-<p> Let's turn our attention to the <em>find_next_action_cb</em> callback. This callback  is responsible for finding the next occurrence of our string inside the multitext and it has a lot new function calls. We call to IupGetDialogChild,  which is a function that returns the identifier of the child element that has the NAME  attribute in the same dialog hierarchy. We use this to retrieve the multitext  handle. This is a more elegant form to retrieve handles, instead of using a  custom attribute or making a global variable, but it only works for the same  dialog. Next we retrieve the text to be found and the case sensitive flag from  the respective controls. The search is performed, and if the result is positive,  we will save the last found position in a custom attribute, and call IupSetFocus. When we  showed our <em>Find</em> dialog, we moved the focus from our multitext to the new dialog.  This function restors the focus to the multitext. We then select the text  on the multitext. Next we find two calls to  IupTextConvertPosToLinCol and  IupTextConvertLinColToPos. These are used to compute the position we  use to scroll the multitext, so the selection becomes visible.</p>
-
-<p> Beside <em>next_bt</em>, find dialog also has <em>close_bt</em>, and it also demands a callback.  <em>Find_close_action_cb</em> closes the <em>Find</em> dialog. In this callback, we made a  call to IupHide. When a  dialog is hidden, it is not destroyed, so you can show it again.</p>
-
-<p> The <em>Go To</em> dialog will work in the same way. If you have understood how to  create the <em>Find</em> dialog, you should be able to build the <em>Go To</em> dialogs.</p>
-
-<a name="_17_35addingatoolbarandastatusbar"></a><a name="35addingatoolbarandastatusbar"></a><h3>3.5 Adding a Toolbar and a Statusbar</h3>
-<p> Now that we saw how to use predefined dialogs or how to build our own  dialogs, lets see how to implement two other resources present in many other  applications: toolbars and statusbars.</p>
-
-<p> <strong>Toolbars</strong> are a set of buttons, usually positioned side by side in the top  of the dialog, just bellow the menu. To build our toolbar, we will use the attribute IMAGE of IupButton. As in  predefined dialogs, IUP also offers a series of predefined images to be used with  buttons. These images are part of an additional library called <strong>IupImageLib</strong>. To use this  library, call <strong>IupImageLibOpen</strong> right after IupOpen.</p>
-
-<p> Statusbars normally appear on the bottom of the dialog and usually show some information  about what is happening inside the application. To build our statusbar, we will  use a set of IupLabel  controls arranged side by side. In our statusbar, we will be displaying the  caret position in the text, and to achieve this, we will use a IupText callback  called CARET_CB, which is called every time the caret position is changed. </p>
-
-<p> example3_5.ex </p>
-
-<pre class="examplecode"></pre>
-
-<p> The first change, as told above, is the inclusion of multitext_caret_cb to our  callbacks. In this callback, we will make use of the argument received by the  callback. First we retrieve the handle of  IupLabel called lbl_statusbar using IupGetDialogChild, and then  passing the handle that came as a argument of our callback. Next, we set  the label's TITLEby building  a string using lin and col arguments, in which the callback provides the caret line  and column position. </p>
-
-<p> From this new callback, we will jump to main function where the next change  appears. Just after IupOpen, you will find a call to IupImageLibOpen. This function  will load the image library, so we can use its images in our toolbar.</p>
-
-<p> A few lines after, we will find our lbl_statusbar declaration. This label will  play the role of our statusbar. It needs the EXPAND attribute set to HORIZONTAL,  so it will occupy all the horizontal space inside the vbox. Following we will see some button declarations  (btn_open, btn_save and btn_find) and some calls to IupSetAttribute  setting each button's image. The images names can be found at the IupImageLib documentation. We then notice  that our toolbar is nothing more than an  IupHbox containing those buttons. Note, a few lines after, that we  set the buttons callbacks to the same callbacks set for the respective menu items. This is  feasible  because the buttons do exactly the same thing as the items representing a  short cut to call open, save or find. We also set the FLAT attribute for the  buttons so their border is removed, and they will look like toolbar buttons. We  set the CANFOCUS attribute to No for the buttons so they will not receive the  keyboard focus as toolbar buttons behave.  </p>
-
-<p> The final change will be the inclusion of toolbar_hb and lbl_statusbar in the vbox  that already had our multitext. The toolbar comes first because it is a vbox and we  want it above the multitext. lbl_statusbar goes after because we want it bellow the  multitext. That's all. Our application now has both a toolbar and a statusbar.  In the next section, we will improve it even more by adding hot keys to our menus.</p>
-
-<a name="_18_36defininghotkeys"></a><a name="36defininghotkeys"></a><h3>3.6 Defining Hot Keys</h3>
-<p> Applications that have menus always present hotkeys to its users. IUP also  offers this resource. To define a hotkey, you could use IupDialog callback K_ANY. This is a callback  common to a lot of IUP elements and is called when a keyboard event occur. IUP  also offers a simple way that allows you to define a specific callback for the  key combination you want to deal with. For example, if you want to show the file  Open selection dialog when the user presses Ctrl+O, you just have to set a callback called  "K_cO". Keyboard Codes shows a  complete table with all keyboard codes available in IUP.</p>
-
-<p> example3_6.ex </p>
-
-<pre class="examplecode"></pre>
-
-<p> This example didn't change much. We just added "\tCtr+?" to each menu item  that has a hotkey. Character "\t" will take care of aligning our hotkey text to the  right, and the rest of the string will tell the user which key combinations to  press. Note that "?" should be replaced by the key you want.</p>
-
-<p> A few lines after, we did a few calls to IupSetCallback using key combinations  as callback names, as mentioned above, to deal with key pressed events. That's all we need to change to include hotkeys in our application.</p>
-
-<p> Since we are improving the user keyboard experience, there is another feature  that we can use to aid users. Using the ampersand (&amp;) character in the menu item  text, we define a key that can activate the menu item. The next character  following the ampersand will be the key. The main menu is reached using the  Alt+key combination, for instance Alt+F will activate the <em>File</em> menu. Once the  menu is opened, use the 'O' key to activate the file <em>Open</em> menu item. Another  example is the Alt+F then 'X' key combination to exit the application; many  applications have this key combination enabled.</p>
-
-<p> Finally we add the TIP attribute for the toolbar buttons so they will also  show the key combination that activate its feature.</p>
-
-<a name="_19_37recentfilesmenuandaconfigurationfile"></a><a name="37recentfilesmenuandaconfigurationfile"></a><h3>3.7 Recent Files Menu and a Configuration File</h3>
-<p> Many text editors offer a menu item that holds a list of recent files. We will use an IUP resource called  IupConfig to implement this list and also store other configuration  variables. <strong>IupConfig</strong> implements a group of functions to load, store and save  application configuration variables. For example: the list of Recent Files, the  last position and size of a dialog, last used arguments in dialogs, etc. Each  variable has a key name, a value and a group that it belongs to.</p>
-
-<p> Its important to remember that using  IupConfig demands the inclusion of header file iup_config.h.</p>
-
-<p> example3_7.ex </p>
-
-<pre class="examplecode"></pre>
-
-<p> We will start this analysis from our main function. After  creating a handle for our config by calling IupConfig, we set the  attribute APP_NAME. This attribute defines the name of our configuration file.  In UNIX, the filename will be "&lt;HOME&gt;/.&lt;APP_NAME&gt;", where "&lt;HOME&gt;" is replaced by the "HOME" environment variable  contents, and    &lt;APP_NAME&gt; replaced by the APP_NAME attribute value. In Windows,  the filename will be "&lt;HOMEDRIVE&gt;&lt;HOMEPATH&gt;\&lt;APP_NAME&gt;.cfg",  in which HOMEDRIVE and HOMEPATH are also obtained from environment variables. </p>
-
-<p> After that comes a call to IupConfigLoad that will load our config  file at startup. This function combined with the IupConfigSave  function, which we will see later, will allow our configuration variables to be  persistent between different application executions. </p>
-
-<p> Following, a few lines bellow, we create the recent_menu that will hold our  recent items inside. You will see that it works as any other menu creation,  except by the fact that we will not add any menu items. They will be  provided by a function that we will see soon. We positioned our recent_menu above the  item_exit menu item and bellow the  IupSeparator.</p>
-
-<p> After the menu is created, there is call to IupConfigRecentInit. This function is  responsible for initializing the recent_menu items from the configuration file  entries. The item_recent_cb callback will be called when the user selects  a file in the recent list. This function also defines the number of recent files that will be  stored and displayed. In our example, we choose to store 10 files. Also note that both item_open_cb and item_saveas_cb should change the recent  files list. So a call to IupConfigRecentUpdate is necessary to  maintain our  recent files list updated.</p>
-
-<p> Next line shows a call to IupConfigDialogShow that replaces  IupShow | IupShowXY. This function will also show the dialog, but  it will try to use the last  position and size stored in the configuration file. It can be used for any  application dialog, just use different names for each dialog.</p>
-
-<p> The function IupConfigDialogClosed is used to save the last dialog position and  size when the dialog is about to be closed, usually inside the dialog CLOSE_CB callback, or when the dialog is programmatically hidden. The CLOSE_CB callback is called when the user clicks on the dialog close button, usually a  'X' at the top right corner of the dialog. Here our dialog is closed by the <em>item_exit_action_cb</em>  callback, so we decided to also use this function as the CLOSE_CB callback and to call IupConfigDialogClosed.  Finally, since this callback also exists in the application we use to call IupConfigSave, it will  save our configuration file. Now that it is saved, we can destroy its handle  using IupDestroy.</p>
-
-<p> That's all for the main function, so let's turn our attention to the item_recent_cb callback. This callback, as said before, is  responsible for handling the selection of a recent file at the menu_recent. Inside  it, we recover our config handle from a custom attribute in the dialog, then we get the file name  from the TITLE attribute of item_recent and open it the same way we do in item_open_cb.</p>
-
-<a name="_20_38clipboardsupport"></a><a name="38clipboardsupport"></a><h3>3.8 Clipboard Support</h3>
-<p> Next, we will find some callbacks that handle copy, cut, paste, delete and select all  of the new items added to the /Edit<em> menu, and a callback to manage activation and deactivation of these items. All are very short callbacks.</p>
-</em>item_copy_action_cb<em>, </em>item_paste_action_cb<em> and </em>item_cut_action_cb<em> use a resource called  IupClipboard, which creates an element that allows access to the clipboard. Each  IupClipboard should be destroyed using IupDestroy. You can use  only one for the entire application, because it does not store any data inside, or you can simply create and destroy every time you need to  copy or paste, that's how we did in our notepad. The </em>item_copy_action_cb<em> callback retrieves the SELECTEDTEXT attribute from our multitext  and sets the clipboard TEXT attribute to copy the text selection. </em>item_paste_action_cb<em> retrieves the clipboard TEXT attribute and insert  it (paste) in the multitext, where the cursor is positioned, using the INSERT attribute. </em>item_cut_action_cb<em> is almost the same code as copy, except  by the fact that it sets attribute SELECTEDTEXT to "", removing the selected text from the  multitext. </em>item_delete_action_cb<em> does the same as  cut, but without using the clipboard. </em>item_select_all_cb<em> sets the attribute SELECTION to LL,  selecting all the text inside the multitext. </p>
-
-<p> Another callback was created to deal with the initialization of our new menu items. </em>edit_menu_open_cb<em> is associated to the </em>edit_menu<em>  OPEN_CB callback. It will set the cut, paste, copy, and delete items as active or inactive, depending on some conditions. First,  it is necessary to obtain the handles of these items. We use the NAME attribute of each item  and the IupGetDialogChild function for this propose, just like  we did before for the multitext. We then test if there is text available in the clipboard by calling  IupGetInt(clipboard, "TEXTAVAILABLE"). It is a short way to test a boolean return value, without having to compare strings  with "YES or "NO". So, if it returns 0, it means there is no text in the clipboard, or in other words, there is nothing to paste. Then the Item paste should be disable, by setting ACTIVEto "NO". Otherwise, the user should be able to paste, and we should set ACTIVE to "YES". The other items follow  the same idea, but this time checking the content of the attribute SELECTEDTEXT. If there is nothing selected, you can disable cut, copy and delete  items. Otherwise, you can enable all items.</p>
-
-<p> example3_8.ex </p>
-
-<pre class="examplecode"></pre>
-</em></p>
-
-<a name="_21_39morefilemanagementdragdropcommandline"></a><a name="39morefilemanagementdragdropcommandline"></a><h3>3.9 More File Management (Drag&Drop, Command Line,  ...)</h3>
-<p> In this section, we will see a little more of file management. The example will show you how to handle drag and drop support, command line support, and how to check if the file needs to be saved before taking another action.</p>
-
-<p> First we will find some new auxiliary functions called <em>str_filetitle</em>, <em>new_file</em>,  <em>open_file</em>, <em>save_file</em>, <em>saveas_file</em> and <em>save_check</em>.  </p>
-
-<p> <em>str_filetitle</em> will be used to append the name of the file  opened by the application to the application dialog title.  <em>new_file</em> first retrieves the main dialog and the multitext,  then sets the dialog title to "Untitled - Simple Notepad" and multitext attributes FILENAME to NULL, VALUE to "", and the new attribute DIRTY to "NO". DIRTY is a custom attribute that we created (same  way we did with FILENAME) to check if the multitext has changed and has not been saved.  Every time the multitext text is changed, the callback  VALUECHANGED_CB, named <em>multitext_valuechanged_cb</em>, is called to set DIRTY as "YES". This attribute will allow us to identify if the content of  the multitext has changed and needs to be saved. open_file reads the file and sets almost the same attributes as new_file, except by the fact that it uses <em>str_filetitle</em> to set application title with the filename, and it  also sets the file content into multitext VALUE attribute. Notice that, like <em>new_file</em>, it also sets DIRTY to "NO".  Since we have just opened the file, it doesn't need to be saved. Also, <em>open_file</em> calls  IupConfigRecentUpdate to include the file we just opened in the recent files list.  <em>save_file</em> calls <em>write_file</em> to save the current file and sets the DIRTY attribute to "NO" while <em>saveas_file</em>  does the same but replacing the current opened file for the new edited one updating the recent list with the new file. Finally,  <em>save_check</em> uses the DIRTY attribute to check if the file needs to be saved. We used  IupGetInt to automatically convert DIRTY from "YES" or "NO" to 1 or 0. If it's 1, we then call a predefined dialog called IupAlarm to warn the user that the multitext content has changed, and it is not saved.  If the user chooses button 1 - "YES", it will call our <em>item_save_action_cb</em> to save the file. If the user chooses button 2 ("No")  <em>save_check</em> will returns 1 without saving and continue with the application operation, but if user chooses button 3 ("Cancel") <em>save_check</em> will return 0 meaning that no further action should be taken.</p>
-
-<p>  We then reach the callbacks section. This time we added several new callbacks. First is <em>dropfiles_cb</em> that will handle what happens when a file is dropped inside the application. It is a very simple callback, it simply checks if the current multitext needs to be saved with <em>save_check</em>, and it calls <em>open_file</em> to open the file that came as a argument. What is  important here is to notice that we associated this callback with two different DROPFILE_CB. One for the multitext and one for the main  dialog. The reason is that the user may drop the file in any place inside the dialog. Every IUP control will call the main dialog DROPFILE_CB , except by the multiline. So, if we want the file to be opened, when it is dropped inside the multiline, it's necessary to set  the multitext DROPFILE_CB callback as well.</p>
-
-<p>  The next one is a <em>multitext_valuechanged_cb</em> that, as we mentioned before, is called when the  user changes the text inside multiline. It simply sets  the DIRTY attribute as "YES". It is set as the multitext VALUECHANGED_CB  callback in main function.   Next comes <em>file_menu_open_cb</em>, which is a function called when the user clicks on the file menu, but before it is displayed to the user.  We will use it to enable or disable the save and the revert items, depending on the DIRTY attribute value.</p>
-
-<p> We have also changed <em>config_recent_cb</em>, that now checks if the current multiline content needs to be saved and calls our new  function <em>open_file</em>. Another new callback is <em>item_new_action_cb</em> that does the same, but calls new_file  instead. <em>item_open_action_cb</em> has also been changed to use <em>save_check</em> and <em>open_file</em>, as well as  <em>item_exit_action_cb</em>.   Two more callbacks were created: <em>item_save_action_cb</em> and <em>item_revert_action_cb</em>. <em>item_save_action_cb</em> saves the text in a file using the  current filename we stored in the FILENAME attribute, without displaying the save as dialog. If there is no current filename, it calls  <em>item_saveas_action_cb</em>, so the user can choose a file. <em>item_revert_action_cb</em> reopens the current file, discarding any changes made to the  multiline content.   In the main function, we have new menu items: <em>item_new</em>, <em>item_save</em>, and <em>item_revert</em>. Also we have new buttons: <em>btn_cut</em>, <em>*btn_copy</em>, i <em>*btn_paste</em>, and <em>*btn_new</em>. Multiline has the new DIRTY attribute and two new callbacks: VALUECHANGED_CB and DROPFILES_CB And we  made a call to <em>new_file</em> to initialize the application state, as a new file has just been created. Also the callbacks where rearranged to appear next to its items to made the code more clear. Finally, in the next line,  we use <em>argc</em> and <em>argv</em> to check if the user tried to open a file from the command line, if so, we call open_file.</p>
-
-<p>     That's all for file handling. Let's proceed to the next section, where we will work with IUP dynamic layout.</p>
-
-<p> example3_9.c </p>
-
-<pre class="examplecode"><font color="#330033">&lt;/eucocde&gt;  </font>
-   
-  
-<font color="#330033">=== 3.10 Dynamic Layout</font>
-
-<font color="#330033">Now we would like </font><font color="#0000FF">to </font><font color="#330033">be able </font><font color="#0000FF">to </font><font color="#330033">hide </font><font color="#0000FF">and </font><font color="#330033">show some of the complementary  dialog elements, such </font><font color="#0000FF">as </font><font color="#330033">the Toolbar </font><font color="#0000FF">and </font><font color="#330033">the Statusbar. If you simply set their  VISIBLE attribute </font><font color="#0000FF">to </font><font color="#330033">NO, they will be hidden, but their size in the dialog layout  will still be reserved, </font><font color="#0000FF">and </font><font color="#330033">an empty space will be displayed instead. To avoid  the use of the FLOATING attribute, along </font><font color="#0000FF">with </font><font color="#330033">the VISIBLE attribute, they will  be hidden, </font><font color="#0000FF">and </font><font color="#330033">its space will be used </font><font color="#0000FF">by </font><font color="#330033">the multitext.</font>
- 
-<font color="#330033">To implement this feature, we added a new submenu called </font><font color="#330033">"//View//" </font><font color="#330033">at the main  menu, </font><font color="#0000FF">with </font><font color="#330033">two new items. One </font><font color="#0000FF">for </font><font color="#330033">controlling the Toolbar visibility, </font><font color="#0000FF">and </font><font color="#330033">another  </font><font color="#0000FF">for </font><font color="#330033">controlling the Statusbar visibility. And we use the IupConfig </font><font color="#0000FF">to </font><font color="#330033">store this  selection </font><font color="#0000FF">to </font><font color="#330033">be persistent between different application executions. </font>
-   
-<font color="#330033">The first change is the inclusion of the </font><font color="#0000FF">function </font><font color="#330033">//toggle_bar_visibility// that handles the changes in visibility in our toolbar </font><font color="#0000FF">and </font><font color="#330033">statusbar.  When an item in View menu is pressed, </font><font color="#0000FF">if </font><font color="#330033">it was checked </font><font color="#0000FF">or</font><font color="#330033">, in other words, the bar  is visible,  set the bar FLOATING attribute </font><font color="#0000FF">to </font><font color="#330033">"YES"</font><font color="#330033">, VISIBLE </font><font color="#0000FF">to </font><font color="#330033">"NO" </font><font color="#0000FF">and </font><font color="#330033">the item value </font><font color="#0000FF">to </font><font color="#330033">"OFF"</font><font color="#330033">,  </font><font color="#0000FF">to </font><font color="#330033">hide the bar. If it is </font><font color="#0000FF">not </font><font color="#330033">visible, </font><font color="#0000FF">do </font><font color="#330033">the opposite. After that, it is  necessary </font><font color="#0000FF">to call to </font><font color="#330033">IupRefresh </font><font color="#0000FF">to  </font><font color="#330033">recompute the dialog layout.</font>
-   
-<font color="#330033">Next two new callbacks appear: //item_toolbar_action_cb// </font><font color="#0000FF">and </font><font color="#330033">//item_statusbar_action_cb//. Both callbacks are responsible </font><font color="#0000FF">for </font><font color="#330033">calling //toggle_bar_visibility// </font><font color="#0000FF">and </font><font color="#330033">calling IupConfigSetVariableStr </font><font color="#0000FF">to </font><font color="#330033">store the item state.</font>
-   
-<font color="#330033">The next change will appear only in main </font><font color="#0000FF">function</font><font color="#330033">, </font><font color="#0000FF">and </font><font color="#330033">it will be the declaration of our new View submenu </font><font color="#0000FF">and </font><font color="#330033">its items, </font><font color="#0000FF">and </font><font color="#330033">the new callbacks associations.</font>
-   
-
-<font color="#330033">example3_10.ex</font>
-<font color="#330033">&lt;eucode&gt;</font>
-
-</pre>
-
-<a name="_22_311externalhelp"></a><a name="311externalhelp"></a><h3>3.11 External Help</h3>
-<p> One additional feature that our text editor can have is an external help. IUP  shows an external help by simply calling the  IupHelp function. It will show an Internet browser in the given page, so the  application can display some documentation to the user. In our example, it is  just a menu item that activates the <em>item_help_action_cb</em> callback that calls the IupHelp function.  This function shows the IUP website, but it can also show a local HTML file. In Windows, that function is even more flexible allowing  opening any kind of document provided that it is associated with an application.</p>
-
-<p> example3_11.ex </p>
-
-<pre class="examplecode"></pre>
-
-<a name="_23_312finalconsiderations"></a><a name="312finalconsiderations"></a><h3>3.12 Final Considerations</h3>
-<p> That's all for chapter three. If you reached this lines, you are able to  build a simple, but fully featured Notepad application using lots of IUP  resources. </p>
-
-<p> During this chapter we went from 30 lines of code to 1100 lines. Only for our  simple notepad with file read and write, clipboard access, text search, and other  features. </p>
-
-<p> For our final simple notepad code, we have just added two missing features:  Replace and Find Next using a hot key. Plus some code organization and  comments. </p>
-
-<p> There is still missing features. If we use IupScintilla instead of IupText there is whole new world of  possibilities. Any contribution to this code is welcome. Please, send us your  comments and suggestions.</p>
-
-<p> Simple Notepad Source Code  </p>
-
-<p> simple_notepad.ex</p>
-
-<p> In our next  chapter we will introduce another Tecgraf library used to draw primitives over a  canvas element to build a Paint application.</p>
-
-<a name="_24_tutorial4"></a><a name="tutorial4"></a><h1>TUTORIAL 4</h1>
-<a name="_25_41loadingandsavingimages"></a><a name="41loadingandsavingimages"></a><h3>4.1 Loading and Saving Images</h3>
-<p> In the previous chapter, we saw how to build a simple notepad using IUP. In this chapter, we will modify the code presented  in the previous chapter and build an application that draws on an image, most  like simple paint programs. To do so, we need a structure that represents an image and a few functions that allow us to read and save images in known formats. Therefore we will make use of a library called IM.  </p>
-
-<p> IM is a digital images manipulation library. Its main goal is to provide a simple API  and abstraction of imaging for scientific applications. In order to use   IM in our application, some new includes a are needed: "im.h" which is the main header of IM; "im_image.h" which deals with creation, loading, attribute manipulation and images storage; "im_convert.h" which deals with the conversion among different types of images; and "iup_im.h"  which allows the loading and images storing through IUP. Similar to what we did  in section  2.1.1 to link IUP's libraries, we will also need to modify the project's link to include  the IM (-lim) library and use a C<ins> linker, even with C code (because internally  IM uses C</ins>). More details in section   Build Applications of Manual da IM. In Lua, you only need to include two new requires: imlua and iupluaim. </p>
-
-<p> We also added a few functions such as str_fileext which  extracts the file extension from the filename; show_error which creates and exhibits  on the screen an error message; and show_file_error which uses show_error to inform the user what kind of error has happened during the opening of an image file. We also have the  set_file_format, which sets in what file format the image must be saved based on the extension of the selected file, and the select_file which selects a file for reading or saving. The functions related to text manipulation, and some items from Edit menu such as Cut, Del, Find, Replace, Go To, Select All and Format menu were removed, because their use in this application does not make much sense.</p>
-
-<p> The functions read_file and write_file now use the IM functions, so as the copy and paste items of the Edit menu. The IM functions imFileImageLoadBitmap and imFileImageSave are entitled to read and save an image from and to a file, using the imImage structure. Note that in the reading, besides the error processing, a test is necessary to convert the image to RGB type, in case it is not of this type yet. This happens because the IM works with several image  types and, for the time being and to simplify things, we will adopt the RGB format  for the SimplePaint. In writing, we use the same reading format. This format is obtained through an attribute of the image, using the  imImageGetAttribString function.</p>
-
-<p> In the functions that create a new image, we keep the current image using an IMAGE attribute of canvas, and thus we assign this attribute with a new image and then we destroy the previous image to free-up memory space. The function  set_file_format was created to treat the format in which the new image must be saved. Usually, we use the same format as the original image. The JPEG format was defined as default, since it is the most popular one.</p>
-
-<p> Another change happened in the clipboard use. The access is done just like in Simple Notepad, but using the NATIVEIMAGE attribute to copy and paste images. This attribute requires a specific format, and for that we used the IUP function called IupGetImageNativeHandle , which generates this format from an imImage and vice-versa. Just after the image is read from a file or pasted on the clipboard, we need to redraw the canvas, to do so we call the  IupUpdate function that will be in charge of calling the redraw callback. Note also that the image on the clipboard could be of any kind, since it was not necessarily copied from this application. Since our application works only with RGB, it may be necessary to remove the alpha channel using  imImageRemoveAlpha, and convert the format using imConvertColorSpace. </p>
-
-<p> Yet, as we save a new file, besides the name of the new file, we need to select an image format that will be defined by the file extension. The  set_file_format function was created to recover this extension and establish the format in which the new image must be saved. The JPEG format was defined as default, since it is the most popular one. </p>
-
-<p> Another interesting novelty was the creation of a select_file function that establishes what type of file dialog treatment must be opened. Since dialogs for open file and file saving are very similar, we encapsulated their creation in one single function.</p>
-
-<p> In this example, we also present a new pre-defined dialog called IupGetParam, which is used in the File/New to obtain the height and width dimensions of the new image. After this data is obtained from the user, the  imImageCreate function is called, which creates a new image, with the height and width previously obtained, and of the RGB type, as explained above.</p>
-
-<p> Note that the image drawing is not implemented in this first example, and therefore it will be the object of this tutorial's next item.</p>
-
-<p> In Lua, as mentioned before, the includes are replaced by the imlua and iupluaim requires. As with the IUP, IM is also a Lua  package. Its functions are retrieved by the "im." prefix followed by the name of the function without the im present in C. For example: we have im.FileImageLoadBitmap instead of  imFileImageLoadBitmap. The functions that in C receive an image as argument (imRemoveAlpha, imImageDestroy, etc) in Lua are functions of the image itself and are called using ":" (image:RemoveAlpha, image:Destroy, etc), dismissing the image passing as argument. While Lua has garbage collection, it is also a good practice to call image:Destroy to free-up the memory allocated for the images, since in large applications, which work with several images, the memory consumption could become a problem.</p>
-
-<p> example4_1.ex </p>
-
-<pre class="examplecode"></pre>
-
-<a name="_26_42drawingwithopengl"></a><a name="42drawingwithopengl"></a><h3>4.2 Drawing with OpenGL</h3>
-<p> As we saw in the beginning of this tutorial, that IUP is a toolkit for the creation of interface with the user. Although having among its controls a canvas, it does not have functions for  drawing on it. For that it will be necessary to include an external library. Among a few options, we choose for this example the OpenGL  library for its portability, performance and standardization.</p>
-
-<p> In order to use OpenGL with IUP, besides the GL/gl.h, windows.h (in case you are using windows) and iupgl.h includes, we will need to  link with some libraries too. In Windows, opengl32.lib is used, while in Linux the -lGL must be included. The IUP canvas that works with OpenGL is also an additional control called  IupGLCanvas. A call to IupGLCanvasOpen must be included after IupOpen so that this control is available.</p>
-
-<p> In the code, calls to imImageGetOpenGLData in read_file and  in new_file, were included to convert the read/created image in an OpenGL compatible format. A canvas action callback was also created. This callback is executed whenever the canvas needs to be redrawn. In this callback, we inform that our GL canvas is the current canvas using IupGLMakeCurrent, we start the OpenGL configuration by setting the image alignment to 1, and we adjust the OpenGL coordinates transformation, which by default are between 0 and 1, to  between 0 and the canvas size, in a relation of 1 to 1 in pixels. We clean the canvas with the background color using  glClearColor and glClear. Next, we obtain, through the GLDATA attribute, the image data in OpenGL format that needs to be drawn. Then we draw the image in the center of the canvas with glDrawPixels. Note that the glRasterPos2i  and glDrawPixels  functions do not accept values outside the screen, thus because of this OpenGL limitation, the image to be shown must be smaller than the canvas, or it will not be drawn. We can get around this limitation by using the OpenGL textures support. However, its usage is beyond the scope of this tutorial.</p>
-
-<p> In our example, we are working with double buffer, since we set the BUFFER attribute to DOUBLE in the main function when we created the canvas. This entails that the drawing will be made outside the screen, on a separate buffer. When we finish calling the drawing functions, we show the result by displaying this buffer to the user. To show the result, we call the IupGLSwapBuffers function.</p>
-
-<p> In this example, we use another IUP pre-defined dialog called IupColorDlg. The  IupColorDlg is displayed for the selection of a new background  color in the View menu. It is a dialog for color selection, and in our example, it changes the canvas background color.</p>
-
-<p> In Lua, to use the OpenGL functions, we use the LuaGL. For this, you only need to require the "luagl" package. To use the IupGLCanvas  you should also require the "iupluagl". The LuaGL functions follow the Lua standard packages and use the "gl." prefix, for example: "gl.Func" instead of "glFunc" in C. </p>
-
-<p> example4_2.ex </p>
-
-<pre class="examplecode"></pre>
-
-<a name="_27_43drawingwithcdandprinting"></a><a name="43drawingwithcdandprinting"></a><h3>4.3 Drawing with CD and Printing</h3>
-<p> In this section, we present an alternative to the OpenGL library. Although having an excellent performance, the OpenGL library has some limitations. There is no support for printing, no metafile  output, and it also does not provide support to high quality text. Therefore, many applications need other options. To attend to this other needs, we created  the CD library â Canvas Draw. You can find this library on: www.tecgraf.puc-rio.br/cd, and it was designed to function together with IUP.</p>
-
-<p> To use it, you need to link with the "cd" and "iupcd" libraries. The "cd.h" and "cdiup.h" includes must appear in the code.</p>
-
-<p> Since we are replacing the OpenGL for the CD, we once again work with the  IIupCanvascontrol instead of IupGLCanvas. We can also remove the libs and OpenGL includes added in the previous  section.</p>
-
-<p> In the code, the OpenGL functions calls are no longer needed. IupGLMakeCurrent was replaced by  cdCanvasActivate, glClearColor by cdCanvasBackground,  glClear by cdCanvasClear, and IupGLSwapBuffers by  cdCanvasFlush.</p>
-
-<p> The new MAP_CB e UNMAP_CB callbacks were included. The MAP_CB callback, called canvas_map_cb, is responsible for creating the CD canvas using the cdCreateCanvas.  This is necessary, because to create the CD canvas, the IUP canvas must be mapped beforehand on the native system. One of the arguments that this function receives is the CD_IUPDBUFFER. This informs the CD that it must work on Double Buffer, the same way we have been doing in Open GL. Note that there are now two types of canvas in use - the IupCanvas control and the CD library  cdCanvas.  Thus in this callback it is also done an association between these two canvas through a call to  IupSetAttribute, so it can be retreived later in the action  callback. The UNMAP_CB callback named canvas_unmap_cb retrieves the CD canvas associated to IupCanvas control and destroys it by calling cdKillCanvas. The callback responsible for drawing the image on canvas continues to be the  canvas_action_cb, the difference is that besides having replaced the OpenGL calls as mentioned before, several of them were removed and replaced for only imcdCanvasPutImage. This single call draws an IM image on a CD canvas.</p>
-
-<p> Taking advantage that the CD supports printing, we added a few resources to Simple Paint. Other new callbacks are:  item_pagesetup_action_cb which is responsible for obtaining from the user, through  IupGetParam, the height and width of the margin of print preview page;  view_fit_rect which adjusts the screen to display the entire image; and  item_print_action_cb which shows the printing dialog. </p>
-
-<p> We also have two new menu items: item_pagesetup e item_print, which call the callbacks with the same name. The print item was associated to a CTRL+P hotkey.</p>
-
-<p> In Lua, the "cdlua" e "iupluacd" requires are necessary. We can remove the "luagl" and "iupluagl" used in the previous example. The CD call function in Lua use the  "cd." prefix, as in cd.CreateCanvas instead of cdCreateCanvas and etc. Note that the imcdCanvasPutImage  function uses the "im." Prefix, since it belongs to the IM library. </p>
-
-<p> example4_3.ex </p>
-
-<pre class="examplecode"></pre>
-
-<a name="_28_44interactivezoomandscrollbars"></a><a name="44interactivezoomandscrollbars"></a><h3>4.4 Interactive Zoom and Scrollbars</h3>
-<p> In this section, we will add an interactive zoom to our application. To do so, we need to draw the image with a bigger or smaller size than its actual size. This magnification factor needs to be interactively modified by the user through different paths.</p>
-
-<p> Besides that, if the image is bigger than the canvas that we have to draw it, we need a mechanism that allows us to move its visible area. This mechanism is the scrollbar. To enable the scrollbars, we set the SCROLLBARYes  attribute of the IupCanvas. But we have to configure them every time the magnification factor is modified  and when the application window changes its size.  Thus, we need to implement the  RESIZE_CB callback of the canvas, so that it calls the scrollbar_update function that calculates the scrollbar arguments.</p>
-
-<p> To change the magnification factor, we created a few mechanisms and also added some controls to the statusbar. They are: an IupVal  which selects a value on a given interval, and three buttons that are responsible for the zoom in, zoom out, and return to original actions. The same buttons' actions can be made through the View menu using item_zoomin, item_zoomout and item_actualsize. We also created hot keys that activate these buttons: CTRL+ (zoom in), CTRL- (zoom out) and CTRL0 to return to original size. Finally, we added a  WHEEL_CB callback of the canvas, which is activated through the mouse wheel. In it we used the delta argument to modify the zoom factor. You can find these news controls in  the create_main_dialog function, in which we used a shortened way to create a control hierarchy using  IupSetCallbacks and IupSetAttributes together. The result is similar to the creation of controls in Lua. The zoom factor is changed linearly, but its effect is of a power of 2, therefore the controls modify what we call zoom_index between -6 and 6 limits, and the  zoom factor is calculated by doing pow(2, zoom_index), which results in a zoom interval of 1% and 6400%. To use the pow function, it is necessary to use the math.h include.</p>
-
-<p> The scrollbar_update function performs a very complicated calculation, which is described in the IUP Manual on the   SCROLLBAR attribute documentation. This is necessary because of the AUTOHIDE attribute, which automatically hides the scrollbar. Notice that in this function, we obtained the canva size  in pixels through the RRASTERIZEattribute, and we removed two pixels. This happens because the IupCanvas has the BORDER attribute set as  "YES by default. Thus it is necessary to remove 1 pixel (size of the edge) for the left edge and another for the right edge. The same happens to the superior and inferior edges. We only configure the DX and DY arguments of the scrollbar to equal the visible area of canvas with the magnified zoom.  We leave the XMIN YMINand XMAX YMAX arguments with the default values of 0 and 1, respectively. The POSXe POSYattributes inform the shift that the image drawn with zoom must have in order to move according to the scrollbar. Since POSX e POSY are between 0 and 1, this shift in pixels is obtained by multiplying the attribute values for the total size of the image in zoom (view_with e view_height).  The  scrollbar_update function works together with two new functions. When the scrollbar is updated, the  scroll_calc_center and the scroll_center are necessary to keep the image displayed in the same position on the screen  while changing the scrollbar configuration.</p>
-
-<p> Once we have modified the magnification factor, we need to draw the image. For that, in the action callback of  the canvas, we add a new calculation to obtain the position and size of the image to be drawn on canvas. This calculation obtains the zoom factor, resizes the visible area by multiplying by this factor, and repositions the image on canvas. </p>
-
-<p> Since we had been modifying the action, we also added a border around the image using cdCanvasRect. We did this because when we include the zoom and scroll, it is usually difficult to locate the image  borders, especially if it looks like the background color. Therefore it is common to include an edge around the image to mark the end of it.</p>
-
-<p> We noticed that in example 4_4, we could improve the application state of control when a new image is created. For that, we created the  set_new_image function that replaces parts of the code in New, Open and Paste. In this function, we encapsulated the change in the dialog title from the file name, and we verified if the image is RGB as described in  section 4.3. We also verified if there is a  file format for the new image, and if we should adopt the default format.  Furthermore, we set the DIRTY value, and finally restarted the zoom factor to  normal visualization at 100%.</p>
-
-<p> In Lua, since the mathematical library is already included in the standard  parser, there is no need for a new require. Besides the syntax difference among  the languages, there is no particular changes.</p>
-
-<p> example4_4.ex </p>
-
-<pre class="examplecode"></pre>
-
-<a name="_29_45canvasinteractionandatoolbox"></a><a name="45canvasinteractionandatoolbox"></a><h3>4.5 Canvas Interaction and a ToolBox</h3>
-<p> So now we are going to implement a more complex form of interaction with the  canvas. We want to have control over the actions of the cursor when moved or  clicked over the IupCanvas. For that we need two new callbacks:  MOTION_CB and BUTTON_CB Inside these callbacks there will be all the logic  behind the interactions we want to implement for a Paint application. But in  order to do that we need first to define which type of interaction we want.</p>
-
-<p> In a Paint application the interaction is usually defined by a toolbox where  the user chooses a tool to interact with the canvas. The toolbox is a dialog  with some special characteristics. In our example code this is done by the  create_toolbox function. We are going to reduce the default font size, and we  are going to use the TOOLBOX attribute, since we want a dialog with a small foot  print on screen. The first thing to notice on its internal controls is the use  of an IupRadio. All the IupToggle inside the  radio hierarchy will be mutually exclusive, so when a tool is selected all the  others are not selected. We put all the toggles inside a IupGridBox  so they will be automatically aligned in a rectangular grid with 2 columns. And  we are going to need custom images for the tools since they are not available at  the IupImageLib.</p>
-
-<p> We created those images in a very popular application called Paint.NET. It  allowed us to save the RGBA files in the PNG format, then we used the IupView application to convert the files to C  source code so we were able to compile them directly inside our application.  Another possibility would be to use the IupLoadImage, but then  our example will have to be able to locate the image files during run time. All  the images were processed and its code is pasted at the beginning of the example  source code.</p>
-
-<p> After the tools we added a few other controls to support some tools options.  Not all tools use all options, so a future enhance to the example would be to  hide and show each option accordingly to the selected tool. But for now we are  going to leave all the tools options visible all the time. You will see that the  tools use controls and features we already described in previous examples. So  let's focus on the tools themselves.</p>
-
-<p> The current tool is saved in a custom attribute called TOOLINDEX. We will  also use this approach to save the tools options values, such as TOOLWIDTH,  TOOLCOLOR, TOOLSTYLE, TOOLFILLTOL and TOOLFONT. This will make the use of these  values a lot easier.</p>
-
-<p> We created 10 tools that will use 4 different types of interaction. (1st  type) Pointer will use click+drag to also scroll the image that is larger than  the visible canvas. (2nd type) Color Picker and Fill Color will just  need a click on the canvas. (3rd) Pencil will directly draw over the  image using a click+drag approach. (4th) All the shapes (Line, Rect,  Box, Ellipse, Oval and Text) will use click+drag to set flags that activates an  overlay process in the canvas_action_cb callback, so the tool feedback can be  done over the image. When it is done, the final drawing is rendered over the  image itself when the button is released. So there were changes to  canvas_action_cb, new implementations in canvas_button_cb and in  canvas_motion_cb, all working together to implement each interaction.</p>
-
-<p> All these interactions are done while the mouse is pressed over the canvas or when it is simply clicked (pressed+released). There is another type of interaction that uses the concept of a graphical object over the image. For example, instead of only drawing the feedback while the mouse is pressed, the result creates a graphical object that can be lately modified and manipulated. Just like a selection area in other Paint applications. This implies in a data structure to store the object, and another for the list of created objects. When the mouse is moved near the object, handlers are shown so the user can click and interact with the graphical object. This technique can be use to create a Simple Draw application (like Corel Drawâ¢), instead of a Simple Paint. Where we will be manipulating vector data instead of raster data, and loading/saving formats like WMF/EMF, SVN, PDF, CGM, DXF, and so on (all supported by the CD library by the way). In terms of user interface features a Simple Draw is most like the same of a Simple Paint application..</p>
-
-<p>  The first thing we had to do to implement the interactions was to get that calculation in the canvas_action_cb to obtain the position and size of the image on screen and  transform it into a function that we called view_zoom_rect. We are going to need  those argument to convert the coordinates received by the callbacks into  coordinates inside the actual image. So in all mouse callbacks, after calling  view_zoom_rect we invert the Y axis, because y is top-bottom oriented in IUP,  but bottom-top oriented in CD and IM. Then we check if the resulting coordinates  are inside the image on screen and convert them to the actual image coordinates  using view_zoom_offset. So now (x,y) are inside the image range  (0,0)-(image_width-1,image_height-1). In other words we converted screen  coordinates into image coordinates.</p>
-
-<p> To actually draw on the image after the interaction we used the CD_IMAGERGB  driver pointing to the image data. So we can draw using CD primitives but using  the image as the canvas medium. In this way the code becomes very simple an easy  to understand. But for text to work properly we must not forget to set the new  CD canvas resolution to the same resolution of the screen, so we will obtain a  result with the same size in pixels.</p>
-
-<p> For the Fill Color tool we had to implement a flood fill algorithm. We used a  very simple 4 neighbors stack based flood fill. So it is also very didatic.  There are several optimizations possible, can you point any?</p>
-
-<p> We also used the canvas_motion_cb callback to update the current pixel color  on the Statusbar. This will be done independently of the current selected tool.</p>
-
-<p> For better integration of the main dialog with the toolbox dialog we move the  toolbox dialog every time the main dialog is also moved. The MOVE_CB callback of  the main dialog is implemented and it will simply offset the toolbox dialog by  the same offset the main dialog was moved.</p>
-
-<p> As we are adding layers to the image visualization, we also added a zoom grid  feature. It will display a grid over the image when the zoom factor is greater  than 200% to help the user to identify pixel boundaries.</p>
-
-<p> example4_5.ex </p>
-
-<pre class="examplecode"></pre>
-
-<a name="_30_46imageprocessingandfinalconsiderations"></a><a name="46imageprocessingandfinalconsiderations"></a><h3>4.6 Image Processing and Final Considerations</h3>
-<p> In our final code for this chapter we are going to add a few image processing  functions provided by the IM library. We added a new sub menu to the main menu  called "Image", and there we added items for Resize, Mirror, Flip, Rotate,  Negative, and Brightness and Contrast. Although all these operations are  interesting, we would like you to take a look at the Brightness and Contrast  operation. We used a IupGetParam dialog as before, but this  time we implemented the PARAM_CB dialog callback that allow us to interactively  update the image while changing the operation arguments in the dialog. So  helping the user to find the best combination for those arguments for the  desired result. For this to work we are going to temporarily replace the current  image with the processed image, and simply update the canvas. The result is very  effective. IM has lots of other image processing operations that we will let you  to explore, to use them we need to link with the im_process  library too. This will also allow us to replace the flood fill and fill with  white routines by imProcess versions.</p>
-
-<p> Since we are adding utilities libraries, let's also include the cdim  library that will allow us to replace the CD_IMAGERGB driver by the CD_IMIMAGE  driver, and the imcdCanvasPutImage macro by the  cdCanvasPutImImage function. Providing a more elegant code for our  final version. </p>
-
-<p> And we are done for this chapter. We went from 800 lines, almost all based on  our previous example, to 2500 lines. Implementing a fully featured Paint  application using IUP and CD resources. Which include loading and saving of  image files, drawing and printing of images, zoom and scroll support, and the  most important, how to interact with a canvas and its drawing in several ways.</p>
-
-<p> Still there are always possible enhancements such as using the IM Video  Capture features to obtain an image from a camera, Undo/Redo support using a  stack of images, transparency using an alpha component in color, area  selection...</p>
-
-<p> The toolbox is also an interface element that can have several approaches.  Instead of jut hiding it we could use IupDetachBox to insert it  on the main dialog at the left side of the canvas, so it can has 3 states:  hidden, floating as a dialog, and attached just like the toolbar. And when  attached there is also another possibility, we could use an IIup so we can dynamically show and hide its contents leaving a direct affordance in  the dialog to do that.</p>
-
-<p> simple_paint.ex </p>
-
-<pre class="examplecode"></pre>
-
-<p> In our next chapter we will introduce some advanced techniques for IUP  applications.</p>
-
-<p> Note: both images used for the screen shots are Copyright ©  Antonio Scuri, and distributed under the Creative Common License.</p>
-
-<a name="_31_tutorial5advancedtopics"></a><a name="tutorial5advancedtopics"></a><h1>TUTORIAL 5  Advanced Topics</h1>
-<a name="_32_51cencapsulation"></a><a name="51cencapsulation"></a><h3>5.1 C++ Encapsulation</h3>
-<p> As you recall from chapter 4, our Simple Paint source code now has 2500  lines. It is a lot to process, specially if you are looking for bugs, or  learning how it works without reading all the previous examples that evolved  into the final code. So it is time to use some software engineering techniques  to improve quality and maintenance. We can do that in C too, but modern  applications are more and more using C<ins>, also because the language provides  some tools to easy that task. So the first thing we are going to do is to  convert the code from C to C</ins>. </p>
-
-<p> Actually if you simply save the "simple_paint.c" as "simple_paint.cpp", and  use a C<ins> compiler it will fully work. But it is not what we meant. We would  like to isolate parts of the code to reduce the interference of one part in  another. This is called encapsulation in software engeneering. The simplest way  to do that in C</ins> is to use classes for major features in the application. So  looking at our code we can see at least 3 groups of functions: the main dialog,  the toolbox dialog, and file management.</p>
-
-<p> So we decided to start with 3 classes: SimplePaint (the main  dialog), SimplePaintToolbox (the toolkbox dialog) and  SimplePaintFile (file management). If you compare the C and the C<ins>  codes they are very similar, except that functions are now class methods. Even  IUP callbacks are now methods, but there is a catch here. Class methods can NOT  be used as function pointers as the ones used by IupSetCallback.  It order to be able to do that we must implement a static method, use it as the  callback, and from inside that code call a class method. To do that every time  for all the callbacks can be very task consuming. So we created a few macros to  help implementing callbacks as class methods.</p>
-
-<p> These macros are available in the "iup_class_cbs.hpp" include file. To use  the macros for the callbacks you must call the IUP_CLASS_INITCALLBACK(ih, class)  macro once, usually in the class constructor after the IUP dialog was created.  This macro will register the IUP element so the class object can be retrieved  later transparently for the application. The macros however can be called in any  order. So we will use the IUP_CLASS_DECLARECALLBACK_*(class, callback) macros to  declare the callbacks as methods. Since we have several different callbacks  because of the different arguments, there are several different macros, one for  each callback signature found in IUP elements. The static method has the same  name of the callback used in the macro with a "CB_" prefix. So you can also  directly use its name in IupSetCallback if necessary. To  actually set the callback of an element simply call IUP_CLASS_SETCALLBACK(ih,  name, callback) just like you call IupSetCallback. The callback  name will be the same you used in IUP_CLASS_DECLARECALLBACK_*(class, callback),  in fact it will simply call IupSetCallback with the static  callback using the "CB_" prefix. So here is a simple class to illustrate this  procedure:</p>
-
-<p> class SampleClass</ins> {   int sample_count;</p>
-
-<p> public:   SampleClass()   {     sample_count = 0;</p>
-
-<p>     Ihandle* button = IupButton("Inc", NULL);     <em> 2) Associate the callback with the button     IUP_CLASS_SETCALLBACK(button, "AACTION, ButtonAction);</p>
-
-<p>     Ihandle* dialog = IupDialog(button);</p>
-</em> 1) Register this object as a callback receiver (only once)     IUP_CLASS_INITCALLBACK(dialog, SampleClass);</p>
-
-<p>     IupShow(dialog);   };</p>
-
-<p> protected:</p>
-
-<p>   <em> 3) Declare the callback as a member function   IUP_CLASS_DECLARECALLBACK_IFn(SampleClass, ButtonAction); };</p>
-</em> 4) Define the callback as a member function int SampleClass::ButtonAction(Ihandle*) {   sample_count<ins>;   return IUP_DEFAULT;</ins> }</p>
-
-<p> Using these macros methods of the same C<ins> class can be set as callbacks for  any element. For clarity we are going to use a single class to process the  callbacks of all elements that are children of the same dialog. So we will need  2 classes for our 2 dialogs. The third class will handle only the image file  management and it will not have callbacks. To be able to isolate the toolbox  from the main dialog class we will need some extra methods that will operate  over the toolbox dialog. Apart from that all the methods of both dialog classes  are directly equivalent of a function in our C source code. We also tried to  maintain their position in the source code to simplify the comparison between  the two.</p>
-
-<p> Notice that only a few methods are left public in both classes, that is where  the encapsulation occurs. </p>
-
-<p> Example Source Code  [in C</ins>] simple_paint1.cpp   [in C] simple_paint.c </p>
-
-<a name="_33_52cmodularization"></a><a name="52cmodularization"></a><h3>5.2 C++ Modularization</h3>
-<p> In the previous section we purposely left all classes in the same file so you  will be able to compare it with the C source code. But now is the time to split  the code in several modules, one for each class. So instead of a 2500  lines file, we now reduce to 1000 lines for the main file (where the main dialog  is) and the rest distributed in the other files.</p>
-
-<p> But we actually were able to create a total of 6 modules! 3 modules for the  classes we already described, and 3 new modules. The 3 modules we already expect  are: "simple_paint.cpp/h" (SimplePaint class), "simple_paint_toolbox.cpp/h"  (SimplePaintToolbox  class) and "simple_paint_file.cpp/h"  (SimplePaintFile class). </p>
-
-<p> The first new module is a very simple one, called "simple_paint_main.cpp". It  contains only the "main" function necessary for the application  starting point. </p>
-
-<p> The second new module is to store the utility functions that are not related  to any specific classes. It is called "simple_paint_util.cpp/h".</p>
-
-<p> And the third module is a new class that we identified mixed up with our SimplePaint class. Inside the main dialog we have a very  important control that does the most important interface task that is to show  the image and do the direct interaction defined by the toolbox. As you can guess  now is the IIupCanvas It has several speciall callbacks and as  we said is the essential tool for our paint interface. So it is a natural  candidate for separate class we called SimplePaintCanvas. It  will hide the canvas from the main dialog, and encapsulate all its features,  mainly interaction and zoom control. It is called "simple_paint_canvas.cpp/h".</p>
-
-<p> Now it is not just easier to find the part of the code you want to change,  but it helps to reduce the interference in other modules of what you have just  changed.</p>
-
-<p> But notice that our modularization is still not perfect. Inside SimplePaintCanvas  there are some references to controls that are located in the Statusbar. </p>
-
-<p> The next stage will be to use Dynamic Dispatch, or in C<ins>, virtual methods  and inheritance to implement classes for the interactive tools to make it easier  to add new tools.</p>
-
-<p> Also our classes are instantiated just one time. What about adding support  for editing multiple image files simultaneously, but instead of using the old  Windows MDI concept to use a IupTabs to alternate between the  files?</p>
-
-<p> In Lua the changes would be very similar, using tables to isolate the code of  each module.</p>
-
-<p> So there are plenty of possibilities for improving our object oriented modeling.  If you implement some of them, please let us know and share your code so we can  add it to the tutorial.</p>
-
-<p> Example Source Code (Implementation) [C</ins>]  simple_paint.cpp    simple_paint_canvas.cpp    simple_paint_toolbox.cpp   simple_paint_file.cpp   simple_paint_util.cpp     simple_paint_main.cpp   Example Source Code (Declaration) [C<ins>]  simple_paint.h    simple_paint_canvas.h    simple_paint_toolbox.h   simple_paint_file.h   simple_paint_util.h   </ins></p>
-
-<a name="_34_53highresolutiondisplay"></a><a name="53highresolutiondisplay"></a><h3>5.3 High Resolution Display</h3>
-<p> During the 90's the 15" monitors with 1024x768 pixels were the most popular  graphic resolution was about 85 DPI. But that was a long time ago. Soon we  started to see 19" monitors with 1280x1024 pixels and 92 DPI. Later the most  popular are the 20" Full-HD wide screen monitors (16x9 at the same height as 19"  standard 4:3 monitor) with 1920x1080 pixels and a resolution of about 96 DPI.  Finally we got to the 4K wide screen monitors with 3840x2160 pixels. Even for a  24" wide screen monitor, the resolution 3840x2160 pixels is 186 DPI. It is a lot  more than 96 DPI. For instance 16x16 pixels icons are very tiny. Here is an  example using a browser page as reference:</p>
-
-<p> To support such high resolution the application should be able to compute its  layout using a larger font, and to include image sets for button when in high  resolution. Usually this not occurs. IUP will automatically take care of the  layout (considering that the application used SSIZE CMARGIN and CGAP, instead of  RASTERIZE, MARGIN and GAP), but images are commonly provided in one size only,  our SimplePaint is no different. To compensate that Microsoft used a strategy in  Windows that will do a low level resize of the application, so it can improve  its readability in sacrifice of its resolution. So this is how our SimplePaint  looks like with the resize strategy:</p>
-
-<p> The IupCanvas will report a size that is actually smaller  than the size on screen, because the application will be run as if in a Full-HD  monitor, not using the available resolution. Notice that even the menu text is  blurred. To avoid that we added a few lines  to the Manifest file, declaring that we are a dpiAware  application. So this was how we obtained the previous screen shoot with the  small icons. Now that we know how to avoid the Microsoft resize strategy it is time  to improve our application readability by our own.</p>
-
-<p> We used in SimplePaint two sets of images, one from the IupImageLib  stock images, and one created just for SimplePaint which are only  16x16 pixels. We actually don't have to worry about the stock images, because  since IUP 3.16 they are automatically resized accordingly the screen resolution  (to obtain the first screen shot, we also had to disable this feature). But the  SimplePaint toolbox images only have 16x16 pixels. The solution would be to add new images  with at 32x32 pixels that can be used in place of the 16x16 if the resolution is  very high, for instance by checking the global attribute SCREENDPI being greater than 150  DPI and selecting 16x16 or 32x32 images. But IUP also provides an automatic resize for images using the same  strategy that Microsoft does for the whole application. To do that we set the  IMAGEAUTOSCALE global attribute to the "DPI" value. So all the images will be  scaled accordingly. The result is the following:</p>
-
-<p> Now we have the best of both worlds, high resolution with normal readability. </p>
-
-<a name="_35_54splashscreenaboutandsysteminformation"></a><a name="54splashscreenaboutandsysteminformation"></a><h3>5.4 Splash Screen, About and System Information</h3>
-<p> Sometimes the application take a long time to start up, maybe it has many  things to initialize for instance. One common approach to distract the user  while this initialization occurs is to use a Splash screen. It is a dialog shown  while the application initializes that usually has a decorative purpose only. So  many companies use it to show the application logo and/or the company logo as a  marketing strategy. Although we can use a normal dialog to do that, this dialog  will have no decorations and no controls inside. We are going to use a single  image as contents, and a trick to show it with a transparent background. The  trick is the OOPACITY IIMAGE#attribute of the IupDialog, it will  use the transparency of the image to create a mask for the dialog shape, so the  dialog will be shown with a non rectangular area, on top of what's on the  background. </p>
-
-<p> But we would like that to take two moments, first when the logo is shown  alone, and a second moment when the logo is shown with our application on the  background, while it initializes. To control the timing we use an  IupTimer set initially for 1 second, then hold the execution, and  inside the timer callback restart the timer for another second but now letting  the application initializes normally. The splash dialog will be automatically  destroyed at the end of the second moment.</p>
-
-<p> The image we chose is the Tecgraf logo with 317x317 pixel. It is a large  image to convert it to a C source code and embed into the application executable  just for the splash screen. So we are going to load it from its file during run  time. We could directly use IM functions to do it, and use CD to draw it, but we  don't need much control over the drawing this time, so a simpler way is to use  the IupLoadImage utility function that loads a file and returns  an IupImage ready for IUP controls. The problem is that we now  have to distribute our application with the logo file, and in run time locate  that file for loading. There are many strategies to do that, we decided that our  logo will be located in the same folder of the executable or in the parent  folder, so we use the main function argument "argv[0]"  that contains the executable file name. From it we extract the path where it is  located so we can concatenate with the logo file name. If the file is not found  the splash is simply not shown.</p>
-
-<p> Example Source Code  [in C<ins>] simple_paint_splash.cpp  </ins></p>
-
-<p> So now that we have a handsome logo, why not to improve our About dialog too?  The About dialog also has an important job to show the application version.  Until now we didn't have a version number, but our SimplePaint  is getting more complex every day, so we must be able to know which version we  are running. If we count from the start, in chapter 4 we should have reached  version 1.0. In chapter 5 we moved to C<ins> but didn't actually added new  features, so it was version 1.1. So for our splash screen commemorative edition  we will simply define it as version 1.2.</p>
-
-<p> We also added some company information and a contact e-mail. In the  screenshot bellow the sharp eye will notice a caret in front of the e-mail text.  That's because it is not an IupLabel. It is an IupText  without borders and with the same background of the dialog. We use it instead of  a label so the user can select the text and copy to the clipboard to paste it  somewhere else. Another option would be to use the IupLink  element with the text "<a class="external" href="mailto:iup@tecgraf.puc-rio.br">mailto:iup@tecgraf.puc-rio.br</a>",  this will invoke the system e-mail application when clicked.</p>
-
-<p> Finally there is also a button for System Information that shows a  pre-defined dialog called IupGetText with textual information  about the current system that can also be copied to the clipboard for use in  error report for instance. Notice that all the system information were obtained  from IUP global attributes.</ins></p>
-
-<p> Here is a sample of the System Information text: ----<del>-  System Information  --</del></p>
-
-<p> IUP 3.15 Copyright (C) 1994-2015 Tecgraf/PUC-Rio.</p>
-
-<p>   System: Win10   System Version: 10.0.10240 (x64)</p>
-
-<p>   Screen Size: 3840x2080   Screen Depth: 32</p>
-
-<p> IM 3.9.1 Copyright (C) 1994-2015 Tecgraf/PUC-Rio.</p>
-
-<p> CD 5.8.2 Copyright (C) 1994-2015 Tecgraf/PUC-Rio.</p>
-
-<a name="_36_55dynamiclibraries"></a><a name="55dynamiclibraries"></a><h3>5.5 Dynamic Libraries</h3>
-<p> Now it is time to distribute our application. There are many installation  creation tools for Windows like  Microsoft Windows Installer (Free - defines the MSI package format),  Install Shield (Commercial), NULLsoft NSIS  Installer (Free - own package format), Inno Setup  (Free - own package format), and WiX toolset (Free - can  produce MSI packages). Here is a simple comparison on StackOverflow:  Free Install Wizard Software. In Linux it is very common to distribute only  the source code, but this becomes more complex when it involves libraries that  are not installed on the system, like IUP, CD and IM. To build distribution  packages for Linux search for rpm and deb package formats on the Web.</p>
-
-<p> But before creating and installer we need to define which files we will  distribute. </p>
-
-<p> When using static libraries to link our application, we  simplify the deployment because everything is packed in a single file. But in  link time we have to know all dependencies of all libraries we are using, and  still this does not guaranties that some library will have an external dependecy.  Use know we use 3 libraries IUP, CD and IM. The main IM library (im)  depends on the Zlib library (zlib1), and must not forget the IM  Image Processing library (im_processes ) that contains the  functions we use in section 4.6. The CD main library (cd)  depends on the FreeType library (freetype6) which in turn  depends also on the Zlib library, finally the CD main library in Windows depends  on the GDI (gdi32) and in Linux depends on the GDK and Cairo  libraries. The main IUP library depends on GTK in Linux and USER (user32),  Common Dialogs (comdlg32) and Common Controls (comctl32).  To use IUP and CD together we need also the CD_IUP library (iupcd).  To use IUP and IM together we need the IUP-IM Utilities library (iupim).  And the IUP Image Library (iupimglib) for the stock images. So our actual link  list will include:</p>
-
-<p> iupimglib iupcd iup cd freetype6 im_process im zlib plus in Windows: comctl32 comdl32 user32</p>
-
-<p> plus in Linux: gtk-x11-2.0 gdk-x11-2.0 gdk_pixbuf-2.0 pango-1.0 pangox-1.0 gobject-2.0 gmodule-2.0 glib-2.0The executable takes longer to link and all exported functions of all static  libraries must not have a single function with the same name. And they all must  use the same C Run Time Library when compiled, mixing different run times can  have unpredictable results and usually linker errors.</p>
-
-<p> On the other hand, when using dynamic libraries things get  more simpler when developing and carefully when distributing. This time we do  not have to know all the dependencies, only the direct dependencies used by our  own code. So when linking we will specify only the following libraries:</p>
-
-<p> iupimglib iupcd iup cd im_process imThe executable will link much faster and there will be much less room for  conflicts. If you keep the memory allocation and release isolated by each  library, meaning what allocated in IUP is released by IUP, what's allocated in  CD is released by CD, and so on, then there will be no C Run Time library memory  problems, even when using libraries that were linked with different Run Time  libraries (standard structures like FILE* are also non interchangeable). But now  we have to include all those libraries and their dependencies in the  distribution package. The fist time you build the distribution package is  problematic because you have to make sure that you get everything you will need  in a foreign system. In Windows a very useful application in the Dependency Walker  (Free). It will list all the DLLs linked to the application and their respective  dependencies (don't forget to include the C Run Time DLL too, usually  "msvcrXX.dll"). In Linux you can use the "ldd" application and in MacOSX the "otool"  application for that purpose, but they are more limited.</p>
-
-<p> In Windows, when running an application that depends on DLL is quite simple,  if you copy the DLLs to the same folder of the application the system will  automatically locate the DLLs. There is no need to change the PATH or to copy  the DLLs to the Windows/System folder. In Linux, if you do not copy the .so  files to the system folder then you need to at least set an environment variable  called LD_LIBRARY_PATH (DYLD_LIBRARY_PATH in MacOSX) to include the folder were  the dynamic libraries are. For example:</p>
-
-<p> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/tecgraf/simple_paint So we actually moved the problems from one place to another, although  it is still more interesting to work with dynamic libraries since they isolate a  library code from another, linker is faster, and individual updates to the  dynamic libraries are far more simple to deploy. </p>
+<p> In the rest of this presentation I shall adopt the <tt>main</tt> <em>procedure</em> approach, because it has certain advantages for generalising your applications by allowing the passing of values through <tt>main</tt> at run time.</p>
 </p></p>
 </body></html>
