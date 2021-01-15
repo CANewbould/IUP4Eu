@@ -1,0 +1,13 @@
+-- example2_2.exw
+
+include iup.ew
+
+IupOpen()
+
+atom lbl = IupLabel("Hello world from IUP")
+atom dlg = IupDialog(IupVbox({lbl}))
+IupSetAttribute(dlg, "TITLE", "Hello World 2")
+            
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+IupMainLoop()
+IupClose()
