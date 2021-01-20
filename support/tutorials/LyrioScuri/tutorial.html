@@ -219,5 +219,42 @@ Index<br />
 <p> All IUP applications, from the most simple "hello world" to the most complex, follow this same code structure, so it well worth studying it and getting familiar with its form. It is also worth thinking about what sort of "template" most appeals to you. This example has a simple-flow layout, whereas earlier examples adopted a <tt>main</tt> routine approach (note that it could perfectly reasonably have been cast as a <em>procedure</em>). There is also a case to be made for adopting some form of indentation to show the IUP session more clearly [from after the call to <tt>IupOpen</tt>() to before the call to <tt>IupClose</tt>()], especially in the early stages of learning, to emphasise the nature of the process.</p>
 
 <p> In the rest of this presentation I shall adopt the <tt>main</tt> <em>procedure</em> approach, because it has certain advantages for generalising your applications by allowing the passing of values through <tt>main</tt> at run time.</p>
+
+<a name="_9_23addinginteraction"></a><a name="23addinginteraction"></a><h3>2.3 Adding Interaction</h3>
+<p> In the previous section, we saw how to build a basic IUP application, but without any custom interaction with the dialog. In this section, we add interaction to our application using a button.  </p>
+
+<p> Interaction is effected through <em>callbacks</em>. These are special functions defined by the programmer and  called by IUP when an event needs to be handled. To create a callback, the programmer must declare a function and put inside its body anything that he/she wants the application to do when the event occurs. After that, it is necessary to inform IUP that the function is, in fact, a callback. That is done calling the function <tt>IupSetCallback</tt>. This ensures that the function will be executed when a specific event ("action") occurs.</p>
+
+<pre class="examplecode"><font color="#FF0055">-- example2_3.exw</font>
+
+<font color="#0000FF">include </font><font color="#330033">iup.ew</font>
+
+<font color="#0000FF">function </font><font color="#330033">btn_exit_cb</font><font color="#880033">( )</font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"Hello World Message"</font><font color="#330033">, </font><font color="#330033">"Hello from IUP"</font><font color="#880033">)</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
+<font color="#0000FF">end function</font>
+
+<font color="#330033">IupOpen</font><font color="#880033">()</font>
+
+<font color="#0000FF">atom </font><font color="#330033">button = IupButton</font><font color="#880033">(</font><font color="#330033">"OK"</font><font color="#880033">)</font>
+<font color="#0000FF">atom </font><font color="#330033">vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">button</font><font color="#993333">}</font><font color="#880033">)</font>
+<font color="#0000FF">atom </font><font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
+<font color="#330033">            IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Hello World 3"</font><font color="#880033">)</font>
+<font color="#330033">            IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxEIGHTH"</font><font color="#880033">)</font>
+            
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">button, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"btn_exit_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
+
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
+<font color="#330033">IupMainLoop</font><font color="#880033">()</font>
+<font color="#330033">IupClose</font><font color="#880033">()</font>
+</pre>
+
+<p> In the code, after the usual <em>include</em> and the call to <tt>IupOpen</tt>, we have added some new lines. These lines contain a regular function called <tt>btn_exit_cb</tt> that will be registered as our button callback. This function does nothing special: it just shows the "hello" message of the first example and closies the application, by returning code <em>IUP_CLOSE</em>.  </p>
+
+<p> Note that we have added a new handle to make our vbox explicit, following the button declaration and before the dialog definition. It isn't necessary to do this, because the variable is never further referenced, but it does make the example code look cleaner!</p>
+
+<p> There is then a new line, containing <tt>IupSetCallback</tt> which associates an action with an event-handling routine. The first argument is the widget, here the button, which initiates the event.The second argument is a global name for the event we wish to trap. Here we use the generalised term "ACTION". (The names of the available callback actions can be found at each control documentation). As with attribute names, actions are always written in upper-case. The final argument uses the function <tt>Icallback</tt> which links the event-handler's name directly with this event combination.</p>
+
+<p> When executed, the application's dialog box will show up, and when the user presses the button, a hello message, alongside a button to close the application, are displayed. Although not profound, this small sample of code has covered the process of creating an IUP application, declaring elements and callbacks, and also handling an event. From now on, we are going to be introduced to more IUP controls and how to exploit these to improve our applications. </p>
 </p></p>
 </body></html>
