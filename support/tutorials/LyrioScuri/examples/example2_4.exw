@@ -1,0 +1,26 @@
+-- example2_4.exw
+
+include iup.ew
+
+function btn_exit_cb()
+    return IUP_CLOSE
+end function
+
+IupOpen()
+
+-- layout         
+atom lbl = IupLabel("Hello world from IUP")
+atom btn = IupButton("OK")
+atom vbox = IupVbox({lbl, btn})
+atom dlg = IupDialog(vbox)
+
+-- style
+IupSetAttribute(dlg, "TITLE", "Hello World 4")
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+
+-- action            
+IupSetCallback(btn, "ACTION", Icallback("btn_exit_cb"))
+
+IupShowXY(dlg, IUP_CENTER, IUP_CENTRE)
+IupMainLoop()
+IupClose()
