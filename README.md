@@ -30,9 +30,13 @@ Comments, feedback, and contributions are always welcome!
 
 Look in the **demos** folder for samples, most of which are directly converted from the original IUP C-code. A few others have been added, designed to illustrate features not included in those samples.
 
-These have all been tested using IUP Version 3.26 and IUP Version 3.28, in both MS Windows 10 & Linux (Mint 18), using the iup.ew library file included in the repository and, in Windows, on both 32-bit and 64-bit versions of Euphoria.
+These have all been tested using IUP Version 3.26 and IUP Version 3.28, in both MS Windows 10 & Linux (Mint 18-20), using the iup.ew library file included in the repository and, in Windows, on both 32-bit and 64-bit versions of Euphoria.
 
 As more illustrations are added the iup.ew file is updated accordingly.
+
+## Tutorials ##
+
+There are also a couple of tutorials (to be found in the **support** folder) which are Euphoria-based transcriptions of material written for C-language and Lua users. They are comparatively gently paced and are designed to take the reader from first base to a position of good working knowledge of the GUI.
 
 ## Documentation ##
 
