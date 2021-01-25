@@ -256,5 +256,70 @@ Index<br />
 <p> There is then a new line, containing <tt>IupSetCallback</tt> which associates an action with an event-handling routine. The first argument is the widget, here the button, which initiates the event.The second argument is a global name for the event we wish to trap. Here we use the generalised term "ACTION". (The names of the available callback actions can be found at each control documentation). As with attribute names, actions are always written in upper-case. The final argument uses the function <tt>Icallback</tt> which links the event-handler's name directly with this event combination.</p>
 
 <p> When executed, the application's dialog box will show up, and when the user presses the button, a hello message, alongside a button to close the application, are displayed. Although not profound, this small sample of code has covered the process of creating an IUP application, declaring elements and callbacks, and also handling an event. From now on, we are going to be introduced to more IUP controls and how to exploit these to improve our applications. </p>
+
+<a name="_10_24addinglayoutelements"></a><a name="24addinglayoutelements"></a><h3>2.4 Adding Layout Elements</h3>
+<p> Until now we have just positioned our controls inside a vbox which, as indicated above, aligns all controls inside it vertically. This is just a small sample of the IUP's layout concept. IUP implements an  <em>abstract layout</em>, "in which the positioning of controls is done relatively instead of  absolutely". These <strong>composition elements</strong> are necessary for composing the interface elements.  They are boxes and <em>fills</em> invisible to the user, but they play an important part. When a  dialog size changes, these containers expand or retract to adjust the positioning of the controls to the new situation allowing the dialog to adapt even if the resolution of the screen changes. That would come in handy if you port your application to another system with a lower resolution, for example. Main composition elements are vertical boxes (vbox), horizontal boxes (hbox)  and filling (fill), among others. There is also a depth box (zbox), in which layers of elements can  be created for the same dialog, and the elements in each layer are only visible when that given layer is active. </p>
+
+<p> To clarify the way abstract layout works, lets modify our example adding a label to it.</p>
+
+<pre class="examplecode"><font color="#FF0055">-- example2_4.exw</font>
+
+<font color="#0000FF">include </font><font color="#330033">iup.ew</font>
+
+<font color="#0000FF">function </font><font color="#330033">btn_exit_cb</font><font color="#880033">()</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
+<font color="#0000FF">end function</font>
+
+<font color="#330033">IupOpen</font><font color="#880033">()</font>
+
+<font color="#FF0055">-- layout         </font>
+<font color="#0000FF">atom </font><font color="#330033">lbl = IupLabel</font><font color="#880033">(</font><font color="#330033">"Hello world from IUP"</font><font color="#880033">)</font>
+<font color="#0000FF">atom </font><font color="#330033">btn = IupButton</font><font color="#880033">(</font><font color="#330033">"OK"</font><font color="#880033">)</font>
+<font color="#0000FF">atom </font><font color="#330033">vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">lbl, btn</font><font color="#993333">}</font><font color="#880033">)</font>
+<font color="#0000FF">atom </font><font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
+
+<font color="#FF0055">-- style</font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Hello World 4"</font><font color="#880033">)</font>
+<font color="#330033">IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">)</font>
+
+<font color="#FF0055">-- action            </font>
+<font color="#330033">IupSetCallback</font><font color="#880033">(</font><font color="#330033">btn, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"btn_exit_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
+
+<font color="#330033">IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTRE</font><font color="#880033">)</font>
+<font color="#330033">IupMainLoop</font><font color="#880033">()</font>
+<font color="#330033">IupClose</font><font color="#880033">()</font>
+</pre>
+
+<p> Note that there is a new label declaration and this new element  appears inside our vbox as the top element. That means it will be displayed above the button. Our example now has two different elements and is disposed vertically - one above the other. An interesting  exercise would be to change the code above and use an hbox to see what happens.</p>
+
+<p> Note also that you can use the English spelling of <em>IUP_CENTER</em> if you prefer.</p>
+
+<a name="_11_25improvingthelayout"></a><a name="25improvingthelayout"></a><h3>2.5 Improving the Layout</h3>
+<p> Now that we have covered the basics of abstract layout, let us present three attributes available to both vboxes and hboxes. They are: <em>ALIGNMENT</em>; <em>GAP</em> and <em>MARGIN</em>.</p>
+
+<p> <em>ALIGNMENT</em> defines the horizontal or vertical alignment of elements inside the box. If you are using a vbox, it will be an horizontal alignment, or if you are  using an hbox, it will be a vertical alignment. Its values can be <em>ALEFT</em>, <em>ACENTER</em> or <em>ARIGHT</em> for horizontal alignment, and <em>ATOP</em>, <em>ACENTER</em> ir ABOTTOM for vertical alignment. The default values are <em>ALEFT</em> and <em>ATOP</em>.</p>
+
+<p> The <em>GAP</em> attribute defines a space, in pixels, between every element inside the box. If you are using a vbox, it will be a vertical space, or if you are using a hbox, it will be a horizontal space. The default value for <em>GAP</em> is <em>0</em> (zero), which means there is no space between elements.</p>
+
+<p> The <em>MARGIN</em> attribute defines a margin, also measured in pixels. Its value has the format "widthxheight", in which width and height are integer values corresponding to the horizontal and vertical margins, respectively.  Its default value is <em>"0x0"</em> (no margin).</p>
+
+<p> The additional elements in the next example show how our layout responds to these three attributes.</p>
+
+<p> &lt;eucocde&gt;<del> example2_5.exw</p>
+
+<p> include iup.ew</p>
+
+<p> function btn_exit_cb()     return IUP_CLOSE end function</p>
+
+<p> IupOpen()</p>
+</del> layout atom lbl = IupLabel("Hello world from IUP") atom btn = IupButton("OK") atom vbox = IupVbox({lbl, btn}) atom dlg = IupDialog(vbox)</p>
+
+<p> <del> attributes IupSetAttribute(vbox, "ALIGNMENT", "ACENTER") IupSetAttribute(vbox, "GAP", "10") IupSetAttribute(vbox, "MARGIN", "10x10")</p>
+</del> actions IupSetCallback(btn, "ACTION", Icallback("btn_exit_cb"))</p>
+
+<p> <del> execute IupShowXY(dlg, IUP_CENTER, IUP_CENTER) IupMainLoop() IupClose()&lt;/eucode&gt;</p>
+
+<p> After creating the vbox, we have added three lines that set its attributes to values which differ from the default values. The resulting layout is much pleasanter. Note that it is still not quite like the first example, which uses a pre-defined dialog. Can you work out which attributes we need to set in order to obtain a closer match?</p>
+</del></p>
 </p></p>
 </body></html>
