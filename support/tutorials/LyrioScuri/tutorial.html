@@ -320,6 +320,87 @@ Index<br />
 <p> <del> execute IupShowXY(dlg, IUP_CENTER, IUP_CENTER) IupMainLoop() IupClose()&lt;/eucode&gt;</p>
 
 <p> After creating the vbox, we have added three lines that set its attributes to values which differ from the default values. The resulting layout is much pleasanter. Note that it is still not quite like the first example, which uses a pre-defined dialog. Can you work out which attributes we need to set in order to obtain a closer match?</p>
-</del></p>
+
+<p> == 3. A Simple Notepad Application</p>
+
+<p> Until now we have used two different controls: labels and buttons. Labels show text or images but are not designed for interaction. Buttons allow the user to trigger an event by pressing a mouse button. But none allow the user to insert any data into our application. To do that, we will use a new control, called <tt>IupText</tt>. It creates an editable text field and has a lot of different attributes available. We will mainly be interested in one for now: <em>MULTILINE</em>. <em>MULTILINE</em> turns the <tt>IupText</tt> into an editable text field that supports many lines, which is necessary in order to build a simple notepad.</p>
+
+<p> === 3.1 Main Dialog</p>
+
+<p> Our starting code for this simple notepad is as follows.</p>
+
+<pre class="examplecode"></pre>
+</del> example3_1.ex include iup.ew</p>
+
+<p> IupOpen()     <del> layout</del></p>
+
+<p>     atom multitxt = IupText()     atom vbox = IupVbox({ multitxt })     atom dlg = IupDialog(vbox)</p>
+
+<p>     <del> attributes     IupSetAttribute(multitxt, "MULTILINE", "YES")     IupSetAttribute(multitxt, "EXPAND", "YES")     IupSetAttribute(dlg, "TITLE", "Simple Notepad")     IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")     IupSetAttribute(dlg, "USERSIZE", NULL)</p>
+</del> launch     IupShowXY(dlg, IUP_CENTER, IUP_CENTER)     IupMainLoop() IupClose()&lt;/eucode&gt;</p>
+
+<p> This code doesn't do a lot, except for the <tt>IupText</tt> declaration and the call to <tt>IupSetAttribute</tt> to define the <tt>IupText</tt> as a <em>MULTILINE</em>. As the default value for this attribute is "NO", we need to set it to "YES" explicitly. Try to comment this line and see what happens. (You might also want to keep entering line-feeds to notice the effect.) </p>
+
+<p> Notice also that the <em>SIZE</em> attribute of the dialog is set. Since the <tt>IupText</tt> is a control that does not fit its size to its contents, we have to set an initial size for the dialog, or else the result would be a very small dialog.  We use a simple size specification that is a quarter of the screen size in both dimensions. The <em>SIZE</em> attribute will also work as a minimum size, so we reset the <em>USERSIZE</em> attribute, after the dialog is shown, to avoid this limitation. Try to comment out this line and check how the dialog interactive resizing behaves.</p>
+
+<p> With these few lines of code, we have build an application where the user can type a large amount of text. But, if you do type a lot of text, you would probably like to save it; unfortunately our application currently offers no such feature. We will handle this in the coming sections.</p>
+
+<a name="_12_32addingamenu"></a><a name="32addingamenu"></a><h3>3.2 Adding a Menu</h3>
+<p> Almost all applications offer a menu. Menus tend to be used to allow the user to load files, save files, use the clipboard, etc. IUP also offers this resource to the applications. Menus come in four different interface elements: <tt>IupItem</tt>;  <tt>IupMenu</tt>; <tt>IupSeparator</tt>; <tt>IupSubmenu</tt>.</p>
+
+<p> <tt>IupItem</tt> creates a single item of the menu interface element. When selected, it generates an action.</p>
+
+<p> <tt>IupSeparator</tt> creates a horizontal line that will appear between two menu items. It is normally used to divide and arrange different groups of menu items.</p>
+
+<p> <tt>IupSubmenu</tt> creates an item that, when selected, opens another menu.</p>
+
+<p> <tt>IupMenu</tt> creates the menu element by itself as a list of elements. An <tt>IupMenu</tt> can include any number of the other 3 types of menu interface elements: <tt>IupItem; </tt>IupSubmenu<tt>; </tt>IupSeparator<tt>. Any attemp to add another type of interface element into a menu will cause an error.</p>
+
+<p> Let's add a menu with a few items to our example.</p>
+
+<pre class="examplecode"><font color="#FF0055">-- example3_2.exw</font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew</font>
+
+<font color="#0000FF">function </font><font color="#330033">exit_cb</font><font color="#880033">() </font><font color="#FF0055">-- event-handler (added in 3.2)</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
+<font color="#0000FF">end function</font>
+
+<font color="#330033">IupOpen</font><font color="#880033">()</font>
+
+<font color="#FF0055">-- layout</font>
+<font color="#FF0055">    -- menu (added in 3.2)</font>
+<font color="#0000FF">    atom </font><font color="#330033">item_open = IupItem</font><font color="#880033">(</font><font color="#330033">"Open"</font><font color="#880033">) </font>
+<font color="#0000FF">    atom </font><font color="#330033">item_saveas = IupItem</font><font color="#880033">(</font><font color="#330033">"Save As"</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">item_exit = IupItem</font><font color="#880033">(</font><font color="#330033">"Exit"</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">file_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">item_open, item_saveas, IupSeparator</font><font color="#0000FF">()</font><font color="#330033">, item_exit</font><font color="#993333">}</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">sub1_menu = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"File"</font><font color="#330033">, file_menu</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">sub1_menu</font><font color="#993333">}</font><font color="#880033">)</font>
+<font color="#FF0055">    -- dialog                        </font>
+<font color="#0000FF">    atom </font><font color="#330033">multitext = IupText</font><font color="#880033">()</font>
+<font color="#0000FF">    atom </font><font color="#330033">vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font><font color="#330033">multitext</font><font color="#993333">}</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
+
+<font color="#FF0055">    -- attributes                 </font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttributeHandle</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"MENU"</font><font color="#330033">, menu</font><font color="#880033">) </font><font color="#FF0055">-- (added in 3.2)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Notepad"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"QUARTERxQUARTER"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"USERSIZE"</font><font color="#330033">, NULL</font><font color="#880033">)</font>
+
+<font color="#FF0055">    -- actions (added in 3.2)</font>
+<font color="#330033">    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_exit, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"exit_cb"</font><font color="#993333">)</font><font color="#880033">) </font><font color="#FF0055">-- event-handler (added in 3.2)</font>
+
+<font color="#FF0055">    -- launch</font>
+<font color="#330033">    IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
+<font color="#330033">    IupMainLoop</font><font color="#880033">()</font>
+<font color="#330033">IupClose</font><font color="#880033">()</font>
+</pre>
+
+<p> Now our example has a few menu element handlers and declarations. Also, we re-introduced our exit-callback for when the <em>item_exit</em> menu item is selected. The next line shows the composition of an </tt>IupMenu<tt> called <em>file_menu</em>. Note that the menu items are passed in order of appearance, which means that <em>item_open</em> will appear above <em>item_save</em> and so on. There is also an </tt>IupSeparator<tt> dividing our file menu into two parts: the first takes items that deal direct with files, like open and save, and the second takes the exit item. It's not mandatory to have an </tt>IupSeparator<tt> in your menu. This is used just to keep things more organized. The next line is a little tricky. We created a submenu to store all of our items. Why not use <em>file_menu</em> directly? We could, but it would be used as the main menu and would end up being the only menu available in our application. It's a good practice to separate menus in submenus and then pass these submenus as items of the main menu. By doing so, an application could have a file menu, a search menu, a help menu, etc., as items of the main menu, as you can see in the main menu declaration on the follwing line.</p>
+
+<p> Once we are done building the main menu, we must set the <em>MENU</em> attribute of the main dialog to the menu we have just created. But since it is neither a string nor a number, we must use a different function to do this association, namely </tt>IupSetAttributeHandle<tt>.</p>
+
+<p> Notice that the <em>Exit</em> menu item works fine, as we set the <em>Exit</em> menu item action callback, but <em>Open</em> and <em>Save</em> still don't work. That's because we didn't set any callback action for them. Those callbacks will use another IUP feature, which is the subject of our next section.</tt></p>
 </p></p>
 </body></html>
