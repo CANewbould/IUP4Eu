@@ -1,0 +1,37 @@
+-- example3_2.exw
+include iup.ew
+
+function exit_cb() -- event-handler (added in 3.2)
+    return IUP_CLOSE
+end function
+
+IupOpen()
+
+-- layout
+    -- menu (added in 3.2)
+    atom item_open = IupItem("Open") 
+    atom item_saveas = IupItem("Save As")
+    atom item_exit = IupItem("Exit")
+    atom file_menu = IupMenu({item_open, item_saveas, IupSeparator(), item_exit})
+    atom sub1_menu = IupSubmenu("File", file_menu)
+    atom menu = IupMenu({sub1_menu})
+    -- dialog                        
+    atom multitext = IupText()
+    atom vbox = IupVbox({multitext})
+    atom dlg = IupDialog(vbox)
+
+    -- attributes                 
+    IupSetAttribute(multitext, "MULTILINE", "YES")
+    IupSetAttribute(multitext, "EXPAND", "YES")
+    IupSetAttributeHandle(dlg, "MENU", menu)
+    IupSetAttribute(dlg, "TITLE", "Simple Notepad")
+    IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+    IupSetAttribute(dlg, "USERSIZE", NULL)
+
+    -- actions (added in 3.2)
+    IupSetCallback(item_exit, "ACTION", Icallback("exit_cb")) -- event-handler (added in 3.2)
+
+    -- launch
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    IupMainLoop()
+IupClose()

@@ -1,0 +1,21 @@
+-- example3_1.ex
+include iup.ew
+
+IupOpen()
+    -- layout
+                                    
+    atom multitxt = IupText()
+    atom vbox = IupVbox({ multitxt })
+    atom dlg = IupDialog(vbox)
+
+    -- attributes
+    IupSetAttribute(multitxt, "MULTILINE", "YES")
+    IupSetAttribute(multitxt, "EXPAND", "YES")
+    IupSetAttribute(dlg, "TITLE", "Simple Notepad")
+    IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+    IupSetAttribute(dlg, "USERSIZE", NULL)
+
+    -- launch
+    IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+    IupMainLoop()
+IupClose()
