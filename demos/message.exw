@@ -7,19 +7,19 @@
 --------------------------------------------------------------------------------
 --/*
 --= Program: (iup4eu)(demos)vbox.exw
--- Description: displays examples of different trypes of label controls 
+-- Description: displays examples of different types of messages 
 ------
---[[[Version: 4.0.5.0
+--[[[Version: 4.0.5.1
 --Euphoria Versions: 4.0.5 upwards 
 --Author: C A Newbould
---Date: 2020.08.22
+--Date: 2021.01.29
 --Status: operational
 --Changes:]]]
---* set out in standard arrangement
+--* added examples of Error & Alarm messages
 --
 --==IupMessage Example
 --
--- Simply shows a message box.
+-- Shows the three kinds of specialised message box.
 ------
 --------------------------------------------------------------------------------
 --/*
@@ -56,7 +56,14 @@ procedure main(string title)
     IupOpen()
     /* Executes IupMessage */
     IupMessage(title, "Press the button")
-    /* Finishes IUP */
+    -- Executes IupMessageError
+    IupMessageError(NULL, "There is an error in this message")
+    -- Executes IupMessageAlarm
+    integer resp = IupMessageAlarm(NULL, "I am an alarming message", 
+                "Are you alarmed at my message?",
+                "YESNO")
+    if resp = 1 then IupMessage("Reply", "Sorry!") end if
+        /* Finishes IUP */
     IupClose ()
     /* Program finished successfully */
 end procedure
