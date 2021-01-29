@@ -402,5 +402,178 @@ Index<br />
 <p> Once we are done building the main menu, we must set the <em>MENU</em> attribute of the main dialog to the menu we have just created. But since it is neither a string nor a number, we must use a different function to do this association, namely </tt>IupSetAttributeHandle<tt>.</p>
 
 <p> Notice that the <em>Exit</em> menu item works fine, as we set the <em>Exit</em> menu item action callback, but <em>Open</em> and <em>Save</em> still don't work. That's because we didn't set any callback action for them. Those callbacks will use another IUP feature, which is the subject of our next section.</tt></p>
+
+<a name="_13_33usingpredefineddialogs"></a><a name="33usingpredefineddialogs"></a><h3>3.3 Using Pre-defined Dialogs</h3>
+<p> In the previous section, we added file-open and a file-save menu items, but they had no callbacks associated. That's because we will use new IUP resources to deal with file handling. These resources are called Pre-defined Dialogs.</p>
+
+<p> Some dialogs (like file selection dialogs, font selection dialogs, color selection dialogs) are commonly found in a lot of different applications.  It would be annoying to have to build the same dialog again every time we need to select a file, a color or a font. So, IUP provides <strong>pre-defined dialogs</strong> with all the necessary controls to deal with these common tasks.</p>
+
+<p> We update our last example to handle file input/output and to make use of these IUP pre-defined dialogs.</p>
+
+<pre class="examplecode"><font color="#FF0055">-- example3_3.exw</font>
+<font color="#0000FF">include </font><font color="#330033">iup.ew</font>
+<font color="#0000FF">include </font><font color="#330033">std/io.e </font><font color="#FF0055">-- for read_file, write_file</font>
+
+<font color="#330033">IupOpen</font><font color="#880033">()</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">multitext = IupText</font><font color="#880033">()</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"MULTILINE"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"EXPAND"</font><font color="#330033">, </font><font color="#330033">"YES"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"FONT"</font><font color="#330033">, </font><font color="#330033">"Arial, 12"</font><font color="#880033">)</font>
+
+<font color="#0000FF">    atom</font>
+<font color="#330033">    item_open = IupItem</font><font color="#880033">(</font><font color="#330033">"Open..."</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033">    item_saveas = IupItem</font><font color="#880033">(</font><font color="#330033">"Save As..."</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033">    item_exit = IupItem</font><font color="#880033">(</font><font color="#330033">"Exit"</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033">    item_font = IupItem</font><font color="#880033">(</font><font color="#330033">"Font..."</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033">    item_about = IupItem</font><font color="#880033">(</font><font color="#330033">"About..."</font><font color="#880033">)</font>
+
+<font color="#330033">    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_exit, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"exit_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033">    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_open, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"open_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033">    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_saveas, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"saveas_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033">    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_font, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"font_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#330033">    IupSetCallback</font><font color="#880033">(</font><font color="#330033">item_about, </font><font color="#330033">"ACTION"</font><font color="#330033">, Icallback</font><font color="#993333">(</font><font color="#330033">"about_cb"</font><font color="#993333">)</font><font color="#880033">)</font>
+
+<font color="#0000FF">    function </font><font color="#330033">readfile</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">filename</font><font color="#880033">)</font>
+<font color="#0000FF">        object </font><font color="#330033">str = read_file</font><font color="#880033">(</font><font color="#330033">filename</font><font color="#880033">)</font>
+<font color="#0000FF">        if atom</font><font color="#880033">(</font><font color="#330033">str</font><font color="#880033">) </font><font color="#0000FF">then</font>
+<font color="#330033">            IupMessage</font><font color="#880033">(</font><font color="#330033">"Error"</font><font color="#330033">, </font><font color="#0000FF">sprintf</font><font color="#993333">(</font><font color="#330033">"Cannot open file: %s"</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">filename</font><font color="#0000FF">}</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#0000FF">            return </font><font color="#330033">0</font>
+<font color="#0000FF">        else</font>
+<font color="#0000FF">            return </font><font color="#330033">str  </font>
+<font color="#0000FF">        end if</font>
+<font color="#0000FF">    end function</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">file_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
+<font color="#330033">                item_open,</font>
+<font color="#330033">                item_saveas,</font>
+<font color="#330033">                IupSeparator</font><font color="#0000FF">()</font><font color="#330033">,</font>
+<font color="#330033">                item_exit</font>
+<font color="#993333">        }</font><font color="#880033">)</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">format_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
+<font color="#330033">                item_font</font>
+<font color="#993333">        }</font><font color="#880033">)</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">help_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
+<font color="#330033">                item_about</font>
+<font color="#993333">        }</font><font color="#880033">)</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">sub_menu_file = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"File"</font><font color="#330033">, file_menu</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">sub_menu_format = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"Format"</font><font color="#330033">, format_menu</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">sub_menu_help = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"Help"</font><font color="#330033">, help_menu</font><font color="#880033">)</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
+<font color="#330033">        sub_menu_file, </font>
+<font color="#330033">        sub_menu_format, </font>
+<font color="#330033">        sub_menu_help</font>
+<font color="#993333">        }</font><font color="#880033">)</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">vbox = IupVbox</font><font color="#880033">(</font><font color="#993333">{</font>
+<font color="#330033">        multitext</font>
+<font color="#993333">        }</font><font color="#880033">)</font>
+
+<font color="#0000FF">    atom </font><font color="#330033">dlg = IupDialog</font><font color="#880033">(</font><font color="#330033">vbox</font><font color="#880033">)</font>
+<font color="#330033">        IupSetAttributeHandle</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"MENU"</font><font color="#330033">, menu</font><font color="#880033">)</font>
+<font color="#330033">        IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"TITLE"</font><font color="#330033">, </font><font color="#330033">"Simple Notepad"</font><font color="#880033">)</font>
+<font color="#330033">        IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"SIZE"</font><font color="#330033">, </font><font color="#330033">"HALFxHALF"</font><font color="#880033">)</font>
+
+<font color="#330033">        IupShowXY</font><font color="#880033">(</font><font color="#330033">dlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
+<font color="#330033">        IupSetAttribute</font><font color="#880033">(</font><font color="#330033">dlg, </font><font color="#330033">"USERSIZE"</font><font color="#330033">, NULL</font><font color="#880033">)</font>
+
+<font color="#330033">    IupMainLoop</font><font color="#880033">()</font>
+<font color="#330033">IupClose</font><font color="#880033">()</font>
+
+<font color="#0000FF">function </font><font color="#330033">writefile</font><font color="#880033">(</font><font color="#0000FF">sequence </font><font color="#330033">filename, </font><font color="#0000FF">sequence </font><font color="#330033">lines</font><font color="#880033">)</font>
+<font color="#0000FF">    atom </font><font color="#330033">fn = </font><font color="#0000FF">open</font><font color="#880033">(</font><font color="#330033">filename, </font><font color="#330033">"w"</font><font color="#880033">)</font>
+<font color="#0000FF">    if </font><font color="#330033">fn = 0 </font><font color="#0000FF">then</font>
+<font color="#330033">        IupMessage</font><font color="#880033">(</font><font color="#330033">"Error"</font><font color="#330033">, </font><font color="#0000FF">sprintf</font><font color="#993333">(</font><font color="#330033">"Cannot open file: %s"</font><font color="#330033">, </font><font color="#0000FF">{</font><font color="#330033">filename</font><font color="#0000FF">}</font><font color="#993333">)</font><font color="#880033">)</font>
+<font color="#0000FF">        return </font><font color="#330033">0</font>
+<font color="#0000FF">    else</font>
+<font color="#330033">        write_file</font><font color="#880033">(</font><font color="#330033">filename, lines</font><font color="#880033">)</font>
+<font color="#0000FF">        return </font><font color="#330033">1</font>
+<font color="#0000FF">    end if</font>
+<font color="#0000FF">end function</font>
+
+<font color="#0000FF">function </font><font color="#330033">open_cb</font><font color="#880033">()</font>
+<font color="#0000FF">    atom </font><font color="#330033">filedlg = IupFileDlg</font><font color="#880033">()</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"DIALOGTYPE"</font><font color="#330033">, </font><font color="#330033">"OPEN"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"EXTFILTER"</font><font color="#330033">, </font><font color="#330033">"Text Files|*.txt||All Files|*.*|"</font><font color="#880033">)</font>
+
+<font color="#330033">    IupPopup</font><font color="#880033">(</font><font color="#330033">filedlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
+
+<font color="#0000FF">    if not </font><font color="#330033">IupGetInt</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"STATUS"</font><font color="#880033">) </font><font color="#330033">= 1 </font><font color="#0000FF">then</font>
+<font color="#0000FF">        sequence </font><font color="#330033">filename = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"VALUE"</font><font color="#880033">)</font>
+<font color="#0000FF">        object </font><font color="#330033">str = readfile</font><font color="#880033">(</font><font color="#330033">filename</font><font color="#880033">)</font>
+<font color="#0000FF">        if sequence</font><font color="#880033">(</font><font color="#330033">str</font><font color="#880033">) </font><font color="#0000FF">then</font>
+<font color="#330033">            IupSetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"VALUE"</font><font color="#330033">, str</font><font color="#880033">)</font>
+<font color="#0000FF">        end if</font>
+<font color="#0000FF">    end if</font>
+<font color="#330033">    IupDestroy</font><font color="#880033">(</font><font color="#330033">filedlg</font><font color="#880033">)</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT</font>
+<font color="#0000FF">end function</font>
+
+<font color="#0000FF">function </font><font color="#330033">saveas_cb</font><font color="#880033">()</font>
+<font color="#0000FF">    atom </font><font color="#330033">filedlg = IupFileDlg</font><font color="#880033">()</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"DIALOGTYPE"</font><font color="#330033">, </font><font color="#330033">"SAVE"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"EXTFILTER"</font><font color="#330033">, </font><font color="#330033">"Text Files|*.txt|All Files|*.*|"</font><font color="#880033">)</font>
+
+<font color="#330033">    IupPopup</font><font color="#880033">(</font><font color="#330033">filedlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
+
+<font color="#0000FF">    sequence </font><font color="#330033">filename = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">filedlg, </font><font color="#330033">"VALUE"</font><font color="#880033">)</font>
+<font color="#0000FF">    sequence </font><font color="#330033">str = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"VALUE"</font><font color="#880033">)</font>
+<font color="#0000FF">    integer </font><font color="#330033">count = IupGetInt</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"COUNT"</font><font color="#880033">)</font>
+<font color="#330033">    writefile</font><font color="#880033">(</font><font color="#330033">filename, str</font><font color="#880033">)</font>
+
+<font color="#330033">    IupDestroy</font><font color="#880033">(</font><font color="#330033">filedlg</font><font color="#880033">)</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT</font>
+<font color="#0000FF">end function</font>
+
+<font color="#0000FF">function </font><font color="#330033">font_cb</font><font color="#880033">()</font>
+<font color="#0000FF">    atom </font><font color="#330033">fontdlg = IupFontDlg</font><font color="#880033">()</font>
+<font color="#0000FF">    sequence </font><font color="#330033">font = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"FONT"</font><font color="#880033">)</font>
+<font color="#330033">    IupSetStrAttribute</font><font color="#880033">(</font><font color="#330033">fontdlg, </font><font color="#330033">"VALUE"</font><font color="#330033">, font</font><font color="#880033">)</font>
+<font color="#330033">    IupPopup</font><font color="#880033">(</font><font color="#330033">fontdlg, IUP_CENTER, IUP_CENTER</font><font color="#880033">)</font>
+
+<font color="#0000FF">    if </font><font color="#330033">IupGetInt</font><font color="#880033">(</font><font color="#330033">fontdlg, </font><font color="#330033">"STATUS"</font><font color="#880033">) </font><font color="#330033">= 1 </font><font color="#0000FF">then</font>
+<font color="#330033">        font = IupGetAttribute</font><font color="#880033">(</font><font color="#330033">fontdlg, </font><font color="#330033">"VALUE"</font><font color="#880033">)</font>
+<font color="#330033">        IupSetStrAttribute</font><font color="#880033">(</font><font color="#330033">multitext, </font><font color="#330033">"FONT"</font><font color="#330033">, font</font><font color="#880033">)</font>
+<font color="#0000FF">    end if</font>
+
+<font color="#330033">    IupDestroy</font><font color="#880033">(</font><font color="#330033">fontdlg</font><font color="#880033">)</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT</font>
+<font color="#0000FF">end function</font>
+
+<font color="#0000FF">function </font><font color="#330033">about_cb</font><font color="#880033">() </font>
+<font color="#330033">    IupMessage</font><font color="#880033">(</font><font color="#330033">"About"</font><font color="#330033">, </font><font color="#330033">"Simple Notepad"</font><font color="#880033">)</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_DEFAULT</font>
+<font color="#0000FF">end function</font>
+
+<font color="#0000FF">function </font><font color="#330033">exit_cb</font><font color="#880033">()</font>
+<font color="#0000FF">    return </font><font color="#330033">IUP_CLOSE</font>
+<font color="#0000FF">end function</font>
+</pre>
+
+<p> Note that we need to access the multitext control from inside the menu callbacks. There are several ways to do that; the simplest one is to declare it outside the event-handlers, so it is "visible" throughout the application's code. In the next example, a different approach is taken.</p>
+
+<p> Let's take a look at the new callback called <tt>open_cb</tt>. This callback will handle the file opening when the user clicks on the <em>Open</em> menu item. For this we will use a IUP predefined dialog called <tt>IupFileDlg</tt>. This dialog is a standard file-handling dialog with all the features that we need to select a file from the file system; it also saves a  lot of work. Inside the callback we refine our <tt>IupFileDlg</tt>, and set it to be an  "<em>open</em>" dialog with attribute <em>DIALOGTYPE</em>. Also we set <em>EXTFILTER </em>attribute to  <em>"Text Files|*.txt|All Files|*.*|"</em>, since we want our application to handle text files but we leave the option for listing and selecting other files. Note also that the application cannot "open" a non-existent file, using the <em>STATUS</em> attribute.</p>
+
+<p> Now the program calls <tt>IupPopup</tt>, which is a function similar to <tt>IupShow</tt>, but it restricts the user interaction only within the specified dialog. It is the equivalent of creating a Modal dialog in some toolkits. Its arguments are our file dialog handle followed by the <em>x</em> and <em>y</em> coordinates that we defined as the centre of the screen with <em>IUP_CENTER</em>.</p>
+
+<p> Then we have a conditional test in which we get the value of <em>filedlg</em> STATUS with <tt>IupGetInt</tt>.  Why not use <tt>IupGetAttribute</tt>  instead? That's because <tt>IupGetAttribute</tt> returns string attributes, but we know that <em>STATUS</em> is an integer so we use the appropriate function <tt>IupGetInt</tt>.</p>
+
+<p> Once our file dialog returns a valid status, we are able to recover the name of the selected file using <tt>IupGetAttribute</tt> to retrieve the <em>VALUE</em> attribute. Then we read the file using a standard function and fill in its contents on the multitext control by using the <tt>IupSetStrAttribute</tt> function to set its <em>VALUE</em> attribute. We could have used the <tt>IupSetAttribute</tt> function here, but follow the C-language practice because C strings returned by <tt>IupGetAttribute</tt> use a pointer.</p>
+
+<p> Now we don't need this dialog any more, so you can simply call <tt>IupDestroy</tt> to remove <em>filedlg</em> from memory.</p>
+
+<p> Next there is another callback, <tt>saveas_cb</tt>, which allows for the selection of a file name for saving the content of a file. It is very similar to <tt>open_cb</tt>, but <em>DIALOGTYPE</em> is set to <em>SAVE</em>, so this time it consider a file name for saving. In this case the filename can refer to a new file, but if an existing file is chosen then the user will be notified of overwriting so it can cancel and try again. After selecting the filename the multitext contents are copied to the file using another standard routine. (Note that the double option is only possibly by disregarding the <em>STATUS</em> value.)</p>
+
+<p> Now comes the <tt>font_cb</tt> callback that, as you may have already guessed, will call a predefined dialog to select a font. To do that, we use <tt>IupFontDlg</tt>, as a parallel of <tt>IupFileDlg</tt>. You can set or change the font by changing the FONT attribute in the multitext control; this is precisely what this event-handler does. (Note that the multitext widget's font has been pre-set at the top of the code.)</p>
+
+<p> The next callback is <tt>about_cb</tt>, which just calls <tt>IupMessage</tt> to display text to the user.</p>
+
+<p> The additional lines add the new callback registrations. Also we added have added "..." to the text of the menu items. This is not mandatory, but is highly recommended by common User Interface Guidelines. Note also that the main dialog is now bigger - to make it of more general applicability.</p>
+
+<p> So the result is a brand new text editor, crated and serviced using IUP. But what happens if the dialog you need is not provided by IUP as a predefined dialog? That will be the subject of our next section.</p>
 </p></p>
 </body></html>
