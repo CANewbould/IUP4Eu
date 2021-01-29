@@ -13,16 +13,17 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.51
+--[[[Version: 4.0.5.52
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.01.25
+-- Date: 2021.01.29
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupSpace## defined
---  * ##IupFlatTabs## defined
---  * ##IupFlatScrollBox## defined
---  * at least one version of all Containers wrapped
+--  * ##IupFontDlg## defined
+--  * ##IupGetAttribute## modified to trap -ive values
+--  * ##IupElementPropertiesDialog## defined
+--  * ##IupMessageAlarm## defined
+--  * ##IupMessageError## defined
 --
 ------
 --
@@ -322,6 +323,21 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+public function IupFontDlg() -- creates the Font Dialog element
+    return doC("IupFontDlg", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+--  It is a predefined dialog for selecting a font.
+-- The dialog can be shown with the IupPopup function only.
+--
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
 public function IupGetFile(string filename) -- shows a modal dialog of the native interface system to select a filename
     atom fn = allocate_string(filename)
     return {doC("IupGetFile", {C_POINTER}, {fn}, C_INT), peek_string(fn)}
@@ -445,6 +461,49 @@ end function
 -- defined (used only in Motif; in Windows MessageBox does not have an icon in
 -- the title bar).
 --*/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+public function IupMessageAlarm(atom parent = NULL, string title = "", string message, string buttons)  -- shows a modal dialog containing a question message, similar to IupAlarm
+    return doC("IupMessageAlarm", {C_INT, C_POINTER, C_POINTER, C_POINTER},
+                {parent, allocate_string(title), allocate_string(message),
+                allocate_string(buttons)}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It simply creates and popup a IupMessageDlg with DIALOGTYPE=QUESTION.
+--
+-- Parameters:
+--# //parent##: parent dialog, can be NULL
+--# //title//: the **string** to put in the title
+--# //message//: the **string** to put in the body of the dialog
+--# //buttons//: list of buttons- "OK", "OKCANCEL", "RETRYCANCEL", "YESNO",
+-- or "YESNOCANCEL"
+--
+-- Returns:
+--
+-- an **integer**: the number of the button selected by the user (1, 2 or 3).
+--*/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+public function IupMessageError(atom parent = NULL, string message)  -- shows a modal dialog containing an error message
+    return doC("IupMessageError", {C_INT, C_POINTER},
+                {parent, allocate_string(message)})
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It simply creates and popup a IupMessageDlg with DIALOGTYPE=ERROR.
+--
+-- Parameters:
+--# //parent##: parent dialog, can be NULL
+--# //message//: the **string** to put in the body of the dialog
+--
+-- Notes:
+--
+-- If parent is NULL the title defaults to "Error!" and tries the global attribute
+-- "PARENTDIALOG" as the parent dialog.
+--
+-- The dialog title will be the same title of the parent dialog.
+--
+--The dialog is shown centered relative to its parent.
+--*/
 --------------------------------------------------------------------------------
 public function IupProgressDlg() -- creates a progress dialog element
     return doC("IupProgressDlg", , , C_INT)
@@ -459,6 +518,36 @@ end function
 --
 -- An **integer**: the identifier of the created element,
 -- or NULL if an error occurs.
+--/*
+--------------------------------------------------------------------------------
+public function IupElementPropertiesDialog(atom parent, atom elem) -- creates an Element Properties Dialog
+    return doC("IupElementPropertiesDialog", {C_INT, C_INT}, {parent, elem}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It is a predefined dialog to edit the properties of an element in run time.
+-- It is a standard IupDialog constructed with other IUP elements.
+-- The dialog can be shown with any of the show functions IupShow, IupShowXY or IupPopup.
+--
+-- Any existent element can be edited.
+-- It does not need to be mapped on the native system nor visible.
+-- It could have been created in any language.
+--
+-- This is a dialog intended for developers, so they can see and inspect their
+-- elements in other ways.
+--
+-- It contains 3 Tab sections: one for the registered attributes of the element,
+-- one for custom attributes set by the application, and one for the callbacks.
+-- The callbacks are just for inspection, and custom attributes should be handled
+-- carefully because they may be not strings.
+-- Registered attributes values are shown in red when they were changed by the
+-- application.
+--
+-- Returns:
+--
+-- An **integer**: the identifier of the created element,
+-- or NULL if an error occurs.
+
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -1377,7 +1466,7 @@ end function
 --------------------------------------------------------------------------------
 public function IupGetAttribute(atom widget, string attr) -- gets an interface element attribute
     atom ret = doC("IupGetAttribute", {C_INT, C_POINTER}, {widget, allocate_string(attr)}, C_INT)
-    if ret then return peek_string(ret)
+    if ret > 0 then return peek_string(ret)
     else return ret
     end if
 end function
@@ -1390,6 +1479,10 @@ end function
 --
 -- Returns: the attribute value or
 -- NULL, if the attribute is not set or does not exist.
+--
+-- Notes:
+--
+-- In testing it has been found to return negative values if unset?
 --*/
 --------------------------------------------------------------------------------
 public function IupGetFloat(atom widget, string attr)	-- gets an atom attribute value
@@ -1735,6 +1828,17 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.51
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.01.25
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupSpace## defined
+--  * ##IupFlatTabs## defined
+--  * ##IupFlatScrollBox## defined
+--  * at least one version of all Containers wrapped
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.50
 -- Euphoria Verion: v4.0.5 and later
