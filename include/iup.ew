@@ -7,23 +7,35 @@
 --------------------------------------------------------------------------------
 -- Notes:
 --
--- 
+-- Need to check all peek_string calls are from C_POINTERS
 --------------------------------------------------------------------------------
 --/*
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.52
+--[[[Version: 4.0.5.53
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.01.29
+-- Date: 2021.02.03
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupFontDlg## defined
---  * ##IupGetAttribute## modified to trap -ive values
---  * ##IupElementPropertiesDialog## defined
---  * ##IupMessageAlarm## defined
---  * ##IupMessageError## defined
+--  * ##IupGetAttribute## modified
+--  * ##IupVersion## defined
+--  * ##IupVersionShow## defined
+--  * ##IupVersionDate## defined
+--  * ##IupVersionNumber## modified
+--  * ##IupIsOpened## defined
+--  * ##IupGetLanguage## defined
+--  * **Ihandle** defined
+--  * added (as comment) the C-language definitions
+--  * changed all **Ihandle** refs to **atom** and //C_POINTER//
+--  * ##IupLoopStep## defined
+--  * ##IupLoopStepWait## defined
+--  * ##IupPostMessage## defined
+--  * ##IupGetColor## defined
+--  * ##IupClassInfoDialog## defined
+--  * ##IupParamBox## defined
+--  * ##IupLayoutDialog## defined
 --
 ------
 --
@@ -147,6 +159,10 @@ type attrib(string this)
     return TRUE
 end type
 --------------------------------------------------------------------------------
+public type Ihandle(atom this) -- pointer to an IUP Ihandle structure
+    return this >= 0
+end type
+--------------------------------------------------------------------------------
 type upper_case(integer this)
     return (this > 64) and (this < 91)
 end type
@@ -182,6 +198,8 @@ end function
 --==== Management
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API void      IupClose         (void);
+--------------------------------------------------------------------------------
 public function IupClose() -- ends access to the IUP toolkit and releases internal memory
     return doC("IupClose")
 end function
@@ -193,12 +211,26 @@ end function
 -- that have names.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API int       IupIsOpened      (void);
+--------------------------------------------------------------------------------
+public function IupIsOpened() -- ends access to the IUP toolkit and releases internal memory
+    return doC("IupIsOpened", , , C_BOOL)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- a **boolean**: TRUE if IUP open.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API int       IupOpen          (int *argc, char ***argv);
+--------------------------------------------------------------------------------
 public function IupOpen()  -- initializes the IUP toolkit
     -- defined reusable ones
     hIupSetAttribute = define_c_proc(IUPLIB, "+IupSetAttribute",
-                {C_INT, C_POINTER, C_POINTER})
+                {C_POINTER, C_POINTER, C_POINTER})
     hIupSetCallback = define_c_func(IUPLIB, "+IupSetCallback",
-                {C_INT, C_POINTER, C_INT}, C_INT)
+                {C_POINTER, C_POINTER, C_INT}, C_INT)
     return doC("IupOpen", {C_INT, C_POINTER}, {0, 0}, C_INT)
 end function
 --------------------------------------------------------------------------------
@@ -219,6 +251,8 @@ end function
 -- except IupVersion and its associated routines.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API void      IupSetLanguage   (const char *lng);
+--------------------------------------------------------------------------------
 public function IupSetLanguage(string name = "ENGLISH") -- sets the language name used by some pre-defined dialogs
     return doC("IupSetLanguage", {C_POINTER}, {allocate_string(name)})
 end function
@@ -230,8 +264,24 @@ end function
 --# //name//: one of "ENGLISH" [Default], "PORTUGUESE", "SPANISH"
 --*/
 --------------------------------------------------------------------------------
-public function IupVersionNumber()  -- returns the version number as an integer
-    return doC("IupVersionNumber", , , C_INT)
+-- IUP_API char*     IupGetLanguage   (void);
+--------------------------------------------------------------------------------
+public function IupGetLanguage()  -- returns the current language
+    return peek_string(doC("IupGetLanguage", , , C_POINTER))
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- a **sequence**: the language used by some pre-defined dialogs.
+--
+-- Returns the same value as the //LANGUAGE// global attribute.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API char*     IupVersion       (void);
+--------------------------------------------------------------------------------
+public function IupVersion()  -- returns the version number as a string
+    return peek_string(doC("IupVersion", , , C_POINTER))
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -240,9 +290,46 @@ end function
 -- an **integer**: the version number including any bug fixes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API char*     IupVersionDate   (void);
+--------------------------------------------------------------------------------
+public function IupVersionDate()  -- returns the version date as a string
+    return peek_string(doC("IupVersionDate", , , C_POINTER))
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- an **integer**: the version date.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API int       IupVersionNumber (void);
+--------------------------------------------------------------------------------
+public function IupVersionNumber()  -- returns the version number as an integer
+    return doC("IupVersionNumber", , , C_INT)/100000
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- an **integer**: the version number including any bug fixes.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API void      IupVersionShow   (void);
+--------------------------------------------------------------------------------
+public function IupVersionShow()  -- returns the version number as a string
+    return doC("IupVersionShow")
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Shows a popup dialog with IUP version information and more.
+-- This is a debug dialog with lots of information of additional libraries too.
+--*/
+--------------------------------------------------------------------------------
 --/*
 --==== Dialogs
 --*/
+--------------------------------------------------------------------------------
+-- IUP_API int  IupAlarm(const char *title, const char *msg, const char *b1, const char *b2, const char *b3);
 --------------------------------------------------------------------------------
 public function IupAlarm(string title, string mess, string b1, object b2 = NULL, object b3 = NULL)
 	sequence arg = repeat(0, 5)
@@ -290,8 +377,10 @@ end function
 --</eucode>
 --*/
 --------------------------------------------------------------------------------
-public function IupDialog(integer child = NULL)  -- creates a dialog element
-    return doC("IupDialog", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupDialog     (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupDialog(Ihandle child = NULL)  -- creates a dialog element
+    return doC("IupDialog", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -308,8 +397,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle* IupFileDlg(void);
+--------------------------------------------------------------------------------
 public function IupFileDlg() -- creates the File Dialog element
-    return doC("IupFileDlg", , , C_INT)
+    return doC("IupFileDlg", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -323,8 +414,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle* IupFontDlg(void);
+--------------------------------------------------------------------------------
 public function IupFontDlg() -- creates the Font Dialog element
-    return doC("IupFontDlg", , , C_INT)
+    return doC("IupFontDlg", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -337,6 +430,31 @@ end function
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
+--------------------------------------------------------------------------------
+-- IUP_API int  IupGetColor(int x, int y, unsigned char* r, unsigned char* g, unsigned char* b);
+--------------------------------------------------------------------------------
+public function IupGetColor(atom x, atom y) -- shows a modal dialog which allows the user to select a colour
+	atom rgb = allocate_data(sizeof(C_INT) * 3, 1)
+	atom r = rgb + sizeof(C_INT) * 0
+	atom g = rgb + sizeof(C_INT) * 1
+	atom b = rgb + sizeof(C_INT) * 2
+    boolean ret = doC("IupGetColor",{C_INT, C_INT, C_POINTER, C_POINTER, C_POINTER},
+                              {x, y, r, g, b}, C_INT)
+    if ret then return peek({rgb, 3})
+    else return {}
+    end if
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Based on IupColorDlg.
+--
+-- Returns:
+--
+-- a **sequence**: the {r,g,b} values, or empty, if the //OK// button is not
+-- clicked.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API int  IupGetFile(char *arq);
 --------------------------------------------------------------------------------
 public function IupGetFile(string filename) -- shows a modal dialog of the native interface system to select a filename
     atom fn = allocate_string(filename)
@@ -360,7 +478,9 @@ end function
 --
 --*/
 --------------------------------------------------------------------------------
-public function IupGetParam(string title, integer rid,  object data, string format, sequence args) -- shows a modal dialog for capturing parameter values using several types of controls
+-- IUP_API int IupGetParam(const char* title, Iparamcb action, void* user_data, const char* format,...);
+--------------------------------------------------------------------------------
+public function IupGetParam(string title, integer rid, object data, string format, sequence args) -- shows a modal dialog for capturing parameter values using several types of controls
     atom pTitle = allocate_string(title)
     atom pRid = 0
     atom pData = data
@@ -412,6 +532,8 @@ end function
 --
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API int  IupGetText(const char* title, char* text, int maxsize);
+--------------------------------------------------------------------------------
 public function IupGetText(string title, string text, integer maxsize=10240) -- shows a modal dialog to edit a multiline text
     atom tn = allocate_string(text)
     return {doC("IupGetText", {C_POINTER, C_POINTER, C_INT},
@@ -436,7 +558,9 @@ end function
 -- the user. Therefore, the text parameter must be large enough to contain the
 -- user input. The returned string is limited to //maxsize// characters.
 --*/
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- IUP_API void IupMessage(const char *title, const char *msg);
+--------------------------------------------------------------------------------
 public function IupMessage(string title, string message)  -- shows a modal dialog containing a message
     return doC("IupMessage", {C_POINTER, C_POINTER},
                 {allocate_string(title), allocate_string(message)})
@@ -461,9 +585,11 @@ end function
 -- defined (used only in Motif; in Windows MessageBox does not have an icon in
 -- the title bar).
 --*/
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-public function IupMessageAlarm(atom parent = NULL, string title = "", string message, string buttons)  -- shows a modal dialog containing a question message, similar to IupAlarm
-    return doC("IupMessageAlarm", {C_INT, C_POINTER, C_POINTER, C_POINTER},
+--------------------------------------------------------------------------------
+-- IUP_API int IupMessageAlarm(Ihandle* parent, const char* title, const char *message, const char *buttons);
+--------------------------------------------------------------------------------
+public function IupMessageAlarm(Ihandle parent = NULL, string title = "", string message, string buttons)  -- shows a modal dialog containing a question message, similar to IupAlarm
+    return doC("IupMessageAlarm", {C_POINTER, C_POINTER, C_POINTER, C_POINTER},
                 {parent, allocate_string(title), allocate_string(message),
                 allocate_string(buttons)}, C_INT)
 end function
@@ -482,9 +608,11 @@ end function
 --
 -- an **integer**: the number of the button selected by the user (1, 2 or 3).
 --*/
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-public function IupMessageError(atom parent = NULL, string message)  -- shows a modal dialog containing an error message
-    return doC("IupMessageError", {C_INT, C_POINTER},
+-------------------------------------------------------------------------------- 
+-- IUP_API void IupMessageError(Ihandle* parent, const char* message);
+--------------------------------------------------------------------------------
+public function IupMessageError(Ihandle parent = NULL, string message)  -- shows a modal dialog containing an error message
+    return doC("IupMessageError", {C_POINTER, C_POINTER},
                 {parent, allocate_string(message)})
 end function
 --------------------------------------------------------------------------------
@@ -505,8 +633,29 @@ end function
 --The dialog is shown centered relative to its parent.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupParamBox(Ihandle* param, ...);
+--------------------------------------------------------------------------------
+public function IupParamBox(sequence params) -- creates a void container for composing elements created using a list of IupParam elements
+    if length(params) then return doCN("IupParamBox", C_POINTER, params, C_POINTER)
+    else return NULL
+    end if
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Each param is used to create several lines of controls internally arranged in a
+-- vertical composition.
+--
+--It does not have a native representation.
+--
+-- Returns:
+--
+-- a **Ihandle**: the identifier of the created element, or NULL if an error occurs
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupProgressBar(void);
+--------------------------------------------------------------------------------
 public function IupProgressDlg() -- creates a progress dialog element
-    return doC("IupProgressDlg", , , C_INT)
+    return doC("IupProgressDlg", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -516,12 +665,36 @@ end function
 --
 -- Returns:
 --
--- An **integer**: the identifier of the created element,
+-- An **Ihandle**: the identifier of the created element,
 -- or NULL if an error occurs.
 --/*
 --------------------------------------------------------------------------------
-public function IupElementPropertiesDialog(atom parent, atom elem) -- creates an Element Properties Dialog
-    return doC("IupElementPropertiesDialog", {C_INT, C_INT}, {parent, elem}, C_INT)
+-- IUP_API Ihandle* IupClassInfoDialog(Ihandle* parent);
+--------------------------------------------------------------------------------
+public function IupClassInfoDialog(Ihandle parent) -- creates an Iup Class Information dialog
+    return doC("IupElementPropertiesDialog", {C_POINTER}, {parent}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+--  It is a predefined dialog to show all registered classes, each class
+-- attributes and callbacks.
+-- It is a standard IupDialog constructed with other IUP elements.
+-- The dialog can be shown with any of the show functions IupShow, IupShowXY
+-- or IupPopup.
+--
+-- This is a dialog intended for developers, so they can see attributes and
+-- callbacks information of a class.
+--
+-- Returns:
+--
+-- An **Ihandle**: the identifier of the created element,
+-- or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle* IupElementPropertiesDialog(Ihandle* parent, Ihandle* elem);
+--------------------------------------------------------------------------------
+public function IupElementPropertiesDialog(Ihandle parent, Ihandle elem) -- creates an Element Properties Dialog
+    return doC("IupElementPropertiesDialog", {C_POINTER, C_POINTER}, {parent, elem}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -545,17 +718,46 @@ end function
 --
 -- Returns:
 --
--- An **integer**: the identifier of the created element,
+-- An **Ihandle**: the identifier of the created element,
 -- or NULL if an error occurs.
-
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle* IupLayoutDialog(Ihandle* dialog);
+--------------------------------------------------------------------------------
+public function IupLayoutDialog(Ihandle dialog) -- creates a Layout Dialog
+    return doC("IupLayoutDialog", {C_POINTER}, {dialog}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It is a predefined dialog to edit visually the layout of another dialog in
+-- run time.
+-- It is a standard IupDialog constructed with other IUP elements.
+-- The dialog can be shown with any of the show functions IupShow, IupShowXY
+-- or IupPopup.
+--
+-- Any existent dialog can be selected. It does not need to be mapped on the
+-- native system nor visible.
+--
+-- The layout dialog is composed by two areas: one showing the given dialog
+-- children hierarchy tree, and one displaying its layout.
+--
+-- This is a dialog intended for developers, so they can see and inspect their
+-- dialogs in other ways.
+--
+-- Returns:
+--
+-- An **Ihandle**: the identifier of the created element,
+-- or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 --/*
 --==== Dialog actions
 --*/
 --------------------------------------------------------------------------------
-public function IupHide(integer widget) -- hides an interface element
-    return doC("IupHide", {C_INT}, {widget}, C_INT)
+-- IUP_API int       IupHide          (Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupHide(Ihandle widget) -- hides an interface element
+    return doC("IupHide", {C_POINTER}, {widget}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -570,8 +772,10 @@ end function
 -- IUP_NOERROR always.
 --*/
 --------------------------------------------------------------------------------
-public function IupPopup(integer widget, integer x, integer y) -- shows a dialog or menu and restricts user interaction only to the specified element
-    return doC("IupPopup", {C_INT, C_INT, C_INT}, {widget, x, y}, C_INT)
+-- IUP_API int       IupPopup         (Ihandle* ih, int x, int y);
+--------------------------------------------------------------------------------
+public function IupPopup(Ihandle widget, integer x, integer y) -- shows a dialog or menu and restricts user interaction only to the specified element
+    return doC("IupPopup", {C_POINTER, C_INT, C_INT}, {widget, x, y}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -605,8 +809,10 @@ end function
 -- (if not a dialog or menu); IUP_ERROR (if there was an error)
 --*/
 --------------------------------------------------------------------------------
-public function IupShow(integer dialog)   -- displays a dialog in the current display space
-    return doC("IupShow", {C_INT}, {dialog}, C_INT)
+-- IUP_API int       IupShow          (Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupShow(Ihandle dialog)   -- displays a dialog in the current display space
+    return doC("IupShow", {C_POINTER}, {dialog}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -627,8 +833,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public function IupShowXY(integer dialog, integer x, integer y)   -- displays a dialog in a specific position
-    return doC("IupShowXY", {C_INT, C_INT, C_INT}, {dialog, x, y}, C_INT)
+-- IUP_API int       IupShowXY        (Ihandle* ih, int x, int y);
+--------------------------------------------------------------------------------
+public function IupShowXY(Ihandle dialog, integer x, integer y)   -- displays a dialog in a specific position
+    return doC("IupShowXY", {C_POINTER, C_INT, C_INT}, {dialog, x, y}, C_INT)
 end function
 --------------------------------------------------------------------------------
 -- Displays a dialog in a given position on the screen. The values x and y give
@@ -655,8 +863,10 @@ end function
 --* IUP_CENTERPARENT: Vertically centralizes the dialog relative to its parent (Since 3.0)
 --* IUP_CURRENT: use the current position of the dialog. This is the default value in Lua if the parameter is not defined.(Since 3.0)
 --------------------------------------------------------------------------------
-public function IupDestroy(integer widget)  -- destroys an interface element and all its children
-    return doC("IupDestroy", {C_INT}, {widget})
+-- IUP_API void      IupDestroy      (Ihandle* ih)
+--------------------------------------------------------------------------------
+public function IupDestroy(Ihandle widget)  -- destroys an interface element and all its children
+    return doC("IupDestroy", {C_POINTER}, {widget})
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -690,8 +900,10 @@ end function
 --==== Containers
 --*/
 --------------------------------------------------------------------------------
-public function IupBackgroundBox(atom child = NULL) -- creates a simple native container with no decorations
-    return doC("IupBackgroundBox", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupBackgroundBox(Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupBackgroundBox(Ihandle child = NULL) -- creates a simple native container with no decorations
+    return doC("IupBackgroundBox", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -701,8 +913,10 @@ end function
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupCbox       (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupCbox(sequence children = {})  -- creates a void container for position elements in absolute coordinates. It is a concrete layout container.
-    return doCN("IupCbox", C_INT, children, C_INT)
+    return doCN("IupCbox", C_POINTER, children, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -723,8 +937,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public function IupDetachBox(integer child = NULL)
-    return doC("IupDetachBox", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupDetachBox  (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupDetachBox(Ihandle child = NULL)
+    return doC("IupDetachBox", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -743,8 +959,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
-public function IupExpander(integer child = NULL) -- creates a container that can interactively show or hide its child
-    return doC("IupExpander", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupExpander(Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupExpander(Ihandle child = NULL) -- creates a container that can interactively show or hide its child
+    return doC("IupExpander", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -757,8 +975,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
-public function IupFlatFrame(atom child = NULL)	-- creates a native container, which draws a frame with a title around its child
-    return doC("IupFlatFrame", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupFlatFrame  (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupFlatFrame(Ihandle child = NULL)	-- creates a native container, which draws a frame with a title around its child
+    return doC("IupFlatFrame", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -771,8 +991,10 @@ end function
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --------------------------------------------------------------------------------
-public function IupFlatScrollBox(atom child = NULL)	-- creates a native container that allows its child to be scrolled
-    return doC("IupFlatScrollBox", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupFlatScrollBox(Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupFlatScrollBox(Ihandle child = NULL)	-- creates a native container that allows its child to be scrolled
+    return doC("IupFlatScrollBox", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -784,8 +1006,10 @@ end function
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatTabs   (Ihandle* first, ...);
+--------------------------------------------------------------------------------
 public function IupFlatTabs(sequence children = {})	-- creates a native container for composing elements in hidden layers with only one layer visible
-    return doCN("IupFlatTabs", C_INT, children, C_INT)
+    return doCN("IupFlatTabs", C_POINTER, children, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -801,8 +1025,10 @@ end function
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --------------------------------------------------------------------------------
-public function IupFrame(atom child = NULL)	-- creates a native container, which draws a frame with a title around its child
-    return doC("IupFrame", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupFrame      (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupFrame(Ihandle child = NULL)	-- creates a native container, which draws a frame with a title around its child
+    return doC("IupFrame", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -812,8 +1038,10 @@ end function
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupGridBox    (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupGridBox(sequence children = {})  -- creates a void container composing elements in a regular grid
-    return doCN("IupGridBox", C_INT, children, C_INT)
+    return doCN("IupGridBox", C_POINTER, children, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -831,8 +1059,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+--  IUP_API Ihandle*  IupHbox       (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupHbox(sequence children = {})  -- creates a void container for composing elements horizontally; it is a box that arranges the elements it contains from left to right.
-    return doCN("IupHbox", C_INT, children, C_INT)
+    return doCN("IupHbox", C_POINTER, children, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -849,8 +1079,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupMultiBox   (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupMultiBox(sequence children = {})  -- creates a void container for composing elements in a irregular grid
-    return doCN("IupMultiBox", C_INT, children, C_INT)
+    return doCN("IupMultiBox", C_POINTER, children, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -870,8 +1102,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupNormalizer (Ihandle* ih_first, ...);
+--------------------------------------------------------------------------------
 public function IupNormalizer(sequence ih_first = {})  -- creates a void container that does not affect the dialog layout
-    return doCN("IupNormalizer", C_INT, ih_first, C_INT)
+    return doCN("IupNormalizer", C_POINTER, ih_first, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -892,8 +1126,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public function IupRadio(atom child = NULL) -- creates a void container for grouping mutual exclusive toggles
-    return doC("IupRadio", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupRadio      (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupRadio(Ihandle child = NULL) -- creates a void container for grouping mutual exclusive toggles
+    return doC("IupRadio", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -910,8 +1146,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
-public function IupSbox(atom child = NULL) -- creates a void container that allows its child to be resized
-    return doC("IupSbox", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupSbox       (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupSbox(Ihandle child = NULL) -- creates a void container that allows its child to be resized
+    return doC("IupSbox", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -927,8 +1165,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
-public function IupSplit(atom child1 = NULL, atom child2 = NULL) -- creates a void container that split its client area in two
-    return doC("IupSplit", {C_INT, C_INT}, {child1, child2}, C_INT)
+-- IUP_API Ihandle*  IupSplit      (Ihandle* child1, Ihandle* child2);
+--------------------------------------------------------------------------------
+public function IupSplit(Ihandle child1 = NULL, Ihandle child2 = NULL) -- creates a void container that split its client area in two
+    return doC("IupSplit", {C_POINTER, C_POINTER}, {child1, child2}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -948,8 +1188,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
-public function IupScrollBox(integer child = NULL) -- creates a native container that allows its child to be scrolled
-    return doC("IupScrollBox", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupScrollBox  (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupScrollBox(Ihandle child = NULL) -- creates a native container that allows its child to be scrolled
+    return doC("IupScrollBox", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -961,8 +1203,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupTabs       (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupTabs(sequence children = {})  -- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.
-    return doCN("IupTabs", C_INT, children, C_INT)
+    return doCN("IupTabs", C_POINTER, children, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -972,15 +1216,19 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupVbox       (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupVbox(sequence children = {})  -- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.
-    return doCN("IupVbox", C_INT, children, C_INT)
+    return doCN("IupVbox", C_POINTER, children, C_POINTER)
 end function
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupVboxv      (Ihandle* *children);
 --------------------------------------------------------------------------------
 public function IupVboxv(sequence children = {})  -- creates a void container for composing elements vertically; it is a box that arranges the elements it contains from top to bottom.
 	atom p_children = allocate_pointer_array(children)
 	sequence e_args = {p_children}
 	free(p_children)
-    return doC("IupVboxv", {C_POINTER}, e_args, C_INT)
+    return doC("IupVboxv", {C_POINTER}, e_args, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -997,8 +1245,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupZbox       (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupZbox(sequence children = {})  -- creates a void container for composing elements in hidden layers with only one layer visible
-    return doCN("IupZbox", C_INT, children, C_INT)
+    return doCN("IupZbox", C_POINTER, children, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1020,6 +1270,8 @@ end function
 --==== Controls
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupButton     (const char* title, const char* action);
+--------------------------------------------------------------------------------
 public function IupButton(string title = "", object action = NULL)  -- creates a button interface element, which displays a separator, a text or an image
 	sequence arg
 	if atom(action) then
@@ -1027,7 +1279,7 @@ public function IupButton(string title = "", object action = NULL)  -- creates a
 	else
 		arg = {allocate_string(title), allocate_string(action)}
 	end if
-	return doC("IupButton", {C_POINTER, C_POINTER}, arg, C_INT)
+	return doC("IupButton", {C_POINTER, C_POINTER}, arg, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1045,8 +1297,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupCalendar   (void);
+--------------------------------------------------------------------------------
 public function IupCalendar() -- creates a month calendar interface element, where the user can select a date
-    return doC("IupCalendar", , , C_INT)
+    return doC("IupCalendar", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1056,9 +1310,11 @@ end function
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupColorbar   (void);
 --------------------------------------------------------------------------------
 public function IupColorbar() -- creates a color palette to enable a color selection from several samples
-    return doC("IupColorbar", , , C_INT)
+    return doC("IupColorbar", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1069,8 +1325,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFill (void);
+--------------------------------------------------------------------------------
 public function IupFill() 	-- creates a void element, which dynamically occupies empty spaces always trying to expand itself
-	return doC("IupFill", , , C_INT)
+	return doC("IupFill", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1082,8 +1340,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatButton (const char* title);
+--------------------------------------------------------------------------------
 public function IupFlatButton(string title = "")  -- creates an interface element that is a button, but it does not have native decorations
-	return doC("IupFlatButton", {C_POINTER}, {allocate_string(title)}, C_INT)
+	return doC("IupFlatButton", {C_POINTER}, {allocate_string(title)}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1099,8 +1359,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupGauge      (void);
+--------------------------------------------------------------------------------
 public function IupGauge() -- creates a Gauge control
-    return doC("IupGauge", , , C_INT)
+    return doC("IupGauge", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1111,8 +1373,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupLabel      (const char* title);
+--------------------------------------------------------------------------------
 public function IupLabel(string title = "")  -- creates a label interface element, which displays a separator, a text or an image
-	return doC("IupLabel", {C_POINTER}, {allocate_string(title)}, C_INT)
+	return doC("IupLabel", {C_POINTER}, {allocate_string(title)}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1126,8 +1390,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupLink       (const char* url, const char* title);
+--------------------------------------------------------------------------------
 public function IupLink(string url, string title = "") -- creates a label that displays an underlined clickable text
-	return doC("IupLink", {C_POINTER, C_POINTER}, {allocate_string(url), allocate_string(title)}, C_INT)
+	return doC("IupLink", {C_POINTER, C_POINTER}, {allocate_string(url), allocate_string(title)}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1143,11 +1409,13 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupList       (const char* action);
+--------------------------------------------------------------------------------
 public function IupList(object action = NULL) -- creates an interface element that displays a list of items
     if atom(action) then -- action = action
     else action = allocate_string(action)
     end if
-    return doC("IupList", {C_POINTER}, {action}, C_INT)
+    return doC("IupList", {C_POINTER}, {action}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1163,8 +1431,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupProgressBar(void);
+--------------------------------------------------------------------------------
 public function IupProgressBar() -- creates a progress bar control
-    return doC("IupProgressBar", , , C_INT)
+    return doC("IupProgressBar", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1180,8 +1450,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupSpace(void);
+--------------------------------------------------------------------------------
 public function IupSpace() 	-- creates a void element, which occupies an empty space
-	return doC("IupSpace", , , C_INT)
+	return doC("IupSpace", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1200,12 +1472,16 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupSpin       (void);
+--------------------------------------------------------------------------------
 public function IupSpin() -- create a control set with a vertical box containing two buttons
-    return doC("IupSpin", , , C_INT)
+    return doC("IupSpin", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
-public function IupSpinbox(atom child) -- create a control set with a vertical box containing two buttons
-    return doC("IupSpinbox", {C_INT}, {child}, C_INT)
+-- IUP_API Ihandle*  IupSpinbox    (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupSpinbox(Ihandle child) -- create a control set with a vertical box containing two buttons
+    return doC("IupSpinbox", {C_POINTER}, {child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1226,8 +1502,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupText       (const char* action);
+--------------------------------------------------------------------------------
 public function IupText(object action = NULL)  -- creates an editable text field
-    return doC("IupText", {C_POINTER}, {toCOrNot(action)}, C_INT)
+    return doC("IupText", {C_POINTER}, {toCOrNot(action)}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1238,6 +1516,8 @@ end function
 -- Returns: the (**integer**) identifier of the created element, or //NULL// if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupToggle     (const char* title, const char* action);
+--------------------------------------------------------------------------------
 public function IupToggle(string title = "", object action = NULL)  -- the toggle interface element
     sequence arg
     if atom(action) then
@@ -1245,7 +1525,7 @@ public function IupToggle(string title = "", object action = NULL)  -- the toggl
     else
         arg = {allocate_string(title), allocate_string(action)}
     end if
-    return doC("IupToggle", {C_POINTER, C_POINTER}, arg, C_INT)
+    return doC("IupToggle", {C_POINTER, C_POINTER}, arg, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1267,8 +1547,10 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupTree       (void);
+--------------------------------------------------------------------------------
 public function IupTree() -- creates a tree containing nodes of branches or leaves
-    return doC("IupTree", , , C_INT)
+    return doC("IupTree", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1288,9 +1570,11 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupVal        (const char *type);
+--------------------------------------------------------------------------------
 public function IupVal(object orientation = NULL) -- creates a Valuator control
     if string(orientation) then orientation = allocate_string(orientation) end if
-    return doC("IupVal", {C_INT}, {orientation}, C_INT)
+    return doC("IupVal", {C_POINTER}, {orientation}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*    end if
@@ -1308,9 +1592,11 @@ end function
 --==== Menus
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupMenu       (Ihandle* child, ...);
+--------------------------------------------------------------------------------
 public function IupMenu(sequence items)
 	atom pItems = allocate_pointer_array(items)
-	atom result = doC("IupMenuv", {C_POINTER}, {pItems}, C_INT)
+	atom result = doC("IupMenuv", {C_POINTER}, {pItems}, C_POINTER)
 	free(pItems)
 	return result
 end function
@@ -1326,6 +1612,8 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupItem       (const char* title, const char* action);
+--------------------------------------------------------------------------------
 public function IupItem(object title = NULL, object action = NULL)
 	sequence arg = {NULL, action}
     if sequence(title) then
@@ -1334,7 +1622,7 @@ public function IupItem(object title = NULL, object action = NULL)
     if sequence(action) then
         arg[2] = allocate_string(action)
     end if
-    return doC("IupItem", {C_POINTER, C_POINTER}, arg, C_INT)
+    return doC("IupItem", {C_POINTER, C_POINTER}, arg, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1348,8 +1636,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupSeparator  (void);
+--------------------------------------------------------------------------------
 public function IupSeparator()
-	return doC("IupSeparator", , , C_INT)
+	return doC("IupSeparator", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1359,12 +1649,14 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupSubmenu    (const char* title, Ihandle* child);
+--------------------------------------------------------------------------------
 export function IupSubmenu(object title = NULL, object menu = NULL)
 	sequence arg = {NULL, menu}
     if sequence(title) then
         arg[1] = allocate_string(title)
     end if
-	return doC("IupSubmenu", {C_POINTER, C_INT}, arg, C_INT)
+	return doC("IupSubmenu", {C_POINTER, C_POINTER}, arg, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1426,6 +1718,8 @@ end function
 --==== Events
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API void      IupExitLoop      (void);
+--------------------------------------------------------------------------------
 public function IupExitLoop() -- terminates the current message loop
     return doC("IupExitLoop")
 end function
@@ -1434,9 +1728,42 @@ end function
 -- It has the same effect of a callback returning IUP_CLOSE.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API void      IupFlush         (void);
+--------------------------------------------------------------------------------
 public function IupFlush() -- processes all pending messages in the message queue
     return doC("IupFlush")
 end function
+--------------------------------------------------------------------------------
+-- IUP_API int       IupLoopStep      (void);
+--------------------------------------------------------------------------------
+public function IupLoopStep()  -- runs one iteration of the message loop
+	return doC("IupLoopStep", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns immediately after processing any messages or if there are no messages
+-- to process.
+--
+-- Returns:
+--
+-- an **integer**: //IUP_CLOSE// or //IUP_DEFAULT//
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API int       IupLoopStepWait  (void);
+--------------------------------------------------------------------------------
+public function IupLoopStepWait()  -- runs one iteration of the message loop
+	return doC("IupLoopStepWait", , , C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Puts the system into idle mode until a message is processed 
+--
+-- Returns:
+--
+-- an **integer**: //IUP_CLOSE// or //IUP_DEFAULT//
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API int       IupMainLoop      (void);
 --------------------------------------------------------------------------------
 public function IupMainLoop()  -- executes the user interaction until a callback returns IUP_CLOSE, or IupExitLoop is called, or the last visible dialog is hidden
 	return doC("IupMainLoop", , , C_INT)
@@ -1447,6 +1774,8 @@ end function
 --
 -- IUP_NOERROR always.
 --*/
+--------------------------------------------------------------------------------
+-- IUP_API int       IupMainLoopLevel (void);
 --------------------------------------------------------------------------------
 public function IupMainLoopLevel() --> [integer] the cascade level of IupMainLoop
 	return doC("IupMainLoopLevel", , , C_INT)
@@ -1460,15 +1789,26 @@ end function
 -- When no calls were done, return value is 0.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API void      IupPostMessage   (Ihandle* ih, const char* s, int i, double d, void* p);
+--------------------------------------------------------------------------------
+public function IupPostMessage(Ihandle ih, string s, integer i, atom d, atom p) --sends data to an element, that will be received by a callback when the main loop regain control
+    return doC("IupPostMessage", {C_POINTER, C_POINTER, C_INT, C_DOUBLE, C_POINTER},
+                                 {ih, allocate_string(s), i, d, p})
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It is expected to be thread safe.
+--*/
+--------------------------------------------------------------------------------
 --/*
 --==== Attributes
 --*/
 --------------------------------------------------------------------------------
-public function IupGetAttribute(atom widget, string attr) -- gets an interface element attribute
-    atom ret = doC("IupGetAttribute", {C_INT, C_POINTER}, {widget, allocate_string(attr)}, C_INT)
-    if ret > 0 then return peek_string(ret)
-    else return ret
-    end if
+-- IUP_API char*     IupGetAttribute(Ihandle* ih, const char* name);
+--------------------------------------------------------------------------------
+public function IupGetAttribute(Ihandle widget, string attr) -- gets an interface element attribute
+    atom ret = doC("IupGetAttribute", {C_POINTER, C_POINTER}, {widget, allocate_string(attr)}, C_POINTER)
+    return peek_string(ret)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1485,8 +1825,10 @@ end function
 -- In testing it has been found to return negative values if unset?
 --*/
 --------------------------------------------------------------------------------
-public function IupGetFloat(atom widget, string attr)	-- gets an atom attribute value
-    return doC("IupGetFloat", {C_INT, C_POINTER}, {widget, allocate_string(attr)}, C_FLOAT)
+-- IUP_API float     IupGetFloat    (Ihandle* ih, const char* name);
+--------------------------------------------------------------------------------
+public function IupGetFloat(Ihandle widget, string attr)	-- gets an atom attribute value
+    return doC("IupGetFloat", {C_BOOL, C_POINTER}, {widget, allocate_string(attr)}, C_FLOAT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1509,7 +1851,9 @@ end function
 -- Returns: the integer value of an interface element attribute.
 --*/
 --------------------------------------------------------------------------------
-public procedure IupSetAttribute(integer widget, string attribute, object val = NULL)    -- sets an interface element attribute to the stated val(ue)
+-- IUP_API void      IupSetAttribute   (Ihandle* ih, const char* name, const char* value);
+--------------------------------------------------------------------------------
+public procedure IupSetAttribute(Ihandle widget, string attribute, object val = NULL)    -- sets an interface element attribute to the stated val(ue)
     if not attrib(attribute) then attribute = upper(attribute) end if
     sequence arg = {widget, allocate_string(attribute), val}
     if string(val) then arg[3] = allocate_string(val) end if
@@ -1528,8 +1872,10 @@ end procedure
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public function IupSetAttributes(atom widget, string attributes)  -- sets several attributes of an interface element
-    return doC("IupSetAttributes", {C_INT, C_POINTER}, {widget, allocate_string(attributes)},  C_INT)
+-- IUP_API Ihandle*  IupSetAttributes (Ihandle* ih, const char *str);
+--------------------------------------------------------------------------------
+public function IupSetAttributes(Ihandle widget, string attributes)  -- sets several attributes of an interface element
+    return doC("IupSetAttributes", {C_POINTER, C_POINTER}, {widget, allocate_string(attributes)},  C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1545,9 +1891,11 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
-public function IupSetAttributeHandle(atom widget, string attribute, atom ih_named)    -- creates a non conflict name and associates the name with the attribute
+-- IUP_API void      IupSetAttributeHandle(Ihandle* ih, const char* name, Ihandle* ih_named);
+--------------------------------------------------------------------------------
+public function IupSetAttributeHandle(Ihandle widget, string attribute, Ihandle ih_named)    -- creates a non conflict name and associates the name with the attribute
     if not attrib(attribute) then attribute = upper(attribute) end if
-    return doC("IupSetAttributeHandle", {C_INT, C_POINTER, C_INT}, {widget, allocate_string(attribute), ih_named})
+    return doC("IupSetAttributeHandle", {C_POINTER, C_POINTER, C_POINTER}, {widget, allocate_string(attribute), ih_named})
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1559,6 +1907,8 @@ end function
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
+--------------------------------------------------------------------------------
+-- IUP_API void      IupSetGlobal  (const char* name, const char* value);
 --------------------------------------------------------------------------------
 public function IupSetGlobal(string name, object val)
     sequence args = {allocate_string(name), val}
@@ -1578,16 +1928,20 @@ end function
 -- will be removed.
 --*/
 --------------------------------------------------------------------------------
-public function IupSetInt(atom widget, string attr, integer val)
-    return doC("IupSetInt", {C_INT, C_POINTER, C_INT}, {widget, allocate_string(attr), val})
+-- IUP_API void      IupSetInt         (Ihandle* ih, const char* name, int value);
+--------------------------------------------------------------------------------
+public function IupSetInt(Ihandle widget, string attr, integer val)
+    return doC("IupSetInt", {C_POINTER, C_POINTER, C_INT}, {widget, allocate_string(attr), val})
 end function
 --------------------------------------------------------------------------------
 --/*
 -- Sets the integer value of an interface element attribute.
 --*/
 --------------------------------------------------------------------------------
-public function IupSetStrAttribute(atom widget, string attr, string val) -- sets an interface element attribute
-    return doC("IupSetStrAttribute", {C_INT, C_POINTER, C_POINTER}, {widget, allocate_string(attr), allocate_string(val)})
+-- IUP_API void      IupSetStrAttribute(Ihandle* ih, const char* name, const char* value);
+--------------------------------------------------------------------------------
+public function IupSetStrAttribute(Ihandle widget, string attr, string val) -- sets an interface element attribute
+    return doC("IupSetStrAttribute", {C_POINTER, C_POINTER, C_POINTER}, {widget, allocate_string(attr), allocate_string(val)})
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1615,8 +1969,11 @@ end function
 -- action.
 --
 -- Returns: the callback.
+--*/
 --------------------------------------------------------------------------------
-public function IupSetCallback(atom widget, string action, atom rid)  -- associates a callback to an event
+-- IUP_API Icallback IupSetCallback (Ihandle* ih, const char *name, Icallback func);
+--------------------------------------------------------------------------------
+public function IupSetCallback(Ihandle widget, string action, atom rid)  -- associates a callback to an event
 	sequence arg = {widget, allocate_string(action), rid}
 	return c_func(hIupSetCallback, arg)
 end function
@@ -1635,8 +1992,10 @@ end function
 --==== Handles
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupGetHandle    (const char *name);
+--------------------------------------------------------------------------------
 public function IupGetHandle(string title)    -- get handle from name
-    return doC("IupGetHandle", {C_POINTER}, {allocate_string(title)}, C_INT)
+    return doC("IupGetHandle", {C_POINTER}, {allocate_string(title)}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1648,8 +2007,10 @@ end function
 -- Returns: the element handle or NULL if not found.
 --*/
 --------------------------------------------------------------------------------
-public function IupGetName(atom widget) -- finds the name of an interface element
-    return peek_string(doC("IupGetName", {C_INT}, {widget}, C_INT))
+-- IUP_API char*     IupGetName      (Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupGetName(Ihandle widget) -- finds the name of an interface element
+    return peek_string(doC("IupGetName", {C_POINTER}, {widget}, C_POINTER))
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1658,8 +2019,10 @@ end function
 -- Returns: the name associated with the widget, set using ##IupSetHandle##
 --*/
 --------------------------------------------------------------------------------
-public function IupSetHandle(string title, atom widget)    -- associate name with a handle
-    return doC("IupSetHandle", {C_POINTER, C_INT}, {allocate_string(title), widget})
+-- IUP_API Ihandle*  IupSetHandle    (const char *name, Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupSetHandle(string title, Ihandle widget)    -- associate name with a handle
+    return doC("IupSetHandle", {C_POINTER, C_POINTER}, {allocate_string(title), widget}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1695,8 +2058,10 @@ end function
 -- Returns: the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
-public function IupGetDialog(integer handle)
-    return doC("IupGetDialog", {C_INT}, {handle}, C_INT)
+-- IUP_API Ihandle*  IupGetDialog    (Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupGetDialog(Ihandle handle)
+    return doC("IupGetDialog", {C_POINTER}, {handle}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1708,17 +2073,25 @@ end function
 -- Returns: the handle of the dialog or NULL if not found.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupImage      (int width, int height, const unsigned char* pixels);
+--------------------------------------------------------------------------------
 public function IupImage(atom width, atom height, object pixmap)
-    return doC("IupImage", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
+    return doC("IupImage", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_POINTER)
 end function
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupImageRGB   (int width, int height, const unsigned char* pixels);
 --------------------------------------------------------------------------------
 public function IupImageRGB(atom width, atom height, object pixmap)
-    return doC("IupImageRGB", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
+    return doC("IupImageRGB", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupImageRGBA  (int width, int height, const unsigned char* pixels);
+--------------------------------------------------------------------------------
 public function IupImageRGBA(atom width, atom height, object pixmap)
-    return doC("IupImageRGBA", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_INT)
+    return doC("IupImageRGBA", {C_INT, C_INT, C_POINTER}, {width, height, pixmap}, C_POINTER)
 end function
+--------------------------------------------------------------------------------
+-- IUPIMGLIB_API void IupImageLibOpen(void);
 --------------------------------------------------------------------------------
 public function IupImageLibOpen() -- opens a library of pre-defined stock images for buttons and labels
     atom iupimagelib = open_dll({"iupimglib.dll", "libiupimglib.so"})
@@ -1730,8 +2103,10 @@ end function
 -- == Layout (hierarchy)
 --*/
 --------------------------------------------------------------------------------
-public function IupGetChildCount(atom widget) -- returns the number of children of the given control
-    return doC("IupGetChildCount", {C_INT}, {widget}, C_INT)
+-- IUP_API int       IupGetChildCount(Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupGetChildCount(Ihandle widget) -- returns the number of children of the given control
+    return doC("IupGetChildCount", {C_POINTER}, {widget}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1740,8 +2115,10 @@ end function
 -- Returns: number of children.
 --*/
 --------------------------------------------------------------------------------
-public function IupGetChildPos(atom widget, atom child) -- gets the position of a child of the given control
-    return doC("IupGetChildPos", {C_INT, C_INT}, {widget, child}, C_INT)
+-- IUP_API int       IupGetChildPos  (Ihandle* ih, Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupGetChildPos(Ihandle widget, Ihandle child) -- gets the position of a child of the given control
+    return doC("IupGetChildPos", {C_POINTER, C_POINTER}, {widget, child}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1752,8 +2129,10 @@ end function
 -- or -1 if the child is not found.
 --*/
 --------------------------------------------------------------------------------
-public function IupGetParent(atom widget) -- gets the parent of a widget
-    return doC("IupGetParent", {C_INT}, {widget}, C_INT)
+-- IUP_API Ihandle*  IupGetParent    (Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupGetParent(Ihandle widget) -- gets the parent of a widget
+    return doC("IupGetParent", {C_POINTER}, {widget}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1763,8 +2142,10 @@ end function
 -- if the widget does not have a parent.
 --*/
 --------------------------------------------------------------------------------
-public function IupReparent(integer child, integer new_parent, integer ref_child)
-    return doC("IupReparent", {C_INT, C_INT, C_INT}, {child, new_parent, ref_child})
+-- IUP_API int       IupReparent     (Ihandle* ih, Ihandle* new_parent, Ihandle* ref_child);
+--------------------------------------------------------------------------------
+public function IupReparent(Ihandle child, Ihandle new_parent, Ihandle ref_child)
+    return doC("IupReparent", {C_POINTER, C_POINTER, C_POINTER}, {child, new_parent, ref_child}, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1776,8 +2157,10 @@ end function
 -- the child will be inserted before it. It can be NULL.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupTimer      (void);
+--------------------------------------------------------------------------------
 public function IupTimer() -- creates a timer which periodically invokes a callback when the time is up
-    return doC("IupTimer", , , C_INT)
+    return doC("IupTimer", , , C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1794,8 +2177,10 @@ end function
 -- == Layout (management)
 --*/
 --------------------------------------------------------------------------------
-public function IupInsert(atom container, atom ref_child, atom new_child) -- inserts an interface element before another child of the container
-    return doC("IupInsert", {C_INT, C_INT, C_INT}, {container, ref_child, new_child}, C_INT)
+-- IUP_API Ihandle*  IupInsert       (Ihandle* ih, Ihandle* ref_child, Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupInsert(Ihandle container, Ihandle ref_child, Ihandle new_child) -- inserts an interface element before another child of the container
+    return doC("IupInsert", {C_POINTER, C_POINTER, C_POINTER}, {container, ref_child, new_child}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1813,8 +2198,10 @@ end function
 -- attached so the function returns the actual parent of the element.
 --*/
 --------------------------------------------------------------------------------
-public function IupRefresh(atom dialog)
-    return doC("IupRefresh", {C_INT}, {dialog})
+-- IUP_API void      IupRefresh       (Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupRefresh(Ihandle dialog)
+    return doC("IupRefresh", {C_POINTER}, {dialog})
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1828,6 +2215,18 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.52
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.01.29
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupFontDlg## defined
+--  * ##IupGetAttribute## modified to trap -ive values
+--  * ##IupElementPropertiesDialog## defined
+--  * ##IupMessageAlarm## defined
+--  * ##IupMessageError## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.51
 -- Euphoria Verion: v4.0.5 and later
