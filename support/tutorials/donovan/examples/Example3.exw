@@ -1,20 +1,21 @@
 -- Example 3
 
-include std/types.e
+include std/types.e -- for string type
 include iup.ew
 
 IupOpen()
 string name = "*.txt"
-sequence res = IupGetFile(name)
+object res = IupGetFile(name)
 name = res[2]
 
 integer err = res[1]
-if err = 1 then
-  IupMessage("New file", name)
-elsif err = 0 then
-  IupMessage("File already exists", name)
-elsif err = -1 then
-  IupMessage("IupGetFile", "Operation cancelled")
-end if
+switch err do
+    case 1 then
+      IupMessage("New file", name)
+    case 0 then
+      IupMessage("File already exists", name)
+    case -1 then
+      IupMessage("IupGetFile", "Operation cancelled")
+end switch
 IupClose()
-­1.0
+ï¿½1.0
