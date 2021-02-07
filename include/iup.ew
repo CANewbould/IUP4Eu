@@ -13,29 +13,13 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.53
+--[[[Version: 4.0.5.57
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.02.03
+-- Date: 2021.02.07
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupGetAttribute## modified
---  * ##IupVersion## defined
---  * ##IupVersionShow## defined
---  * ##IupVersionDate## defined
---  * ##IupVersionNumber## modified
---  * ##IupIsOpened## defined
---  * ##IupGetLanguage## defined
---  * **Ihandle** defined
---  * added (as comment) the C-language definitions
---  * changed all **Ihandle** refs to **atom** and //C_POINTER//
---  * ##IupLoopStep## defined
---  * ##IupLoopStepWait## defined
---  * ##IupPostMessage## defined
---  * ##IupGetColor## defined
---  * ##IupClassInfoDialog## defined
---  * ##IupParamBox## defined
---  * ##IupLayoutDialog## defined
+--  * ##IupTextConvertLinColToPos## modified further
 --
 ------
 --
@@ -102,6 +86,20 @@ public constant EXIT_FAILURE = 1    -- unsuccessful completion of IUP loop
 public constant IUP_IGNORE = -1
 --------------------------------------------------------------------------------
 --/*
+--====IupPopup and IupShowXY Parameter Values
+--*/
+--------------------------------------------------------------------------------
+public constant IUP_CENTER = 0xFFFF /* 65535 */
+public constant IUP_CENTRE = IUP_CENTER
+public constant IUP_LEFT = 0xFFFE /* 65534 */
+public constant IUP_RIGHT = 0xFFFD /* 65533 */
+public constant IUP_MOUSEPOS = 0xFFFC /* 65532 */
+public constant IUP_CURRENT = 0xFFFB /* 65531 */
+public constant IUP_CENTERPARENT = 0xFFFA /* 65530 */
+public constant IUP_TOP = IUP_LEFT
+public constant IUP_BOTTOM = IUP_RIGHT
+--------------------------------------------------------------------------------
+--/*
 --====Mouse Button Values and Macros
 --*/
 --------------------------------------------------------------------------------
@@ -110,14 +108,6 @@ public constant IUP_BUTTON2 = '2'
 public constant IUP_BUTTON3 = '3'
 public constant IUP_BUTTON4 = '4'
 public constant IUP_BUTTON5 = '5'
---------------------------------------------------------------------------------
---/*
---==== IupPopup and IupShowXY Parameter Values
---*/
---------------------------------------------------------------------------------
-public constant IUP_CURRENT = 65531
-public constant IUP_CENTER = #FFFF
-public constant IUP_CENTRE = IUP_CENTER
 --------------------------------------------------------------------------------
 --/*
 --==== Keys
@@ -141,6 +131,24 @@ public constant K_SP = ' '
 public constant K_TAB = '\t'
 public constant K_UP = #FF52
 public constant K_g = 'g' -- 103
+--------------------------------------------------------------------------------
+--/*
+--==== Pre-Defined Masks
+--*/
+--------------------------------------------------------------------------------
+public constant IUP_MASK_FLOAT = "[+/-]?(/d+/.?/d*|/./d+)"
+public constant IUP_MASK_UFLOAT = "(/d+/.?/d*|/./d+)"
+public constant IUP_MASK_EFLOAT = "[+/-]?(/d+/.?/d*|/./d+)([eE][+/-]?/d+)?"
+public constant IUP_MASK_FLOATCOMMA = "[+/-]?(/d+/,?/d*|/,/d+)"
+public constant IUP_MASK_UFLOATCOMMA = "(/d+/,?/d*|/,/d+)"
+public constant IUP_MASK_INT = "[+/-]?/d+"
+public constant IUP_MASK_UINT = "/d+"
+/* Old definitions for backward compatibility */
+public constant IUPMASK_FLOAT = IUP_MASK_FLOAT
+public constant IUPMASK_UFLOAT = IUP_MASK_UFLOAT
+public constant IUPMASK_EFLOAT = IUP_MASK_EFLOAT
+public constant IUPMASK_INT = IUP_MASK_INT
+public constant IUPMASK_UINT = IUP_MASK_UINT
 --------------------------------------------------------------------------------
 --
 --=== Variables
@@ -1516,6 +1524,46 @@ end function
 -- Returns: the (**integer**) identifier of the created element, or //NULL// if an error occurs.
 --*/
 --------------------------------------------------------------------------------
+-- void IupTextConvertLinColToPos(Ihandle* ih, int lin, int col, int *pos)
+-- usage: IupTextConvertLinColToPos(ih, lin, col, &pos)
+--------------------------------------------------------------------------------
+public function IupTextConvertLinColToPos(Ihandle ih, sequence lnc) -- converts a (lin, col) character positioning into an absolute position
+    integer lin = lnc[1], col = lnc[2]
+    atom pos = allocate(sizeof(C_INT))
+    doC("IupTextConvertLinColToPos",
+                {C_POINTER, C_INT, C_INT, C_POINTER},
+                {ih, lin, col, pos})
+    integer ret = peek(pos)
+    free(pos)
+    return ret + 1 -- forced to be OE-compliant
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameters //lin// and //col// start at 1, //pos// also starts at 0.
+-- For single line controls //pos// is always //col-1//.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API void  IupTextConvertPosToLinCol(Ihandle* ih, int pos, int *lin, int *col);
+-- usage: IupTextConvertPosToLinCol(ih, pos, &lin, &col)
+--------------------------------------------------------------------------------
+public function IupTextConvertPosToLinCol(Ihandle ih, integer pos) -- converts an absolute position into a (lin, col) character positioning
+    integer sCI = sizeof(C_INT)
+    atom lin = allocate(sCI)
+    atom col = allocate(sCI)
+    doC("IupTextConvertPosToLinCol",
+                {C_POINTER, C_INT, C_POINTER, C_POINTER},
+                {ih, pos-1, lin, col}) -- IUP is zero-referenced
+    sequence ret = {peek(lin), peek(col)}
+    free(lin)
+    free(col)
+    return ret
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameters //lin// and //col// starts at 1, //pos// starts at 0.
+-- For single line controls lin is always 1, and col is always //pos+1//.
+--*/
+--------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupToggle     (const char* title, const char* action);
 --------------------------------------------------------------------------------
 public function IupToggle(string title = "", object action = NULL)  -- the toggle interface element
@@ -1808,7 +1856,9 @@ end function
 --------------------------------------------------------------------------------
 public function IupGetAttribute(Ihandle widget, string attr) -- gets an interface element attribute
     atom ret = doC("IupGetAttribute", {C_POINTER, C_POINTER}, {widget, allocate_string(attr)}, C_POINTER)
-    return peek_string(ret)
+    if ret = NULL then return ""
+    else return peek_string(ret)
+    end if
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1955,6 +2005,19 @@ end function
 -- Use upper-case for the attribute and for many of the values.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API void      IupSetStrf        (Ihandle* ih, const char* name, const char* format, ...);
+--------------------------------------------------------------------------------
+public procedure IupSetStrf(Ihandle ih, string name, string format, object data) -- formatted-string version of IupSetAttribute
+    IupSetAttribute(ih, name, sprintf(format, data))    
+end procedure
+--------------------------------------------------------------------------------
+--/*
+-- This is alternative approach to the IUP void function,
+-- using OE's ##sprintf## and ##IupSetAttribute##.
+--
+-- The data variable is formatted before assigning to the specified attribute.
+--*/
+--------------------------------------------------------------------------------
 --/*
 --==== Call back handling
 --*/
@@ -2099,6 +2162,19 @@ public function IupImageLibOpen() -- opens a library of pre-defined stock images
     return 0
 end function
 --------------------------------------------------------------------------------
+-- Ihandle *IupSetFocus(Ihandle *ih);
+--------------------------------------------------------------------------------
+public function IupSetFocus(Ihandle ih) -- sets the interface element that will receive the keyboard focus, i.e. the element that will receive keyboard events
+    return doC("IupSetFocus", {C_POINTER}, {ih}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- an **Ihandle**: the identifier of the interface element that
+-- previously had the keyboard focus.
+--*/
+--------------------------------------------------------------------------------
 --/*
 -- == Layout (hierarchy)
 --*/
@@ -2129,6 +2205,22 @@ end function
 -- or -1 if the child is not found.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupGetDialogChild(Ihandle* ih, const char* name);
+--------------------------------------------------------------------------------
+public function IupGetDialogChild(Ihandle ih, string name) -- returns the identifier of the child element that has the NAME attribute equals to the given value on the same dialog hierarchy
+    return doC("IupGetDialogChild", {C_POINTER, C_POINTER},
+                {ih, allocate_string(name)}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Works also for children of a menu that is associated with a dialog.
+--
+-- Returns:
+--
+-- a **Ihandle: to the relevant child element, or
+-- //NULL// if not found.
+--*/
+-------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupGetParent    (Ihandle* ih);
 --------------------------------------------------------------------------------
 public function IupGetParent(Ihandle widget) -- gets the parent of a widget
@@ -2215,6 +2307,58 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.56
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.02.06
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupTextConvertLinColToPos## modified
+--  * ##IupTextConvertPosToLinCol## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.55
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.02.05
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupTextConvertLinColToPos## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.54
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.02.03
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetDialogChild## defined
+--  * ##IupSetStrf## defined - single value temporarily
+--  * IupPopup and IupShowXY Parameter Values added
+--  * Pre-Defined Masks added
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.53
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.02.03
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetAttribute## modified
+--  * ##IupVersion## defined
+--  * ##IupVersionShow## defined
+--  * ##IupVersionDate## defined
+--  * ##IupVersionNumber## modified
+--  * ##IupIsOpened## defined
+--  * ##IupGetLanguage## defined
+--  * **Ihandle** defined
+--  * added (as comment) the C-language definitions
+--  * changed all **Ihandle** refs to **atom** and //C_POINTER//
+--  * ##IupLoopStep## defined
+--  * ##IupLoopStepWait## defined
+--  * ##IupPostMessage## defined
+--  * ##IupGetColor## defined
+--  * ##IupClassInfoDialog## defined
+--  * ##IupParamBox## defined
+--  * ##IupLayoutDialog## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.52
 -- Euphoria Verion: v4.0.5 and later
