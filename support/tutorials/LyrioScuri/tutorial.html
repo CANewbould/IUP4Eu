@@ -575,5 +575,114 @@ Index<br />
 <p> The additional lines add the new callback registrations. Also we added have added "..." to the text of the menu items. This is not mandatory, but is highly recommended by common User Interface Guidelines. Note also that the main dialog is now bigger - to make it of more general applicability.</p>
 
 <p> So the result is a brand new text editor, crated and serviced using IUP. But what happens if the dialog you need is not provided by IUP as a predefined dialog? That will be the subject of our next section.</p>
+
+<a name="_14_34customdialogs"></a><a name="34customdialogs"></a><h3>3.4 Custom Dialogs</h3>
+<p> We saw in the previous section that IUP provides predefined dialogs that can be utilised in applications to save a lot of development time. But if the dialog your application needs is not one of IUP's predefined dialogs, then you have to build your own dialog. The good news is that you have already covered this when building the main dialog. The tricky part is how to handle more than one dialog at the same time.</p>
+
+<p> For this we shall add two new items to a new <em>Edit</em> menu: <em>Find</em> and <em>Go To</em>. <em>Find</em> will search the multitext contents while looking for a string and highlight it when found. It will search for this string many times, and the search can also be case sensitive. The purpose of <em>Go To</em> is to (re-)position the caret to a specific line in the text.</p>
+
+<p> These additions may seem relatively simple, but they involve quite a lot of steps, some quite detailed. These also involve several "new" ideas and raise a number of fundamental aspects of programming using IUP. So, the strategy here is to break down the new features into chunks, where each addition is outlined before the code blocks are introduced.</p>
+
+<p> Before doing even that, however, a few observations might be in order. Generally speaking, most problems in IUP have more than one solution, so the approach described here is by no means the only one. Additionally, sometimes it is easier to address an issue using a feature of the "carrier" language, rather than through IUP itself. Bits of both approaches can sometimes be the best solution, if not the purest. For any solution you can probably think of another one!</p>
+
+<p> It is probably true to say that IUP's capacity to solve problems is mainly delivered using the <em>attribute</em> concept. Each iteration of IUP adds more attribute properties to established controls. If you read the "Attributes" entry in IUP's documentation you can clearly discern a close mapping with OOP: inheritance and "property" values, along with accessor and mutator actions, through variants of "IupGetAttribute" and "IupSetAttribute". What is explicit is that setting an attribute usually has an "action" associated with it; what isn't explicit is that an IUP user can exploit these facilities to define her/his own attributes.</p>
+
+<p> Now back to the "plot".</p>
+
+<p> The code from Section 3.3 first needs the addition of the identifiers to add the menu and items, as follows:</p>
+
+<pre class="examplecode"><font color="#330033">item_find = IupItem</font><font color="#880033">(</font><font color="#330033">"Find.."</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#330033">    item_goto = IupItem</font><font color="#880033">(</font><font color="#330033">"Go To..."</font><font color="#880033">)</font><font color="#330033">,</font>
+<font color="#FF0055">    --</font>
+<font color="#0000FF">    atom </font><font color="#330033">edit_menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
+<font color="#330033">                item_find,</font>
+<font color="#330033">                item_goto</font>
+<font color="#993333">        }</font><font color="#880033">)</font>
+<font color="#FF0055">    --</font>
+<font color="#0000FF">    atom </font><font color="#330033">sub_menu_edit = IupSubmenu</font><font color="#880033">(</font><font color="#330033">"Edit"</font><font color="#330033">, edit_menu</font><font color="#880033">)</font>
+</pre>
+
+<p> plus the menu-definitional change:</p>
+
+<pre class="examplecode"><font color="#0000FF">atom </font><font color="#330033">menu = IupMenu</font><font color="#880033">(</font><font color="#993333">{</font>
+<font color="#330033">        sub_menu_file,</font>
+<font color="#330033">        sub_menu_edit, </font><font color="#FF0055">-- addition</font>
+<font color="#330033">        sub_menu_format, </font>
+<font color="#330033">        sub_menu_help</font>
+<font color="#993333">        }</font><font color="#880033">)</font>
+</pre>
+
+<p> These additions can be found as <em>example3_4a.exw</em>. Each additional line has been annotated by comment and you can try it out by running this code.</p>
+
+<a name="_15_341thefindoption"></a><a name="341thefindoption"></a><h4>3.4.1 The find option</h4>
+<p> Let's now "design" the process we wish to add to effect a search facility.</p>
+
+<p> On clicking the menu item we want to open a dedicated dialog to guide users through this process. We want this dialog to appear above our main dialog (this is known as a popup dialog), but not so as to cover it, and to contain within it several features:</p>
+<ul><li>a text control to receive the user's search text
+</li><li>a means of signifying if we want the search to be case-sensitive (we use a 'toggle' for this)
+</li><li>a means of signifying that the search text and toggle are to be actioned
+</li><li>a means of moving on to the next occurrence of the search text (we use a button for this)
+</li><li>a button to indicate that we have completed our search
+</li></ul>
+<p>We then want to lay out all these elements in a nice-looking manner.</p>
+
+<p> <tt>IupToggle</tt> is a two-state (on/off) button that, when selected, execute a callback. Toggles are normally used to set flags. In this case, we used it to allow the user to decide if the search will be case sensitive or not.</p>
+
+<p> Note also the use of <tt>IupFill</tt>. If you put an <tt>IupFill</tt> inside an <tt>IupHbox</tt>, it will expand between the two elements, pushing one to the left and the other to the right. Or if you put it in an <tt>IupVbox</tt>, above a element, it will push the element all the way down. In our case, <tt>IupFill</tt> is being used to push the buttons to the right, inside our <tt>IupHbox</tt>.</p>
+
+<p> Note that our new dialog has a lot of new parameters set. <em>DIALOGFRAME</em> will remove minbox, maxbox, and it will resize from the corner of the dialog. This will provide reduced functionality but still giving a standard dialog box appearance. <em>DEFAULTENTER</em> defines a button to be activated when the users presses ENTER, in this case it will have the same effect as pressing the <em>bt_next</em> button. DEFAULTESC works the same way for the ESC key by activating the <em>bt_close</em> button. If you use these facilities you may well see, in the GUI, a simulated button-press!</p>
+
+<p> The bare bones of the relevant code are shown in <em>example3_4b.exw</em>. Again the newly-added code is annotated with comment.</p>
+
+<p> To complete this step an event-handler callback routine has been added to respond to the <em>item_find</em> selection. As yet, all it does is check that the <em>find_dlg</em> dialog opens and looks OK.</p>
+
+<p> A more elaborate naming convention has been adopted for this callback routine, as a marker that there are more events than "ACTION"!</p>
+
+<p> Finally a further callback routine enables the "Find" dialog to be closed. Note that the dialog is hidden rather than destroyed, so it remains available for future calls and doesn't have to be re-created.</p>
+
+<p> There is quite a lot to take in here, but do try to understand the approach. Obviously we need another callback for <em>bt_next</em>, which initiates the find/search process.</p>
+
+<p> Here are some specific things to think about before proceding:</p>
+<ul><li>the switch to using the <strong>Ihandle</strong> type to define these new IUP widgets
+</li><li>restricting variable assignment to those controls that are referenced elsewhere
+</li><li>how attribute values are used both to smarten the layout and to set default 'ENTER' and 'esc' actions
+</li><li>placement of the 'popup' dialog and all its elements within the main body of the application rather than in a separate routine to ensure full visibility (not really ideal because the code is getting quite long!)
+</li></ul>
+<p>Before embarking on the next task a bit of a digression is needed. Euphoria has the built-in function <tt>match</tt> which returns the (starting) position of a search text in a source text. IUP, in its IupText element, has three concepts:</p>
+<ul><li><em>lin</em>: the line where a piece of (sub)text starts
+</li><li><em>col</em>: the column where a piece of (sub)text starts
+</li><li><em>pos</em>: the absolute position within the running text
+</li></ul>
+<p>You might think that the return value of <tt>match</tt> and <em>pos</em> are the same thing, but, unfortunately they are not. This is because Euphoria has a 1-based system of in-text location; the C-language is 0-based. In the Euphoria wrapper, therefore, we have adopted the Euphoria convention, but please note that this doesn't match the IUP documentation!</p>
+
+<p> Recall that not only do we wish our search facility to locate our "find" in the master text but also we wish to highlight it. That's why we need access to IUP's world, so that we can utilise IupText's attributes, including using the <em>lin</em> and <em>col</em> values.</p>
+
+<p> The stored <em>example3_4c</em> shows a way of addressing these issues and thus completes the <em>Find</em> option.</p>
+
+<p> The new steps are as follows.</p>
+
+<p> We add a little function that packs <tt>match</tt> to be case sensitive. A callback routine is added for <em>bt_next</em> and this is where all the remaining 'search' action goes. Each line has been annotated in the code block to aid understanding.</p>
+
+<p> To finish off this extension to the notepad, another button has been added to the find dialog, to enable the user to "reset" - start a [new] search from the start of the source! (You will notice just how many bits-and-pieces need to be re-initialised.)</p>
+
+<p> Please try out this version to see how it delivers.</p>
+
+<p> Note also that the 'about' menu item now attributes the authors of all this work!</p>
+
+<a name="_16_342thegotooption"></a><a name="342thegotooption"></a><h4>3.4.2 The goto option</h4>
+<p> Here we want to be able to move to a specific line of text and will move the caret there.</p>
+
+<p> The complete code is here:</p>
+
+<pre class="examplecode"><font color="#FF0055">-- example3_4.exw</font>
+</pre>
+
+<p> Another way of packaging this application is offered in <em>example3_4x.exw</em>, where more separation of code blocks has been effected.</p>
+
+<p> If you have reached this point successfully, you might also consider looking at the IUP website and surveying this Tutorial there, and scrutinising the two solutions (C and Lua) presented.</p>
+
+<p> These exploit a rather hidden feature of IUP. All the documentation about attributes implies that only those listed for a given control element have any meaning and the <em>NULL</em> return value is merely a trap for mistakes! In fact you can define your own and set and get values. You can even test for the existence of one that you haven't yet defined - like a boolean test to see if something needs to be done.</p>
+
+<p> These solutions also embed the 'child' dialogs, including creation, inside callback functions. This entails quite a lot of getting and setting of layout hierarchy to create selective visibility of IUP elements in different code blocks. In Euphoria, use of scope rules seems a better route for us to take!</p>
 </p></p>
 </body></html>
