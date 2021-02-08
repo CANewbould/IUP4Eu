@@ -1,0 +1,287 @@
+-- example3_4d.exw
+
+-- Step 1: add the new menu elements
+-- Step 2: add the 'find' dialog
+-- Step 3: program the searching
+-- Step 4: add the 'goto' dialog
+
+include iup.ew
+include std/io.e -- for read_file, write_file
+include std/text.e -- for lower
+
+IupOpen()
+
+    atom multitext = IupText()
+    IupSetAttribute(multitext, "MULTILINE", "YES")
+    IupSetAttribute(multitext, "EXPAND", "YES")
+    IupSetAttribute(multitext, "FONT", "Arial, 12")
+
+    atom
+    item_open = IupItem("Open..."),
+    item_saveas = IupItem("Save As..."),
+    item_exit = IupItem("Exit"),
+    item_font = IupItem("Font..."),
+    item_find = IupItem("Find.."),
+    item_goto = IupItem("Go To..."),
+    item_about = IupItem("About...")
+
+    IupSetCallback(item_exit, "ACTION", Icallback("exit_cb"))
+    IupSetCallback(item_open, "ACTION", Icallback("open_cb"))
+    IupSetCallback(item_saveas, "ACTION", Icallback("saveas_cb"))
+    IupSetCallback(item_find, "ACTION", Icallback("item_find_action")) --v3_4b
+    IupSetCallback(item_goto, "ACTION", Icallback("item_goto_action")) -- v3_4d
+    IupSetCallback(item_font, "ACTION", Icallback("font_cb"))
+    IupSetCallback(item_about, "ACTION", Icallback("about_cb"))
+
+    function readfile(sequence filename)
+        object str = read_file(filename)
+        if atom(str) then
+            IupMessage("Error", sprintf("Cannot open file: %s", {filename}))
+            return 0
+        else
+            return str  
+        end if
+    end function
+
+    atom file_menu = IupMenu({
+                item_open,
+                item_saveas,
+                IupSeparator(),
+                item_exit
+        })
+
+    atom edit_menu = IupMenu({ -- v3_4a
+                item_find, -- v3_4a
+                item_goto -- v3_4a
+        }) -- v3_4a
+
+    atom format_menu = IupMenu({
+                item_font
+        })
+
+    atom help_menu = IupMenu({
+                item_about
+        })
+
+    atom sub_menu_file = IupSubmenu("File", file_menu)
+    atom sub_menu_edit = IupSubmenu("Edit", edit_menu) -- v3_4a
+    atom sub_menu_format = IupSubmenu("Format", format_menu)
+    atom sub_menu_help = IupSubmenu("Help", help_menu)
+
+    atom menu = IupMenu({
+        sub_menu_file, 
+        sub_menu_edit, -- v3_4a
+        sub_menu_format, 
+        sub_menu_help
+        })
+
+    atom vbox = IupVbox({
+        multitext
+        })
+
+    atom dlg = IupDialog(vbox)
+        IupSetAttributeHandle(dlg, "MENU", menu)
+        IupSetAttribute(dlg, "TITLE", "Simple Notepad")
+        IupSetAttribute(dlg, "SIZE", "HALFxHALF")
+
+        IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+        IupSetAttribute(dlg, "USERSIZE", NULL)
+
+    -- v3_4b start
+    Ihandle txt = IupText()
+        IupSetAttribute(txt, "NAME", "FIND_TEXT")
+        IupSetAttribute(txt, "VISIBLECOLUMNS", "20")
+    Ihandle find_case = IupToggle("Case Sensitive")
+        IupSetAttribute(find_case, "NAME", "FIND_CASE")
+    Ihandle bt_next = IupButton("Find Next")
+        IupSetAttribute(bt_next, "PADDING", "10x2")
+        IupSetCallback(bt_next, "ACTION", Icallback("bt_next_action")) --v3_4c
+    Ihandle bt_reset = IupButton("Go to start") -- v3.4c
+        IupSetAttribute(bt_reset, "PADDING", "10x2") -- v3.4c
+        IupSetCallback(bt_reset, "ACTION", Icallback("bt_reset_action")) --v3_4c
+    Ihandle bt_close = IupButton("Close")
+        IupSetAttribute(bt_close, "PADDING", "10x2")
+        IupSetCallback(bt_close, "ACTION", Icallback("bt_close_action")) --v3_4b
+    Ihandle box = IupVbox({
+        IupLabel("Find What:"),
+        txt,
+        find_case,
+        IupSetAttributes(IupHbox({
+        IupFill(),
+        bt_next,
+        bt_reset, -- v3.4c
+        bt_close}),
+        "NORMALIZESIZE=HORIZONTAL")})
+        IupSetAttribute(box, "MARGIN", "10x10")
+        IupSetAttribute(box, "GAP", "5")
+    Ihandle find_dlg = IupDialog(box)
+        IupSetAttribute(find_dlg, "TITLE", "Find")
+        IupSetAttribute(find_dlg, "DIALOGFRAME", "Yes")
+        IupSetAttributeHandle(find_dlg, "DEFAULTENTER", bt_next)
+        IupSetAttributeHandle(find_dlg, "DEFAULTESC", bt_close)
+    -- v3_4b end
+
+    -- v3_4d start
+    integer line_count = IupGetInt(multitext, "LINECOUNT")
+    Ihandle goto_lbl = IupLabel()
+    IupSetStrf(goto_lbl, "TITLE", "Line Number [1-%d]:", line_count)
+    Ihandle goto_txt = IupText()
+    IupSetAttribute(goto_txt, "MASK", IUP_MASK_UINT)
+    IupSetAttribute(goto_txt, "NAME", "LINE_TEXT")
+    IupSetAttribute(goto_txt, "VISIBLECOLUMNS", "20")
+    Ihandle goto_bt_ok = IupButton("OK")
+    IupSetInt(goto_bt_ok, "TEXT_LINECOUNT", line_count)
+    IupSetAttribute(goto_bt_ok, "PADDING", "10x2")
+    --IupSetCallback(goto_bt_ok, "ACTION", Icallback("goto_ok_action"))
+    Ihandle goto_bt_cancel = IupButton("Cancel")
+    IupSetCallback(goto_bt_cancel, "ACTION", Icallback("goto_cancel_action"))
+    IupSetAttribute(goto_bt_cancel, "PADDING", "10x2")
+    Ihandle goto_box = IupVbox({goto_lbl, goto_txt,
+                    IupSetAttributes(IupHbox({IupFill(), goto_bt_ok, goto_bt_cancel}),
+                                    "NORMALIZESIZE=HORIZONTAL")})
+    IupSetAttribute(goto_box, "MARGIN", "10x10")
+    IupSetAttribute(goto_box, "GAP", "5")
+    Ihandle goto_dlg = IupDialog(goto_box)
+    IupSetAttribute(goto_dlg, "TITLE", "Go To Line")
+    IupSetAttribute(goto_dlg, "DIALOGFRAME", "Yes")
+    IupSetAttribute(goto_dlg, "DEFAULTENTER", goto_bt_ok)
+    IupSetAttribute(goto_dlg, "DEFAULTESC", goto_bt_cancel)
+    IupSetAttributeHandle(goto_dlg, "PARENTDIALOG", dlg)
+    -- v3_4d end
+
+    IupMainLoop()
+IupClose()
+
+function writefile(sequence filename, sequence lines)
+    atom fn = open(filename, "w")
+    if fn = 0 then
+        IupMessage("Error", sprintf("Cannot open file: %s", {filename}))
+        return 0
+    else
+        write_file(filename, lines)
+        return 1
+    end if
+end function
+
+function open_cb()
+    atom filedlg = IupFileDlg()
+    IupSetAttribute(filedlg, "DIALOGTYPE", "OPEN")
+    IupSetAttribute(filedlg, "EXTFILTER", "Text Files|*.txt||All Files|*.*|")
+
+    IupPopup(filedlg, IUP_CENTER, IUP_CENTER)
+
+    if not IupGetInt(filedlg, "STATUS") = 1 then
+        sequence filename = IupGetAttribute(filedlg, "VALUE")
+        object str = readfile(filename)
+        if sequence(str) then
+            IupSetAttribute(multitext, "VALUE", str)
+        end if
+    end if
+    IupDestroy(filedlg)
+    return IUP_DEFAULT
+end function
+
+function saveas_cb()
+    atom filedlg = IupFileDlg()
+    IupSetAttribute(filedlg, "DIALOGTYPE", "SAVE")
+    IupSetAttribute(filedlg, "EXTFILTER", "Text Files|*.txt|All Files|*.*|")
+
+    IupPopup(filedlg, IUP_CENTER, IUP_CENTER)
+
+    sequence filename = IupGetAttribute(filedlg, "VALUE")
+    sequence str = IupGetAttribute(multitext, "VALUE")
+    integer count = IupGetInt(multitext, "COUNT")
+    writefile(filename, str)
+
+    IupDestroy(filedlg)
+    return IUP_DEFAULT
+end function
+
+function font_cb()
+    atom fontdlg = IupFontDlg()
+    sequence font = IupGetAttribute(multitext, "FONT")
+    IupSetStrAttribute(fontdlg, "VALUE", font)
+    IupPopup(fontdlg, IUP_CENTER, IUP_CENTER)
+
+    if IupGetInt(fontdlg, "STATUS") = 1 then
+        font = IupGetAttribute(fontdlg, "VALUE")
+        IupSetStrAttribute(multitext, "FONT", font)
+    end if
+
+    IupDestroy(fontdlg)
+    return IUP_DEFAULT
+end function
+
+function about_cb() 
+    -- v3_4c - start
+    IupMessage("About",
+                "Simple Notepad\n\nAuthors:\n   Gustavo Lyrio\n   Antonio Scuri"
+                & "\n\nEuphoria coding by:\n   Charles Newbould")
+    -- v3_4c - end
+    return IUP_DEFAULT
+end function
+
+function exit_cb()
+    return IUP_CLOSE
+end function
+
+-- v3_4b start
+function item_find_action()
+    IupPopup(find_dlg, IUP_CENTERPARENT, IUP_CENTERPARENT)
+    return IUP_DEFAULT
+end function
+
+function bt_close_action()
+    IupHide(find_dlg) --is this the best choice?
+    return IUP_DEFAULT
+end function
+-- v3_4b end
+
+-- v3_4c start
+function strFind(sequence str, sequence str_to_find, integer casesensitive, integer start)
+    if casesensitive then return match(str_to_find, str, start)
+    else return match(lower(str_to_find), lower(str), start)
+    end if
+end function
+
+integer curr_pos = 0
+
+function bt_next_action()
+    string source = IupGetAttribute(multitext, "VALUE") -- the source text
+    curr_pos = IupGetInt(multitext, "FIND_POS") -- the starting point of the (next) search
+    string to_find = IupGetAttribute(txt, "VALUE") -- what to search for
+    integer casesensitive = IupGetInt(find_case, "VALUE") -- is case-sensitive?
+    integer len = length(to_find) -- just to shorten what comes
+    integer found = strFind(source, to_find, casesensitive, curr_pos+1) -- pos of match
+    if found then -- what to do if found
+        IupSetAttribute(multitext, "SELECTIONPOS", -- highlight
+                    sprintf("%d:%d", {found-1, found+len-1}))
+        curr_pos = found + len -- shift to enable new search
+        IupSetInt(multitext, "FIND_POS", curr_pos) -- update location
+    else -- what to do if not found
+        IupMessage(to_find, "No [more] found!") -- info message
+    end if
+    return IUP_DEFAULT
+end function
+
+function bt_reset_action()
+    curr_pos = 0
+    IupSetInt(multitext, "FIND_POS", curr_pos) -- update location
+    IupSetAttribute(txt, "VALUE", "") -- empty search box
+    IupSetAttribute(multitext, "SELECTION", "NONE") -- undo highlighting
+    IupSetFocus(txt) -- made ready for next key input
+    return IUP_DEFAULT
+end function
+-- v3_4c end
+
+-- v3_4d start
+function item_goto_action()
+    IupPopup(goto_dlg, IUP_CENTERPARENT, IUP_CENTERPARENT)
+    return IUP_DEFAULT
+end function
+
+function goto_cancel_action()
+    IupSetAttribute(goto_dlg, "STATUS", "0") -- for trapping elsewhere
+    return IUP_CLOSE
+end function
+-- v3_4d end
