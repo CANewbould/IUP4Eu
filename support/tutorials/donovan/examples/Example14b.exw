@@ -1,14 +1,13 @@
--- Example 14a
+-- Example 14b
 -- using lists
 
 include iup.ew
 include std/types.e
-include std/utils.e
 
 IupOpen()
 
-function list_action(Ihandle ih, integer ptrtext, integer item, boolean state)
-	printf(1, "%s %d %s\n", {peek_string(ptrtext), item, iif(state, "ON", "OFF")})
+function list_dblclk(Ihandle ih, integer item, integer ptr2name)
+	printf(1, "%s %d\n", {peek_string(ptr2name), item})
 	return IUP_DEFAULT
 end function
 
@@ -16,9 +15,10 @@ Ihandle
 	list = IupList(),
 	dlg = IupDialog(list)
 IupSetAttributes(list, "1=Horses, 2=Dogs, 3=Pigs, 4=Humans")
-IupSetCallback(list, "ACTION", Icallback("list_action"))
+IupSetCallback(list, "DBLCLICK_CB", Icallback("list_dblclk"))
 IupSetAttributes(dlg, "TITLE=Lists, SIZE=QUARTERxQUARTER")
 IupSetAttribute(list, "APPENDITEM", "Cow")
 IupShow(dlg)
+IupSetAttribute(list, "APPENDITEM", "Mules")
 IupMainLoop()
 IupClose()

@@ -2,7 +2,7 @@
 -- Using a Gauge
 
 include iup.ew
-include std/text.e
+include std/text.e -- for sprint
 
 IupOpen()
 constant timer = IupTimer(),
@@ -49,4 +49,4 @@ IupSetAttribute(dlg, "SIZE", "200x100")
 IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
 IupMainLoop()
 IupClose()
-­1.0
+ï¿½1.0
