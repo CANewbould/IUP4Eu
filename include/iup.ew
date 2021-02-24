@@ -13,13 +13,16 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.57
+--[[[Version: 4.0.5.59
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.02.07
+-- Date: 2021.02.24
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupTextConvertLinColToPos## modified further
+--  * ##IupGetFocus## defined
+--  * ##IupNextField## defined
+--  * ##IupPreviousField## defined
+--  * more K-constants added
 --
 ------
 --
@@ -113,24 +116,59 @@ public constant IUP_BUTTON5 = '5'
 --==== Keys
 --*/
 --------------------------------------------------------------------------------
+public constant K_ampersand = '&'
+public constant K_apostrophe = '\''
 public constant K_asterisk = '*'
+public constant K_at = '@'
+public constant K_bar = '|'
+public constant K_braceleft ='{'
+public constant K_braceright ='}'
+public constant K_backslash = '\\'
+public constant K_bracketleft ='['
+public constant K_bracketright =']'
 public constant K_BS = 8
+public constant K_circum = '^'
+public constant K_colon = ':'
+public constant K_comma = ','
 public constant K_CR = '\r'
 public constant K_DEL = #FFFF
+public constant K_dollar = '$'
 public constant K_DOWN = #FF54
 public constant K_END = #FF57
+public constant K_equal = '='
 public constant K_ESC = #FF1B
+public constant K_exclam = '!'
+public constant K_grave = '`'
+public constant K_greater = '>'
 public constant K_HOME = #FF50
 public constant K_INS = #FF63
 public constant K_LEFT = #FF51
+public constant K_less = '<'
 public constant K_MIDDLE = #FF0B
+public constant K_minus = '-'
+public constant K_numbersign = '#'
+public constant K_parentleft = '('
+public constant K_parentright = ')'
+public constant K_percent = '%'
+public constant K_period = '.'
 public constant K_PGDN = #FF56
 public constant K_PGUP = #FF55
+public constant K_plus = '+'
+public constant K_question = '?'
+public constant K_quotedbl = '"'
 public constant K_RIGHT = #FF53
+public constant K_semicolon = ';'
+public constant K_slash = '/'
 public constant K_SP = ' '
 public constant K_TAB = '\t'
+public constant K_tilde = '~'
+public constant K_underscore = '_'
 public constant K_UP = #FF52
-public constant K_g = 'g' -- 103
+public enum K_0 = '0', K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9
+public enum K_A = 'A', K_B, K_C, K_D, K_E, K_F, K_G, K_H, K_I, K_J, K_K, K_L,
+            K_M, K_N, K_O, K_P, K_Q, K_R, K_S, K_T, K_U, K_V, K_W, K_X, K_Y, K_Z
+public enum K_a = 'a', K_b, K_c, K_d, K_e, K_f, K_g, K_h, K_i, K_j, K_k, K_l,
+            K_m, K_n, K_o, K_p, K_q, K_r, K_s, K_t, K_u, K_v, K_w, K_x, K_y, K_z
 --------------------------------------------------------------------------------
 --/*
 --==== Pre-Defined Masks
@@ -340,7 +378,7 @@ end function
 -- IUP_API int  IupAlarm(const char *title, const char *msg, const char *b1, const char *b2, const char *b3);
 --------------------------------------------------------------------------------
 public function IupAlarm(string title, string mess, string b1, object b2 = NULL, object b3 = NULL)
-	sequence arg = repeat(0, 5)
+	sequence arg = repeat(NULL, 5)
 	arg[1] = allocate_string(title)
 	arg[2] = allocate_string(mess)
 	arg[3] = allocate_string(b1)
@@ -350,7 +388,8 @@ public function IupAlarm(string title, string mess, string b1, object b2 = NULL,
 			arg[5] = allocate_string(b3)
 		end if
 	end if
-	return doC("IupAlarm", {C_POINTER, C_POINTER, C_POINTER, C_POINTER, C_POINTER}, arg, C_INT)
+?arg    
+	return doC("IupAlarm", repeat(C_POINTER, 5), arg, C_INT)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -465,8 +504,11 @@ end function
 -- IUP_API int  IupGetFile(char *arq);
 --------------------------------------------------------------------------------
 public function IupGetFile(string filename) -- shows a modal dialog of the native interface system to select a filename
-    atom fn = allocate_string(filename)
-    return {doC("IupGetFile", {C_POINTER}, {fn}, C_INT), peek_string(fn)}
+    atom pn = allocate(4096) -- maximum specified in IUP documentation
+    poke(pn, filename & NULL) -- previous version failed to allocate enow space
+    sequence result = {doC("IupGetFile", {C_POINTER}, {pn}, C_INT), peek_string(pn)}
+    free(pn)
+    return result
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -2162,6 +2204,46 @@ public function IupImageLibOpen() -- opens a library of pre-defined stock images
     return 0
 end function
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupGetFocus     (void);
+--------------------------------------------------------------------------------
+--/*
+--==== Keyboard
+--*/
+--------------------------------------------------------------------------------
+public function IupGetFocus() -- returns the identifier of the interface element that has the keyboard focus
+    return doC("IupGetFocus", , , C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- an **Ihandle**: the element with focus or NULL if no element has the focus.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupNextField    (Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupNextField(Ihandle ih) -- shifts the focus to the next element that can have the focus
+    return doC("IupNextField", {C_POINTER}, {ih}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- an **Ihandle**: the element that received the focus or NULL if not found.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupPreviousField(Ihandle* ih);
+--------------------------------------------------------------------------------
+public function IupPreviousField(Ihandle ih) -- shifts the focus to the previous element that can have the focus
+    return doC("IupPreviousField", {C_POINTER}, {ih}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- an **Ihandle**: the element that received the focus or NULL if not found.
+--*/
+--------------------------------------------------------------------------------
 -- Ihandle *IupSetFocus(Ihandle *ih);
 --------------------------------------------------------------------------------
 public function IupSetFocus(Ihandle ih) -- sets the interface element that will receive the keyboard focus, i.e. the element that will receive keyboard events
@@ -2307,6 +2389,22 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.58
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.02.20
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetFile## - error corrected: not enough space allocated for return value
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.57
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.02.07
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupTextConvertLinColToPos## modified further
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.56
 -- Euphoria Verion: v4.0.5 and later
