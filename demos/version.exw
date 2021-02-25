@@ -9,15 +9,13 @@
 --= Program: (iup4eu)(demos)version.exw
 -- Description: displays examples of all version-related routines 
 ------
---[[[Version: 4.0.5.0
+--[[[Version: 4.0.5.1
 --Euphoria Versions: 4.0.5 upwards 
 --Author: C A Newbould
---Date: 2021.02.03
+--Date: 2021.02.25
 --Status: operational
 --Changes:]]]
---* created
---* IupGetLanguage tested
---* IupIsOpen tested
+--* modified to work on a wider range of versions
 --
 --==IupVersion Example
 --
@@ -60,12 +58,17 @@ procedure main(string title)
     printf(1, "IupVersion: %s\n", {IupVersion()})
     printf(1, "IupVersionNumber: %.2f\n", {IupVersionNumber()})
     printf(1, "IupVersionDate: %s\n", {IupVersionDate()})
-    IupVersionShow()
+    if IupVersionNumber() >= 3.28 then IupVersionShow()
+    else puts(1, "Need v3.28 or later for 'IupVersionShow'\n")
+    end if
     IupClose()
     -- testing IupIsOpended
-    sequence mess
-    if IupIsOpened() then mess = "IUP still open" else mess = "IUP closed" end if
-    puts(1, mess & '\n')
+    if IupVersionNumber() >= 3.28 then
+        sequence mess
+        if IupIsOpened() then mess = "IUP still open" else mess = "IUP closed" end if
+        puts(1, mess & '\n')
+    else puts(1, "Need v3.28 or later for 'IupIsOpened'")
+    end if
     -- Program finished successfully
 end procedure
 --------------------------------------------------------------------------------
@@ -75,4 +78,13 @@ main("IupVersion Example")
 --------------------------------------------------------------------------------
 -- Previous versions
 --------------------------------------------------------------------------------
+--[[[Version: 4.0.5.0
+--Euphoria Versions: 4.0.5 upwards 
+--Author: C A Newbould
+--Date: 2021.02.03
+--Status: operational
+--Changes:]]]
+--* created
+--* IupGetLanguage tested
+--* IupIsOpen tested
 --------------------------------------------------------------------------------
