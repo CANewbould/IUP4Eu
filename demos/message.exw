@@ -6,7 +6,7 @@
 -- Tested successfully on v4.0.5 and on v4.1.0(32-bit and 64-bit)
 --------------------------------------------------------------------------------
 --/*
---= Program: (iup4eu)(demos)vbox.exw
+--= Program: (iup4eu)(demos)message.exw
 -- Description: displays examples of different types of messages 
 ------
 --[[[Version: 4.0.5.1
