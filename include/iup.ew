@@ -7,22 +7,20 @@
 --------------------------------------------------------------------------------
 -- Notes:
 --
+-- All containers and controls wrapped
 -- Need to check all peek_string calls are from C_POINTERS
 --------------------------------------------------------------------------------
 --/*
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.59
+--[[[Version: 4.0.5.62
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.02.24
+-- Date: 2021.03.04
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupGetFocus## defined
---  * ##IupNextField## defined
---  * ##IupPreviousField## defined
---  * more K-constants added
+--  * ##IupGetText## error corrected
 --
 ------
 --
@@ -287,7 +285,7 @@ end function
 --
 --Returns:
 --
--- an **atom**: the handle to the shared library
+-- an **integer**: IUP_OPENED (already opened), IUP_ERROR or IUP_NOERROR
 --
 -- Notes:
 --
@@ -585,9 +583,12 @@ end function
 -- IUP_API int  IupGetText(const char* title, char* text, int maxsize);
 --------------------------------------------------------------------------------
 public function IupGetText(string title, string text, integer maxsize=10240) -- shows a modal dialog to edit a multiline text
-    atom tn = allocate_string(text)
-    return {doC("IupGetText", {C_POINTER, C_POINTER, C_INT},
-                {allocate_string(title), tn, maxsize}, C_INT), peek_string(tn)}
+    atom pn = allocate(maxsize) -- need to allocate enough for response
+    poke(pn, text & NULL) -- previous version failed to allocate enow space
+    sequence result = {doC("IupGetText", {C_POINTER, C_POINTER, C_INT},
+                {allocate_string(title), pn, maxsize}, C_INT), peek_string(pn)}
+    free(pn)
+    return result
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1040,6 +1041,7 @@ end function
 -- The control inherits from IupBackgroundBox.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupFlatScrollBox(Ihandle* child);
 --------------------------------------------------------------------------------
@@ -1055,6 +1057,7 @@ end function
 -- The difference from ##IupScrollBox## is that its scrollbars are drawn.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupFlatTabs   (Ihandle* first, ...);
 --------------------------------------------------------------------------------
@@ -1074,6 +1077,24 @@ end function
 -- drawn. It inherits from ##IupCanvas##.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatVal   (Ihandle* const char *orientation);
+--------------------------------------------------------------------------------
+public function IupFlatVal(object orientation = NULL)	-- creates a Valuator control, but it does not have native decorations
+    if string(orientation) then orientation = allocate_string(orientation) end if
+    return doC("IupFlatVal", C_POINTER, {orientation}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- It behaves just like an IupVal, but since it is not a native control it has
+-- more flexibility for additional options. But ticks are NOT supported.
+--
+-- Parameter: ##orientation## - optional orientation of valuator.
+-- It can be NULL - see ORIENTATION attribute.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupFrame      (Ihandle* child);
 --------------------------------------------------------------------------------
@@ -1087,6 +1108,7 @@ end function
 -- It can be NULL.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupGridBox    (Ihandle* child, ...);
 --------------------------------------------------------------------------------
@@ -1320,6 +1342,22 @@ end function
 --==== Controls
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupAnimatedLabel(Ihandle* animation);
+--------------------------------------------------------------------------------
+public function IupAnimatedLabel(Ihandle animation) -- creates an animated label interface element, which displays an image that is changed periodically
+    return doC("IupAnimatedLabel", {C_POINTER}, animation, C_POINTER)
+end function    
+--------------------------------------------------------------------------------
+--/*
+-- Parameter:
+--# //animation//: element that contains the list of images. It can be NULL.
+--
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error
+-- occurs.
+--*/
+--------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupButton     (const char* title, const char* action);
 --------------------------------------------------------------------------------
 public function IupButton(string title = "", object action = NULL)  -- creates a button interface element, which displays a separator, a text or an image
@@ -1375,6 +1413,70 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupColorBrowser(void)
+--------------------------------------------------------------------------------
+public function IupColorBrowser() -- creates an element for selecting a colour
+    return doC("IupColorBrowser", , , C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- Note:
+--
+--The selection is done using a cylindrical projection of the RGB cube.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupDatePick   (void)
+--------------------------------------------------------------------------------
+public function IupDatePick() -- creates a date editing interface element, which can displays a calendar for selecting a date
+    return doC("IupDatePick", , , C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupDial       (const char* type)
+--------------------------------------------------------------------------------
+public function IupDial(string orientation) -- creates a dial for regulating a given angular variable
+    return doC("IupDial", {C_POINTER}, {allocate_string(orientation)}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter: 
+--# //orientation//: optional dial orientation, can be NULL; 
+--  see ORIENTATION attribute
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupDropButton (Ihandle* dropchild);
+--------------------------------------------------------------------------------
+public function IupDropButton(Ihandle dropchild) -- creates an interface element that is a button with a drop down arrow
+    return doC("IupDropButton", {C_POINTER}, {dropchild}, C_POINTER)    
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter:
+--# //dropchild//: identifier of an interface element to be displayed when the
+--  dropdown is activated. It can be NULL.
+--
+-- Returns: the identifier of the created element, or NULL if an error occurs.
+--
+-- Notes:
+--
+-- //dropchild// is not a regular child of the dropbutton.
+-- It will be displayed inside a dialog with no decorations.
+--*/
+--------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupFill (void);
 --------------------------------------------------------------------------------
 public function IupFill() 	-- creates a void element, which dynamically occupies empty spaces always trying to expand itself
@@ -1401,6 +1503,89 @@ end function
 --# //title//: the text to be shown on the button.
 -- It can be EMPTY. It will set the TITLE attribute.
 --
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error
+-- occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatLabel  (const char* title)
+--------------------------------------------------------------------------------
+public function IupFlatLabel(string title = "")  -- creates an interface element that is a label, but it does not have native decorations
+	return doC("IupFlatLabel", {C_POINTER}, {allocate_string(title)}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter:
+--# //title//: the text to be shown  to the user.
+-- It can be EMPTY. It will set the TITLE attribute.
+--
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error
+-- occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatList   (void)
+--------------------------------------------------------------------------------
+public function IupFlatList()  -- creates an interface element that displays a list of items, but it does not have native decorations
+	return doC("IupFlatList", , , C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error
+-- occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatSeparator(void)
+--------------------------------------------------------------------------------
+public function IupFlatSeparator()  -- creates an interface element that is a Separator, but it does not have native decorations
+	return doC("IupFlatSeparator", , , C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error
+-- occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatToggle (const char* title)
+--------------------------------------------------------------------------------
+public function IupFlatToggle(string title = "")  -- creates an interface element that is a toggle, but it does not have native decorations
+	return doC("IupFlatLabel", {C_POINTER}, {allocate_string(title)}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter:
+--# //title//: the text to be shown  to the user.
+-- It can be EMPTY. It will set the TITLE attribute.
+--
+-- Returns:
+--
+-- the (**integer**) identifier of the created element, or NULL if an error
+-- occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupFlatTree   (void)
+--------------------------------------------------------------------------------
+public function IupFlatTree()  -- creates a tree containing nodes of branches or leaves
+	return doC("IupFlatTree", , , C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
 -- Returns:
 --
 -- the (**integer**) identifier of the created element, or NULL if an error
@@ -1667,7 +1852,7 @@ public function IupVal(object orientation = NULL) -- creates a Valuator control
     return doC("IupVal", {C_POINTER}, {orientation}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
---/*    end if
+--/*
 -- Selects a value in a limited interval.
 -- Also known as Scale or Trackbar in native systems.
 --
@@ -2389,6 +2574,41 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.61
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.03.03
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupFlatVal## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.60
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.03.02
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupAnimatedLabel## defined
+--  * ##IupDropButton## defined
+--  * ##IupColorBrowser## defined
+--  * ##IupDatePick## defined
+--  * ##IupDial## defined
+--  * ##IupFlatLabel## defined
+--  * ##IupFlatSeparator## defined
+--  * ##IupFlatToggle## defined
+--  * ##IupFlatTree## defined
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.59
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.02.24
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetFocus## defined
+--  * ##IupNextField## defined
+--  * ##IupPreviousField## defined
+--  * more K-constants added
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.58
 -- Euphoria Verion: v4.0.5 and later
