@@ -9,18 +9,21 @@
 --
 -- All containers and controls wrapped
 -- Need to check all peek_string calls are from C_POINTERS
+-- Layout Composition: hierarchy - first part done & checked
 --------------------------------------------------------------------------------
 --/*
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.62
+--[[[Version: 4.0.5.63
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.03.04
+-- Date: 2021.03.06
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupGetText## error corrected
+--  * ##IupAppend## defined
+--  * ##IupDetach## defined
+--  * ##Insert## defined
 --
 ------
 --
@@ -2442,8 +2445,79 @@ end function
 -- previously had the keyboard focus.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupTimer      (void);
+--------------------------------------------------------------------------------
+public function IupTimer() -- creates a timer which periodically invokes a callback when the time is up
+    return doC("IupTimer", , , C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Each timer should be destroyed using IupDestroy.
+--
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
+--
+-- See the IUP documentation for the appropriate set of Attributes.
+--*/
+--------------------------------------------------------------------------------
 --/*
 -- == Layout (hierarchy)
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupAppend       (Ihandle* ih, Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupAppend(Ihandle ih, Ihandle child) -- inserts an interface element at the end of the container, after the last element of the container
+    return doC("IupAppend", {C_POINTER, C_POINTER}, {ih, child}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameters: identifier of a container like hbox, vbox, zbox and menu;
+-- identifier of the element to be inserted
+--
+-- Returns:  the actual parent if the interface element was successfully
+-- inserted. Otherwise NULL.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API void      IupDetach       (Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupDetach(Ihandle child) -- detaches an interface element from its parent
+    return doC("IupDetach", {C_POINTER}, {child})
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter: identifier of the element to be detached
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupInsert       (Ihandle* ih, Ihandle* ref_child, Ihandle* child);
+--------------------------------------------------------------------------------
+public function IupInsert(Ihandle ih, Ihandle ref_child, Ihandle child) -- inserts an interface element before another child of the container
+    return doC("IupInsert", {C_POINTER, C_POINTER, C_POINTER}, {ih, ref_child, child}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameters: identifier of a container like hbox, vbox, zbox and menu;
+-- identifier of the element to be used as reference, which
+-- can be NULL - to insert as the first element;
+-- identifier of the element to be inserted (before the reference child)
+--
+-- Returns:  the actual parent if the interface element was successfully
+-- inserted. Otherwise NULL.
+--*/
+--------------------------------------------------------------------------------
+-- IUP_API int       IupReparent     (Ihandle* ih, Ihandle* new_parent, Ihandle* ref_child);
+--------------------------------------------------------------------------------
+public function IupReparent(Ihandle child, Ihandle new_parent, Ihandle ref_child)
+    return doC("IupReparent", {C_POINTER, C_POINTER, C_POINTER}, {child, new_parent, ref_child}, C_INT)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Moves an interface element from one position in the hierarchy tree to another.
+--
+-- Parameters: ##child##: Identifier of the element to be moved,
+-- ##new_parent##: Identifier of the new parent
+-- ##ref_child##: Identifier of the element to be used as reference, where
+-- the child will be inserted before it. It can be NULL.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API int       IupGetChildCount(Ihandle* ih);
@@ -2501,60 +2575,8 @@ end function
 -- if the widget does not have a parent.
 --*/
 --------------------------------------------------------------------------------
--- IUP_API int       IupReparent     (Ihandle* ih, Ihandle* new_parent, Ihandle* ref_child);
---------------------------------------------------------------------------------
-public function IupReparent(Ihandle child, Ihandle new_parent, Ihandle ref_child)
-    return doC("IupReparent", {C_POINTER, C_POINTER, C_POINTER}, {child, new_parent, ref_child}, C_INT)
-end function
---------------------------------------------------------------------------------
---/*
--- Moves an interface element from one position in the hierarchy tree to another.
---
--- Parameters: ##child##: Identifier of the element to be moved,
--- ##new_parent##: Identifier of the new parent
--- ##ref_child##: Identifier of the element to be used as reference, where
--- the child will be inserted before it. It can be NULL.
---*/
---------------------------------------------------------------------------------
--- IUP_API Ihandle*  IupTimer      (void);
---------------------------------------------------------------------------------
-public function IupTimer() -- creates a timer which periodically invokes a callback when the time is up
-    return doC("IupTimer", , , C_POINTER)
-end function
---------------------------------------------------------------------------------
---/*
--- Each timer should be destroyed using IupDestroy.
---
--- Returns:
---
--- the identifier of the created element, or NULL if an error occurs.
---
--- See the IUP documentation for the appropriate set of Attributes.
---*/
---------------------------------------------------------------------------------
 --/*
 -- == Layout (management)
---*/
---------------------------------------------------------------------------------
--- IUP_API Ihandle*  IupInsert       (Ihandle* ih, Ihandle* ref_child, Ihandle* child);
---------------------------------------------------------------------------------
-public function IupInsert(Ihandle container, Ihandle ref_child, Ihandle new_child) -- inserts an interface element before another child of the container
-    return doC("IupInsert", {C_POINTER, C_POINTER, C_POINTER}, {container, ref_child, new_child}, C_POINTER)
-end function
---------------------------------------------------------------------------------
---/*
--- Valid for any element that contains other elements like dialog, frame, hbox,
--- vbox, zbox, menu, etc.
---
--- Parameters: ##container## - identifier of the container interface element,
--- ##new_child## - identifier of the element to be used as reference.
--- Can be NULL to insert as the first element,
--- ##ref_child## - identifier of the element to be inserted before the reference.
---
--- Returns: the actual parent if the interface element was successfully inserted.
--- Otherwise returns NULL. Notice that the desired parent can
--- contains a set of elements and containers where the child will be actually
--- attached so the function returns the actual parent of the element.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API void      IupRefresh       (Ihandle* ih);
@@ -2574,6 +2596,14 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.62
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.03.04
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupGetText## error corrected
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.61
 -- Euphoria Verion: v4.0.5 and later
