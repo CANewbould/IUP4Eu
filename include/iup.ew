@@ -7,28 +7,23 @@
 --------------------------------------------------------------------------------
 -- Notes:
 --
--- All containers and controls wrapped
--- Need to check all peek_string calls are from C_POINTERS
--- Layout Composition: hierarchy - first part done & checked
+-- need to edit embedded documentation from IupImage onwards
 --------------------------------------------------------------------------------
 --/*
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.63
+--[[[Version: 4.0.5.64
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.03.06
+-- Date: 2021.07.04
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupAppend## defined
---  * ##IupDetach## defined
---  * ##Insert## defined
---
-------
+--  * errors in embedded documentation corrected
 --
 -- Details of earlier incremental changes can be found embedded in the source
 -- code at the end of this module, with the title "Previous Versions".
+------
 --
 --== The Euphoria IUP Wrapper
 --
@@ -195,9 +190,9 @@ public constant IUPMASK_UINT = IUP_MASK_UINT
 --------------------------------------------------------------------------------
 integer hIupSetAttribute, hIupSetCallback
 --------------------------------------------------------------------------------
---
+--/*
 --=== Types
---
+--*/
 --------------------------------------------------------------------------------
 type attrib(string this)
     for i = 1 to length(this) do
@@ -282,10 +277,6 @@ public function IupOpen()  -- initializes the IUP toolkit
 end function
 --------------------------------------------------------------------------------
 --/*
---Parameter:
---# //path//: any search path required to locate desired version of the shared
--- library [Default ""]
---
 --Returns:
 --
 -- an **integer**: IUP_OPENED (already opened), IUP_ERROR or IUP_NOERROR
@@ -334,7 +325,7 @@ end function
 --/*
 -- Returns:
 --
--- an **integer**: the version number including any bug fixes.
+-- a **string**: the version number including any bug fixes.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API char*     IupVersionDate   (void);
@@ -346,7 +337,7 @@ end function
 --/*
 -- Returns:
 --
--- an **integer**: the version date.
+-- a **string**: the version date.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API int       IupVersionNumber (void);
@@ -389,7 +380,7 @@ public function IupAlarm(string title, string mess, string b1, object b2 = NULL,
 			arg[5] = allocate_string(b3)
 		end if
 	end if
-?arg    
+?arg
 	return doC("IupAlarm", repeat(C_POINTER, 5), arg, C_INT)
 end function
 --------------------------------------------------------------------------------
@@ -436,11 +427,12 @@ end function
 -- For any interface element to be shown, it must be encapsulated in a dialog.
 --
 -- Parameter:
---# //child//: the (**integer**) identifier of an interface element. The dialog has only one child. It can be NULL.
+--# //child//: the (**Ihandle**) identifier of an interface element.
+-- The dialog has only one child. It can be NULL.
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error occurs.
+-- the (**Ihandle**) identifier of the created element, or NULL if an error occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -457,7 +449,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error occurs.
+-- the (**Ihandle**) identifier of the created element, or NULL if an error occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -469,12 +461,12 @@ public function IupFontDlg() -- creates the Font Dialog element
 end function
 --------------------------------------------------------------------------------
 --/*
---  It is a predefined dialog for selecting a font.
+-- It is a predefined dialog for selecting a font.
 -- The dialog can be shown with the IupPopup function only.
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error occurs.
+-- the (**Ihandle**) identifier of the created element, or NULL if an error occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -652,7 +644,7 @@ end function
 -- It simply creates and popup a IupMessageDlg with DIALOGTYPE=QUESTION.
 --
 -- Parameters:
---# //parent##: parent dialog, can be NULL
+--# //parent//: parent dialog, can be NULL
 --# //title//: the **string** to put in the title
 --# //message//: the **string** to put in the body of the dialog
 --# //buttons//: list of buttons- "OK", "OKCANCEL", "RETRYCANCEL", "YESNO",
@@ -662,7 +654,7 @@ end function
 --
 -- an **integer**: the number of the button selected by the user (1, 2 or 3).
 --*/
--------------------------------------------------------------------------------- 
+--------------------------------------------------------------------------------
 -- IUP_API void IupMessageError(Ihandle* parent, const char* message);
 --------------------------------------------------------------------------------
 public function IupMessageError(Ihandle parent = NULL, string message)  -- shows a modal dialog containing an error message
@@ -674,7 +666,7 @@ end function
 -- It simply creates and popup a IupMessageDlg with DIALOGTYPE=ERROR.
 --
 -- Parameters:
---# //parent##: parent dialog, can be NULL
+--# //parent//: parent dialog, can be NULL
 --# //message//: the **string** to put in the body of the dialog
 --
 -- Notes:
@@ -706,7 +698,7 @@ end function
 -- a **Ihandle**: the identifier of the created element, or NULL if an error occurs
 --*/
 --------------------------------------------------------------------------------
--- IUP_API Ihandle*  IupProgressBar(void);
+-- IUP_API Ihandle*  IupProgressDlg(void);
 --------------------------------------------------------------------------------
 public function IupProgressDlg() -- creates a progress dialog element
     return doC("IupProgressDlg", , , C_POINTER)
@@ -721,7 +713,7 @@ end function
 --
 -- An **Ihandle**: the identifier of the created element,
 -- or NULL if an error occurs.
---/*
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle* IupClassInfoDialog(Ihandle* parent);
 --------------------------------------------------------------------------------
@@ -859,7 +851,7 @@ end function
 --
 -- Returns:
 --
--- an **integer: one of IUP_NOERROR (if successful), IUP_INVALID
+-- an **integer**: one of IUP_NOERROR (if successful), IUP_INVALID
 -- (if not a dialog or menu); IUP_ERROR (if there was an error)
 --*/
 --------------------------------------------------------------------------------
@@ -893,15 +885,17 @@ public function IupShowXY(Ihandle dialog, integer x, integer y)   -- displays a 
     return doC("IupShowXY", {C_POINTER, C_INT, C_INT}, {dialog, x, y}, C_INT)
 end function
 --------------------------------------------------------------------------------
+--/*
 -- Displays a dialog in a given position on the screen. The values x and y give
 -- the horizontal and vertical positions respectively of the top left corner of
 -- the window, relative to the origin of the main screen.
 --
--- Parameters: //dlg// - identifier of the dialog;
--- //x//, //y// - co-ordinates from the top left corner of the window,
+-- Parameters:
+--# //dlg// - identifier of the dialog;
+--# //x//, //y// - co-ordinates from the top left corner of the window,
 -- relative to the origin of the main screen.
 --
--- The following definitions can also be used for ##x##:
+-- The following definitions can also be used for //x//:
 --* IUP_LEFT: Positions the dialog on the left corner of the main screen
 --* IUP_CENTER: Horizontally centralizes the dialog on the main screen
 --* IUP_RIGHT: Positions the dialog on the right corner of the main screen
@@ -909,13 +903,14 @@ end function
 --* IUP_CENTERPARENT: Horizontally centralizes the dialog relative to its parent (Since 3.0)
 --* IUP_CURRENT: use the current position of the dialog. This is the default value in Lua if the parameter is not defined. (Since 3.0)
 --
--- The following definitions can also be used for ##y##:
+-- The following definitions can also be used for //y//:
 --* IUP_TOP: Positions the dialog on the top of the main screen
 --* IUP_CENTER: Vertically centralizes the dialog on the main screen
 --* IUP_BOTTOM: Positions the dialog on the base of the main screen
 --* IUP_MOUSEPOS: Positions the dialog on the mouse position
 --* IUP_CENTERPARENT: Vertically centralizes the dialog relative to its parent (Since 3.0)
 --* IUP_CURRENT: use the current position of the dialog. This is the default value in Lua if the parameter is not defined.(Since 3.0)
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API void      IupDestroy      (Ihandle* ih)
 --------------------------------------------------------------------------------
@@ -947,7 +942,7 @@ end function
 -- destroy them when they are not used anymore.
 --
 -- All dialogs and all elements that have names are automatically destroyed when
--- #close## is invoked.
+-- ##IupClose## is invoked.
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -962,10 +957,11 @@ end function
 --------------------------------------------------------------------------------
 --/*
 -- Parameter:
---# ##child##: Identifier of an interface element which will receive the box.
+--# //child//: Identifier of an interface element which will receive the box.
 -- It can be NULL.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupCbox       (Ihandle* child, ...);
 --------------------------------------------------------------------------------
@@ -1093,7 +1089,8 @@ end function
 -- It behaves just like an IupVal, but since it is not a native control it has
 -- more flexibility for additional options. But ticks are NOT supported.
 --
--- Parameter: ##orientation## - optional orientation of valuator.
+-- Parameter:
+--# //orientation//: optional orientation of valuator.
 -- It can be NULL - see ORIENTATION attribute.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
@@ -1272,7 +1269,8 @@ end function
 --/*
 -- It inherits from {{{IupCanvas.}}}
 --
--- Parameter: ##child##: Identifier of an interface element,
+-- Parameter:
+--# //child//: Identifier of an interface element,
 -- which will receive the box. It can be NULL.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
@@ -1285,7 +1283,8 @@ public function IupTabs(sequence children = {})  -- creates a void container for
 end function
 --------------------------------------------------------------------------------
 --/*
--- Parameter: an array of compositional elements to be displayed in the box.
+-- Parameter:
+--# //children//: an array of compositional elements to be displayed in the box.
 -- It can be empty (the default).
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
@@ -1332,7 +1331,8 @@ end function
 --
 -- It does not have a native representation.
 --
--- Parameter: ##children##: Identifier of an interface element,
+-- Parameter:
+--# //children//: Identifier of an interface element,
 -- that will be placed in the box. It can be NULL.
 --
 -- Returns: the identifier of the created element, or NULL if an error occurs.
@@ -1349,7 +1349,7 @@ end function
 --------------------------------------------------------------------------------
 public function IupAnimatedLabel(Ihandle animation) -- creates an animated label interface element, which displays an image that is changed periodically
     return doC("IupAnimatedLabel", {C_POINTER}, animation, C_POINTER)
-end function    
+end function
 --------------------------------------------------------------------------------
 --/*
 -- Parameter:
@@ -1357,7 +1357,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --*/
 --------------------------------------------------------------------------------
@@ -1382,7 +1382,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1432,6 +1432,7 @@ end function
 --The selection is done using a cylindrical projection of the RGB cube.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
+--*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupDatePick   (void)
 --------------------------------------------------------------------------------
@@ -1452,8 +1453,8 @@ public function IupDial(string orientation) -- creates a dial for regulating a g
 end function
 --------------------------------------------------------------------------------
 --/*
--- Parameter: 
---# //orientation//: optional dial orientation, can be NULL; 
+-- Parameter:
+--# //orientation//: optional dial orientation, can be NULL;
 --  see ORIENTATION attribute
 --
 -- Returns:
@@ -1464,7 +1465,7 @@ end function
 -- IUP_API Ihandle*  IupDropButton (Ihandle* dropchild);
 --------------------------------------------------------------------------------
 public function IupDropButton(Ihandle dropchild) -- creates an interface element that is a button with a drop down arrow
-    return doC("IupDropButton", {C_POINTER}, {dropchild}, C_POINTER)    
+    return doC("IupDropButton", {C_POINTER}, {dropchild}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
 --/*
@@ -1508,7 +1509,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1527,7 +1528,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1542,7 +1543,7 @@ end function
 --/*
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1557,7 +1558,7 @@ end function
 --/*
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1576,7 +1577,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1591,7 +1592,7 @@ end function
 --/*
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1623,7 +1624,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error occurs.
+-- the (**Ihandle**) identifier of the created element, or NULL if an error occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -1642,7 +1643,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error occurs.
+-- the (**Ihandle**) identifier of the created element, or NULL if an error occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -1697,7 +1698,7 @@ end function
 --/*
 -- It does not have a native representation.
 --
--- When an IupFill is inside a IupVbox or IupHbox it will affect the expansion 
+-- When an IupFill is inside a IupVbox or IupHbox it will affect the expansion
 -- of the box because it is always expandable.
 -- Even when you set its size to a given value, it will still affect the layout,
 -- because it is always marked as an expandable element.
@@ -1707,7 +1708,9 @@ end function
 -- It can be expandable or not, EXPAND will work as a regular element.
 -- The attributes SIZE and RASTERSIZE can be normally set.
 --
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupSpin       (void);
@@ -1751,7 +1754,7 @@ end function
 --# ##action##: the name of the action generated when the user types something,
 -- or //NULL/.
 --
--- Returns: the (**integer**) identifier of the created element, or //NULL// if an error occurs.
+-- Returns: the (**Ihandle**) identifier of the created element, or //NULL// if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 -- void IupTextConvertLinColToPos(Ihandle* ih, int lin, int col, int *pos)
@@ -1769,7 +1772,9 @@ public function IupTextConvertLinColToPos(Ihandle ih, sequence lnc) -- converts 
 end function
 --------------------------------------------------------------------------------
 --/*
--- Parameters //lin// and //col// start at 1, //pos// also starts at 0.
+-- Parameters:
+--# //lin// and //col// starts at 1,
+--# //pos// starts at 0.
 -- For single line controls //pos// is always //col-1//.
 --*/
 --------------------------------------------------------------------------------
@@ -1790,7 +1795,9 @@ public function IupTextConvertPosToLinCol(Ihandle ih, integer pos) -- converts a
 end function
 --------------------------------------------------------------------------------
 --/*
--- Parameters //lin// and //col// starts at 1, //pos// starts at 0.
+-- Parameters:
+--# //lin// and //col// starts at 1,
+--# //pos// starts at 0.
 -- For single line controls lin is always 1, and col is always //pos+1//.
 --*/
 --------------------------------------------------------------------------------
@@ -1819,7 +1826,7 @@ end function
 --
 -- Returns:
 --
--- the (**integer**) identifier of the created element, or NULL if an error
+-- the (**Ihandle**) identifier of the created element, or NULL if an error
 -- occurs.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -1843,9 +1850,9 @@ end function
 -- The focus node is the node with the focus rectangle, marked nodes have their
 -- background inverted.
 --
--- Parameter: *none*
+-- Returns:
 --
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupVal        (const char *type);
@@ -1859,10 +1866,13 @@ end function
 -- Selects a value in a limited interval.
 -- Also known as Scale or Trackbar in native systems.
 --
--- Parameter: ##orientation## - optional orientation of valuator.
+-- Parameter:
+--# //orientation//: optional orientation of valuator.
 -- It can be NULL - see ORIENTATION attribute.
 --
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- Returns:
+--
+--the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1884,10 +1894,13 @@ end function
 -- item, submenu and separator.
 -- Any other interface element defined inside a menu will be an error.
 --
--- Parameter: //items// - sequence containing one or more items in the menu.
+-- Parameter:
+--# //items//: sequence containing one or more items in the menu.
 -- It can be empty.
 --
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupItem       (const char* title, const char* action);
@@ -1908,10 +1921,14 @@ end function
 -- It is so created that to generate an action, when selected, a specific
 -- call-back function is needed.
 --
--- Parameter: ##title## - text to be shown on the toggle. It can be NULL.
+-- Parameters:
+--# //title//: text to be shown on the toggle. It can be NULL.
 -- It will set the TITLE attribute.
+--# //action//: name of the action generated when the button is selected. It can be NULL.
 --
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupSeparator  (void);
@@ -1924,7 +1941,9 @@ end function
 -- Creates the separator interface element.
 --It shows a line between two menu items.
 --
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupSubmenu    (const char* title, Ihandle* child);
@@ -1941,11 +1960,13 @@ end function
 -- Creates a menu item that, when selected, opens another menu.
 --
 -- Parameters:
---* ##title## - text to be shown on the toggle. It can be NULL.
+--# //title//: text to be shown on the toggle. It can be NULL.
 -- It will set the TITLE attribute.
---* ##menu## - optional child menu identifier. It can be NULL.
+--# //menu//: optional child menu identifier. It can be NULL.
 --
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- Returns:
+--
+-- the identifier of the created element, or NULL if an error occurs.
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -1988,8 +2009,7 @@ end function
 -- IupShow(dlg)
 -- IupMainLoop()
 --
--- IupClose()
--- </eucode>
+-- IupClose()</eucode>
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -2034,7 +2054,7 @@ public function IupLoopStepWait()  -- runs one iteration of the message loop
 end function
 --------------------------------------------------------------------------------
 --/*
--- Puts the system into idle mode until a message is processed 
+-- Puts the system into idle mode until a message is processed
 --
 -- Returns:
 --
@@ -2076,6 +2096,13 @@ end function
 --------------------------------------------------------------------------------
 --/*
 -- It is expected to be thread safe.
+--
+-- Parameters:
+--# //ih//: identifier of the interface element.
+--# //s//: string. Can be NULL. It will be internally duplicated if not NULL.
+--# //i//: integer number.
+--# //d//: floating point number.
+--# //p//: generic pointer.
 --*/
 --------------------------------------------------------------------------------
 --/*
@@ -2094,11 +2121,17 @@ end function
 --/*
 -- Use only when the attribute value is a string.
 --
+-- Parameters:
+--# //widget//: identifier of the interface element.
+--# //attr//: the name of the attribute.
+--
 -- (For other value types use the relevant function. For example:
 -- for an integer value use {{{IupGetInt}}}.)
 --
--- Returns: the attribute value or
--- NULL, if the attribute is not set or does not exist.
+-- Returns:
+--
+--* the attribute value or
+--* NULL, if the attribute is not set or does not exist.
 --
 -- Notes:
 --
@@ -2114,9 +2147,15 @@ end function
 --/*
 -- Gets the attribute value, where this is an atom.
 --
+-- Parameters:
+--# //widget//: identifier of the interface element.
+--# //attr//: the name of the attribute.
+--
 -- Use upper-case for the attribute.
 --
--- Returns: the floating-point value of an interface element attribute.
+-- Returns:
+--
+-- the floating-point value of an interface element attribute.
 --*/
 --------------------------------------------------------------------------------
 public function IupGetInt(atom widget, string attr)	-- gets an integer attribute value
@@ -2126,9 +2165,15 @@ end function
 --/*
 -- Gets the attribute value, where this is an integer.
 --
+-- Parameters:
+--# //widget//: identifier of the interface element.
+--# //attr//: the name of the attribute.
+--
 -- Use upper-case for the attribute.
 --
--- Returns: the integer value of an interface element attribute.
+-- Returns:
+--
+-- the integer value of an interface element attribute.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API void      IupSetAttribute   (Ihandle* ih, const char* name, const char* value);
@@ -2146,7 +2191,7 @@ end procedure
 -- attribute in the global environment
 --# //attribute//: the (upper-case) name of the attribute to change. If the name
 -- is given in the wrong case then it will be converted to upper-case.
---# //val: the value to be set.
+--# //val//: the value to be set.
 -- If NULL then the default value for that attribute will be used.
 --
 -- See the IUP documentation for the appropriate set of Attributes.
@@ -2166,7 +2211,7 @@ end function
 --
 -- Returns:
 --
---  an **integer**: the (same) identifier
+--  an **Ihandle**: the (same) identifier
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -2183,7 +2228,7 @@ end function
 --# //widget//: identifier of the interface element.
 --# //attribute//: the (upper-case) name of the attribute to change. If the name
 -- is given in the wrong case then it will be converted to upper-case.
---# //ih_named// element to associate using a name
+--# //ih_named//: element to associate using a name
 --
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
@@ -2202,7 +2247,10 @@ end function
 -- Sets an attribute in the public environment.
 -- If the driver process the attribute then it will not be stored internally.
 --
--- Use upper-case for the attribute.
+-- Parameters:
+--# //name//: the (upper-case) name of the attribute to change. If the name
+-- is given in the wrong case then it will be converted to upper-case.
+--# //val//: the value to be set.
 --
 -- If the value is set to NULL (as it is by default) then the attribute setting
 -- will be removed.
@@ -2216,6 +2264,13 @@ end function
 --------------------------------------------------------------------------------
 --/*
 -- Sets the integer value of an interface element attribute.
+--
+-- Parameters:
+--# //widget//: identifier of the interface element.
+--# //attr//: the (upper-case) name of the attribute to change. If the name
+-- is given in the wrong case then it will be converted to upper-case.
+--# //val//:  the value to be set.
+--
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API void      IupSetStrAttribute(Ihandle* ih, const char* name, const char* value);
@@ -2238,10 +2293,16 @@ end function
 -- IUP_API void      IupSetStrf        (Ihandle* ih, const char* name, const char* format, ...);
 --------------------------------------------------------------------------------
 public procedure IupSetStrf(Ihandle ih, string name, string format, object data) -- formatted-string version of IupSetAttribute
-    IupSetAttribute(ih, name, sprintf(format, data))    
+    IupSetAttribute(ih, name, sprintf(format, data))
 end procedure
 --------------------------------------------------------------------------------
 --/*
+-- Parameters:
+--# //ih//: the widget whose attribute is to be changed
+--# //name//: the attribute to be changed
+--# //format//: the desired formatting code
+--# //data//: the new data
+--
 -- This is alternative approach to the IUP void function,
 -- using OE's ##sprintf## and ##IupSetAttribute##.
 --
@@ -2261,7 +2322,9 @@ end function
 --# ##name##: the identifier of the appropriate callback routine for the given
 -- action.
 --
--- Returns: the callback.
+-- Returns:
+--
+-- the callback.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Icallback IupSetCallback (Ihandle* ih, const char *name, Icallback func);
@@ -2273,11 +2336,13 @@ end function
 --------------------------------------------------------------------------------
 --/*
 -- Parameters:
---# ##widget##: the (**integer**) identifier of an interface element
+--# ##widget##: the (**Ihandle**) identifier of an interface element
 --# ##action##: the name of the action to be trapped
 --# ##rid##: the id of the routine to be called when the action occurs
 --
--- Returns: the address of the previous function associated with the action
+-- Returns:
+--
+-- the address of the previous function associated with the action.
 --
 --*/
 --------------------------------------------------------------------------------
@@ -2295,9 +2360,12 @@ end function
 -- Returns the identifier of an interface element that has an associated name
 -- using {{{IupSetHandle.}}}
 --
--- Parameter: the ##title## of an interface element.
+-- Parameter:
+--# the //title// of an interface element.
 --
--- Returns: the element handle or NULL if not found.
+-- Returns:
+--
+-- the element handle or NULL if not found.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API char*     IupGetName      (Ihandle* ih);
@@ -2307,14 +2375,17 @@ public function IupGetName(Ihandle widget) -- finds the name of an interface ele
 end function
 --------------------------------------------------------------------------------
 --/*
--- Parameter: identifier of the interface, //widget//
+-- Parameter:
+--#  //widget//: identifier of the interface element.
 --
--- Returns: the name associated with the widget, set using ##IupSetHandle##
+-- Returns:
+--
+-- the name associated with the widget, set using ##IupSetHandle##
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupSetHandle    (const char *name, Ihandle* ih);
 --------------------------------------------------------------------------------
-public function IupSetHandle(string title, Ihandle widget)    -- associate name with a handle
+public function IupSetHandle(string title, Ihandle widget) -- associate name with a handle
     return doC("IupSetHandle", {C_POINTER, C_POINTER}, {allocate_string(title), widget}, C_POINTER)
 end function
 --------------------------------------------------------------------------------
@@ -2322,33 +2393,35 @@ end function
 -- Associates a name with an interface element.
 --
 -- Parameters:
---* ##title## - name of the interface element;
---* ##widget## - identifier of the interface element.
+--# //title//: name of the interface element;
+--# //widget//: identifier of the interface element.
 -- Use NULL to remove the association.
+--
+-- Returns:
+--
+-- the identifier of the interface element previously associated with the parameter name.
 --*/
 --------------------------------------------------------------------------------
 --/*
 --==== Resources
 --*/
 --------------------------------------------------------------------------------
-public function allocate_image(sequence data, integer cleanup = 0)
+public function allocate_image(sequence data, integer cleanup = 0) -- creates an image in memory
 	atom buff = allocate_data(length(data), cleanup)
 	poke(buff, data)
     return buff
 end function
 --------------------------------------------------------------------------------
 --/*
--- Creates an image to be shown on a label, button, toggle, or as a cursor.
+-- Parameters:
+--# //data//: the array of pixels
+--# //cleanup//: an integer, if non-zero, then the returned pointer will be
+-- automatically freed when its reference count drops to zero, or when passed
+-- as a parameter to ##delete##.
 --
--- Parameters: ##width## - image width in pixels;
--- ##height## - image height in pixels;
--- ##pixels## - vector containing the value of each pixel.
+-- Returns:
 --
---* {{{IupImage}}} uses 1 value per pixel,
---* IupImageRGB uses 3 values and
---* IupImageRGBA uses 4 values per pixel.
---
--- Returns: the identifier of the created element, or NULL if an error occurs.
+-- the pointer to the image.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupGetDialog    (Ihandle* ih);
@@ -2361,9 +2434,12 @@ end function
 -- Gets the handle of the dialog that contains that interface element.
 -- It works also for children of a menu that is associated with a dialog.
 --
--- Parameter: the ##handle## to an interface element.
+-- Parameter:
+--# the //handle// to an interface element.
 --
--- Returns: the handle of the dialog or NULL if not found.
+-- Returns:
+--
+-- the handle of the dialog or NULL if not found.
 --*/
 --------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupImage      (int width, int height, const unsigned char* pixels);
@@ -2558,7 +2634,7 @@ end function
 --
 -- Returns:
 --
--- a **Ihandle: to the relevant child element, or
+-- a **Ihandle**: to the relevant child element, or
 -- //NULL// if not found.
 --*/
 -------------------------------------------------------------------------------
@@ -2596,6 +2672,16 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.63
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.03.06
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupAppend## defined
+--  * ##IupDetach## defined
+--  * ##Insert## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.62
 -- Euphoria Verion: v4.0.5 and later
