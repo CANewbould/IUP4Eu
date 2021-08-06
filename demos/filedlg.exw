@@ -28,8 +28,8 @@ procedure main()
     IupOpen()
     IupSetLanguage()  -- default: "ENGLISH"
     Ihandle filedlg = IupFileDlg()
-    IupSetAttributes(filedlg, "DIALOGTYPE = SAVE, TITLE = \"File Save\"")
-    IupSetAttributes(filedlg, "FILTER = \" .bmp\", FILTERINFO = \"Bitmap Files\"")
+    IupSetAttributes(filedlg, "TITLE = \"Open File\"")
+    IupSetAttributes(filedlg, "FILTER = \"*.e*\", FILTERINFO = \"Euphoria Modules\"")
     IupPopup(filedlg, IUP_CENTER, IUP_CENTER)
     switch IupGetInt(filedlg, "STATUS") do
     case 1 then
