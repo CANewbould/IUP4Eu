@@ -1,0 +1,13 @@
+-- Example3.exw
+
+-- Another way to show a basic IUP "window"
+
+include iup.ew
+
+IupOpen()
+constant dlg = IupDialog(0)
+IupSetAttribute(dlg, "TITLE", "Example3")
+IupSetAttribute(dlg, "SIZE", "QUARTERxEIGHTH")
+IupShow(dlg)
+IupMainLoop()
+IupClose()

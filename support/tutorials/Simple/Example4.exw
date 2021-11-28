@@ -1,0 +1,21 @@
+-- Example4.exw
+
+-- An example of designing an IUP "window"
+
+include iup.ew
+
+IupOpen()
+constant btn = IupButton("I am a button")
+constant lbl = IupLabel("I am a label")
+constant cb = IupToggle("I am a checkbox")
+constant txt = IupText()
+IupSetAttribute(txt, "VALUE", "I am text")
+constant hbx = IupHbox({btn, lbl})
+constant hbx2 = IupHbox({cb, txt})
+constant vbx = IupVbox({hbx, hbx2})
+constant dlg = IupDialog(vbx)
+IupSetAttribute(dlg, "TITLE", "Example4")
+IupSetAttribute(dlg, "SIZE", "QUARTERxEIGHTH")
+IupShow(dlg)
+IupMainLoop()
+IupClose()

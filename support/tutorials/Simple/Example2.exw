@@ -1,0 +1,10 @@
+-- Example2.exw
+
+-- A basic IUP "window"
+
+include iup.ew
+
+IupOpen()
+IupShow(IupSetAttributes(IupDialog(0), "TITLE=Example2, SIZE=QUARTERxEIGHTH"))
+IupMainLoop()
+IupClose()

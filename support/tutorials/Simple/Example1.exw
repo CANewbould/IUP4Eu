@@ -1,0 +1,11 @@
+-- Example1.exw
+
+-- the most basic IUP "window"
+
+include iup.ew
+
+IupOpen()
+IupShow(IupDialog(0))
+IupMainLoop()
+IupClose()
+--getc(0)

@@ -1,0 +1,34 @@
+-- Example6.exw
+
+-- A simple example of event-handling in an IUP "window"
+
+include iup.ew
+
+IupOpen()
+constant clse = IupButton("Close this app")
+IupSetAttribute(clse, "TIP", "Click me and the app disappears")
+constant lbl = IupLabel("I am a useless app")
+constant cb = IupToggle("I am a checkbox")
+constant txt = IupText()
+IupSetAttribute(txt, "VALUE", "I am text")
+constant hbx = IupHbox({clse, lbl})
+IupSetAttribute(hbx, "GAP", "10")
+constant vbx = IupVbox({IupFrame(hbx), IupSetAttributes(IupFrame(IupHbox({cb, txt})),"TITLE=Frame")})
+IupSetAttribute(vbx, "GAP", "20")
+constant dlg = IupDialog(vbx)
+IupSetAttribute(dlg, "TITLE", "Example6")
+IupSetAttribute(dlg, "SIZE", "QUARTERxTHIRD")
+IupShow(dlg)
+IupSetCallback(clse, "ACTION", Icallback("clse_onClick"))
+IupSetCallback(cb, "VALUECHANGED_CB", Icallback("cb_onChange"))
+IupMainLoop()
+IupClose()
+
+function clse_onClick()
+    return IUP_CLOSE -- same as return Close()
+end function
+
+function cb_onChange()
+    IupMessage("Toggle", "Are you sure you want to change this")
+    return IUP_CONTINUE
+end function
