@@ -75,7 +75,12 @@ constant EMPTY = {}
 ifdef WINDOWS then
     constant DLL = "iup.dll"
 elsifdef LINUX then
-    constant DLL = "libiup.so"
+    ifdef BITS64 then
+        constant WHERE = "/usr/lib64/"
+    elsedef
+        constant WHERE = "/usr/lib/"
+    end ifdef
+    constant DLL = WHERE & "libiup.so"
 end ifdef
 export constant IUPLIB = open_dll(DLL) -- the [atom] handle to the shared library
 constant NULL = 0
