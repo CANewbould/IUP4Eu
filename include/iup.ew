@@ -63,7 +63,7 @@
 --*/
 --------------------------------------------------------------------------------
 include iup.e           -- for IUPLIB, or abort
-public include std/dll.e		-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER, NULL
+public include std/dll.e	-- for open_dll, call_back, define_c_func, define_c_proc, C_INT, C_POINTER, NULL
 include std/machine.e	-- for allocate, allocate_pointer_array, allocate_string, free, peek_string & poke_pointer
 include std/os.e		-- for platform constants
 include std/text.e      -- for upper
@@ -380,7 +380,6 @@ public function IupAlarm(string title, string mess, string b1, object b2 = NULL,
 			arg[5] = allocate_string(b3)
 		end if
 	end if
-?arg
 	return doC("IupAlarm", repeat(C_POINTER, 5), arg, C_INT)
 end function
 --------------------------------------------------------------------------------
