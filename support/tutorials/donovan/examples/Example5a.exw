@@ -1,7 +1,6 @@
 -- Example 5a
 -- Asking for a Single String, or Number
 
-include std/dll.e
 include std/text.e
 include std/types.e
 include iup.ew

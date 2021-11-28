@@ -11,14 +11,23 @@ function list_dblclk(Ihandle ih, integer item, integer ptr2name)
 	return IUP_DEFAULT
 end function
 
+procedure populate(Ihandle lst, sequence items)
+	for i = 1 to length(items) do
+		IupSetAttribute(lst, "APPENDITEM", items[i])
+	end for
+end procedure
+
+sequence animals = {"Horses","Dogs","Pigs","Humans"}
+
 Ihandle
 	list = IupList(),
 	dlg = IupDialog(list)
-IupSetAttributes(list, "1=Horses, 2=Dogs, 3=Pigs, 4=Humans")
 IupSetCallback(list, "DBLCLICK_CB", Icallback("list_dblclk"))
 IupSetAttributes(dlg, "TITLE=Lists, SIZE=QUARTERxQUARTER")
-IupSetAttribute(list, "APPENDITEM", "Cow")
+IupSetAttribute(list, "EXPAND", "YES")
+IupSetAttribute(list, "APPENDITEM", "Cow") -- doesn't work here
 IupShow(dlg)
-IupSetAttribute(list, "APPENDITEM", "Mules")
+populate(list, animals) -- alternative initialisation
+IupSetAttribute(list, "APPENDITEM", "Mules") -- but works here
 IupMainLoop()
 IupClose()

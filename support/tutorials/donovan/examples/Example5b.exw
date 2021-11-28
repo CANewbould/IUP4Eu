@@ -1,7 +1,6 @@
 -- Example 5b
--- Asking for a Single String, or Number
+-- Using a list for selection
 
-include std/dll.e
 include std/types.e
 include iup.ew
 

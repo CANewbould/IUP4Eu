@@ -1,0 +1,44 @@
+-- Example 13
+-- Using IupProgressDlg instead
+
+include iup.ew
+include std/text.e -- for sprint
+
+IupOpen()
+
+function cancel_cb(Ihandle ih)
+    integer ret = IupAlarm("Warning!", "Interrupt Processing?", "Yes", "No")
+    if ret = 1 then
+    	IupExitLoop()
+        return IUP_DEFAULT
+    else
+    	return IUP_CONTINUE
+    end if
+end function
+
+Ihandle dlg = IupProgressDlg()
+
+IupSetAttribute(dlg, "TITLE", "IupProgressDlg Test")
+IupSetAttribute(dlg, "DESCRIPTION", "Description first line\nSecond Line")
+IupSetCallback(dlg, "CANCEL_CB", Icallback("cancel_cb"))
+--IupSetCallback(dlg, "SHOW_CB", Icallback("update_progress"))
+IupSetAttribute(dlg, "SIZE", "200x100")
+IupSetAttribute(dlg, "TOTALCOUNT", "300")
+IupSetAttribute(dlg, "STATE", "PROCESSING")
+IupShowXY(dlg, IUP_CENTER, IUP_CENTER)
+IupMainLoop()
+IupClose()
+
+
+function update_progress(Ihandle ih)
+    IupSetAttribute(ih, "INC", "1")
+    integer cnt = IupGetInt(ih, "COUNT")
+    if cnt = IupGetAttribute(ih, "TOTALCOUNT") then
+        IupHide(ih)
+        return 0
+    else return 1
+    end if
+    if equal(IupGetAttribute(ih, "STATE"), "ABORTED") then
+        return IUP_CLOSE
+    end if
+end function
