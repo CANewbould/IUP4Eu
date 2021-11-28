@@ -9,12 +9,12 @@
 --=  Application: (iup4eu)(demos)dialog.exw
 -- Description: Simple dialog example
 ------
---[[[Version: 4.0.5.3
--- Date: 2020.05.06
+--[[[Version: 4.0.5.4
+-- Date: 2021.08.06
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* modified for simpler call to IUP shared library
+--* modified label text
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -73,7 +73,7 @@ procedure main(string title)
     IupSetCallback(quit_bt, "ACTION", Icallback("quit_cb")) 
     -- the container with a label and the button
     Ihandle vbox = IupVbox({
-        IupSetAttributes(IupLabel("Very atom Text Label"),
+        IupSetAttributes(IupLabel("Not especially long Text Label"),
         "EXPAND=YES, ALIGNMENT=ACENTER"),
         quit_bt}) 
     IupSetAttribute(vbox, "ALIGNMENT", "ACENTER") 
@@ -101,6 +101,13 @@ main("Dialog Title")
 --
 --Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.3
+-- Date: 2020.05.06
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified for simpler call to IUP shared library
 --------------------------------------------------------------------------------
 --[[[Version: 4.1.0.2
 -- Euphoria Version: v4.0.5 and later
