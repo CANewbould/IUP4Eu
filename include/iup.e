@@ -8,13 +8,13 @@
 --/*
 --=  Library: (iup4eu)(include)iup.e
 -- Description: Load module for Open Euphoria's access to the IUP GUI Toolkit
---[[[Version: 4.0.5.2
+--[[[Version: 4.0.5.3
 -- Euphoria Version: v4.0.5 and later
--- Date: 2020.05.10
+-- Date: 2021.11.29
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---  * corrected error on ##doCN##
+--  * reverted to normal use of ##open_dll##
 ------
 --
 ------
@@ -72,17 +72,7 @@ include std/types.e     -- for string
 --*/
 --------------------------------------------------------------------------------
 constant EMPTY = {}
-ifdef WINDOWS then
-    constant DLL = "iup.dll"
-elsifdef LINUX then
-    ifdef BITS64 then
-        constant WHERE = "/usr/lib64/"
-    elsedef
-        constant WHERE = "/usr/lib/"
-    end ifdef
-    constant DLL = WHERE & "libiup.so"
-end ifdef
-export constant IUPLIB = open_dll(DLL) -- the [atom] handle to the shared library
+export constant IUPLIB = open_dll({"iup.dll", "libiup.so"}) -- the [atom] handle to the shared library
 constant NULL = 0
 constant VOID = -99
 --------------------------------------------------------------------------------
@@ -185,7 +175,7 @@ end function
 --*/
 --------------------------------------------------------------------------------
 if IUPLIB < 1 then
-    printf(2, "** ERROR **: cannot find '%s'\n", {DLL})
+    printf(2, "** ERROR **: cannot find '%s'\n", {"IUP Library"})
     any_key("!!Press any key to abort!!")
     abort(1)
 end if
@@ -201,6 +191,14 @@ end if
 --
 -- Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.2
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.05.10
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--  * corrected error on ##doCN##
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.1
 -- Euphoria Version: v4.0.5 and later
