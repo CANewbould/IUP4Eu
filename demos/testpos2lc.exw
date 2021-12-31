@@ -1,0 +1,64 @@
+--------------------------------------------------------------------------------
+/*  testpos2lc.exw: This program looks at an IupText and explores some          *
+ *  of the associated functionality.                                            *
+ *  Usage: eui testpos2lc                                                       */
+--------------------------------------------------------------------------------
+-- Equivalent of preprocessor directives
+--------------------------------------------------------------------------------
+include iup.ew
+integer found = 0 -- before the start-of-text (to fit with subsequent searches)
+IupOpen()
+--------------------------------------------------------------------------------
+-- Event-handlers
+--------------------------------------------------------------------------------
+function exit_cb()
+    return IUP_CLOSE
+end function
+--------------------------------------------------------------------------------
+function find_cb()
+    found = match(IupGetAttribute(str, "VALUE"),
+                IupGetAttribute(txt, "VALUE"), found+1)
+    IupSetInt(txt, "FIND_POS", found)
+    IupSetAttribute(txt, "SELECTIONPOS",
+            sprintf("%d:%d",
+            {found-1, found+length(IupGetAttribute(str, "VALUE")-4)}))
+return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+function get_posn_cb()
+    integer pos = IupGetInt(txt, "FIND_POS")
+    sequence lnc = IupTextConvertPosToLinCol(txt, pos)
+    integer iuppos = IupTextConvertLinColToPos(txt, lnc)
+    if found then
+        printf(1, "match -> %d\n", found)
+        printf(1, "lnc->pos: %d\n", iuppos)
+        IupSetInt(txt, "CARETPOS", pos)
+    else
+        puts(1, "'" & IupGetAttribute(str, "VALUE") & "' not found\n")
+        IupSetInt(txt, "CARETPOS", found)
+    end if
+    puts(1, "l,c = ") ?lnc
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+Ihandle txt = IupText()
+Ihandle str = IupText()
+Ihandle fnd = IupButton("Find")
+Ihandle btn = IupButton("Posn")
+Ihandle quit = IupButton("Quit")
+IupSetCallback(quit, "ACTION", Icallback("exit_cb"))
+IupSetCallback(btn, "ACTION", Icallback("get_posn_cb"))
+IupSetCallback(fnd, "ACTION", Icallback("find_cb"))
+IupSetAttribute(txt, "MULTILINE", "YES")
+IupSetAttribute(txt, "EXPAND", "YES")
+IupSetAttribute(txt, "VALUE", "I\nam\na\ndifficult\nperson")
+Ihandle dlg = IupDialog(IupVbox({IupHbox({str,fnd,IupFill(),quit}),
+                                btn,txt}))
+IupSetAttribute(dlg, "SIZE", "QUARTERxQUARTER")
+IupSetAttribute(dlg, "TITLE", "Find sub-text in an IupText")
+--IupSetAttribute(dlg, "FRED", "Fred")
+--puts(1, IupGetAttribute(dlg, "FRED"))
+IupShow(dlg)
+IupMainLoop()
+IupClose()
+--------------------------------------------------------------------------------
