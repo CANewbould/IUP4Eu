@@ -1,0 +1,102 @@
+--------------------------------------------------------------------------------
+-- Demonstration: webbrowser.exw
+--------------------------------------------------------------------------------
+-- Notes:
+--
+--
+--------------------------------------------------------------------------------
+--/*
+--= Program: (iup4eu)(demos)webbrowser.exw
+-- Description: displays an example of the web browser widget
+------
+--[[[Version: 4.0.5.0
+--Euphoria Versions: 4.0.5 upwards
+--Author: C A Newbould
+--Date: 2021.12.31
+--Status: operational
+--Changes:]]]
+--* created
+--
+--==IupWebBrowser Example
+------
+--------------------------------------------------------------------------------
+--/*
+--==Interface
+--*/
+--------------------------------------------------------------------------------
+--/*
+--=== Includes
+--*/
+--------------------------------------------------------------------------------
+include iup.ew
+without warning
+--------------------------------------------------------------------------------
+--
+--=== Constants
+--
+--------------------------------------------------------------------------------
+constant
+IUPWB = open_dll("libiupweb.so")
+,_WB_OPEN = define_c_proc(IUPWB, "IupWebBrowserOpen", {})
+,_WB_IT = define_c_func(IUPWB, "IupWebBrowser", {}, C_POINTER)
+--------------------------------------------------------------------------------
+--
+--=== Euphoria types
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+--=== Variables
+--
+--------------------------------------------------------------------------------
+Ihandle hDialog, hUrlEntry, hWebBrowser
+--------------------------------------------------------------------------------
+--
+--=== Routines
+--
+--------------------------------------------------------------------------------
+procedure IupWebBrowserOpen()
+    c_proc(_WB_OPEN, {})
+end procedure
+--------------------------------------------------------------------------------
+function IupWebBrowser()
+    IupWebBrowserOpen()
+    return c_func(_WB_IT, {})
+end function
+--------------------------------------------------------------------------------
+function on_go(atom self)
+    IupSetAttribute(hWebBrowser, "VALUE", IupGetAttribute(hUrlEntry, "VALUE"))
+    return IUP_DEFAULT
+end function
+--------------------------------------------------------------------------------
+procedure create_gui(string title)
+    hUrlEntry = IupSetAttributes(IupText(), "EXPAND=HORIZONTAL")
+    Ihandle hGoButton = IupButton("Go")--,Icallback("on_go"))
+    IupSetCallback(hGoButton, "ACTION", Icallback("on_go"))
+    Ihandle hToolBar = IupHbox({hUrlEntry, hGoButton})
+
+    hWebBrowser = IupWebBrowser()
+    IupSetAttributes(hWebBrowser, "EXPAND=YES")
+
+    hDialog = IupSetAttributes(IupDialog(IupVbox({hToolBar, hWebBrowser})), "MARGIN=5x5,GAP=5")
+    IupSetAttribute(hDialog, "TITLE", title)
+    IupSetAttribute(hDialog, "SIZE", "600x360")
+end procedure
+--------------------------------------------------------------------------------
+procedure main(string title)
+    -- Initializes IUP
+    IupOpen()
+    create_gui(title)
+    IupShow(hDialog)
+    IupSetAttribute(hWebBrowser, "VALUE", "http://openeuphoria.org")
+    IupMainLoop()
+    IupClose()
+end procedure
+--------------------------------------------------------------------------------
+-- execution
+--------------------------------------------------------------------------------
+main("IupWebBrowser Example")
+--------------------------------------------------------------------------------
+-- Previous versions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
