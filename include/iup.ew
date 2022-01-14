@@ -13,13 +13,13 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.64
+--[[[Version: 4.0.5.65
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2021.07.04
+-- Date: 2022.01.14
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * errors in embedded documentation corrected
+--  * ##IupCanvas## defined
 --
 -- Details of earlier incremental changes can be found embedded in the source
 -- code at the end of this module, with the title "Previous Versions".
@@ -1401,6 +1401,20 @@ end function
 -- See the IUP documentation for the appropriate set of Attributes.
 --*/
 --------------------------------------------------------------------------------
+-- IUP_API Ihandle*  IupCanvas       (const char* action);
+--------------------------------------------------------------------------------
+public function IupCanvas(object action = NULL)  -- creates an interface element that is a canvas - a drawing area for your application
+    return doC("IupCanvas", {C_POINTER}, {toCOrNot(action)}, C_POINTER)
+end function
+--------------------------------------------------------------------------------
+--/*
+-- Parameter:
+--# ##action##: the name of the action generated when the user types something,
+-- or //NULL/.
+--
+-- Returns: the (**Ihandle**) identifier of the created element, or //NULL// if an error occurs.
+--*/
+--------------------------------------------------------------------------------
 -- IUP_API Ihandle*  IupColorbar   (void);
 --------------------------------------------------------------------------------
 public function IupColorbar() -- creates a color palette to enable a color selection from several samples
@@ -2671,6 +2685,14 @@ end function
 --*/
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.64
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2021.07.04
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * errors in embedded documentation corrected
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.63
 -- Euphoria Verion: v4.0.5 and later
