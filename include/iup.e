@@ -8,14 +8,13 @@
 --/*
 --=  Library: (iup4eu)(include)iup.e
 -- Description: Load module for Open Euphoria's access to the IUP GUI Toolkit
---[[[Version: 4.0.5.4
+--[[[Version: 4.0.5.5
 -- Euphoria Version: v4.0.5 and later
--- Date: 2022.01.15
+-- Date: 2022.01.31
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---  * webbrowser library added (Linux)
---  * ole library added (MS Win)
+--  * made loading webbrowser libraries conditional
 ------
 --
 ------
@@ -74,8 +73,11 @@ include std/types.e     -- for string
 --------------------------------------------------------------------------------
 constant EMPTY = {}
 export constant IUPLIB = open_dll({"iup.dll", "libiup.so"}) -- the [atom] handle to the shared library
-export constant IUPLIBOLE = open_dll({"iupole.dll"}) -- the [atom] handle to the shared library
-export constant IUPLIBWB = open_dll({"libiupweb.so"}) -- the [atom] handle to the shared library
+ifdef WINDOWS then
+    export constant IUPLIBOLE = open_dll({"iupole.dll"}) -- the [atom] handle to the shared library
+elsifdef LINUX then
+    export constant IUPLIBWB = open_dll({"libiupweb.so"}) -- the [atom] handle to the shared library
+end ifdef
 constant NULL = 0
 constant VOID = -99
 --------------------------------------------------------------------------------
@@ -194,6 +196,15 @@ end if
 --
 -- Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.4
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2022.01.15
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--  * webbrowser library added (Linux)
+--  * ole library added (MS Win)
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.3
 -- Euphoria Version: v4.0.5 and later
