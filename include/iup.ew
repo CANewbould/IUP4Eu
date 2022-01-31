@@ -13,14 +13,13 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.66
+--[[[Version: 4.0.5.67
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2022.01.15
+-- Date: 2022.01.31
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * ##IupWebBrowserOpen## defined
---  * ##IupWebBrowser## defined
+--  * made definitions of ##IupWebBrowserOpen## and ##IupWebBrowser## conditional
 --
 -- Details of earlier incremental changes can be found embedded in the source
 -- code at the end of this module, with the title "Previous Versions".
@@ -2688,16 +2687,26 @@ end function
 --/*
 -- == Web browser
 --*/
--------------------------------------------------------------------------------
-public procedure IupWebBrowserOpen() -- opens the web browser library
-    c_proc(define_c_func(IUPLIBWB, "+IupWebBrowserOpen",{},0), {})
-end procedure
--------------------------------------------------------------------------------
-public function IupWebBrowser() -- creates the web browser widget
-        return c_func(define_c_func(IUPLIBWB, "+IupWebBrowser",{},C_POINTER), {})
-end function
+--------------------------------------------------------------------------------
+ifdef LINUX and IUPLIBWB then
+    public procedure IupWebBrowserOpen() -- opens the web browser library
+        c_proc(define_c_func(IUPLIBWB, "+IupWebBrowserOpen",{},0), {})
+    end procedure
+    public function IupWebBrowser() -- creates the web browser widget
+            return c_func(define_c_func(IUPLIBWB, "+IupWebBrowser",{},C_POINTER), {})
+    end function        
+end ifdef
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.66
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2022.01.15
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * ##IupWebBrowserOpen## defined
+--  * ##IupWebBrowser## defined
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.65
 -- Euphoria Verion: v4.0.5 and later
