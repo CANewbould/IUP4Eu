@@ -8,13 +8,13 @@
 --/*
 --=  Library: (iup4eu)(include)iup.e
 -- Description: Load module for Open Euphoria's access to the IUP GUI Toolkit
---[[[Version: 4.0.5.5
+--[[[Version: 4.0.5.6
 -- Euphoria Version: v4.0.5 and later
--- Date: 2022.01.31
+-- Date: 2022.03.12
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---  * made loading webbrowser libraries conditional
+--  * added loading scintilla library
 ------
 --
 ------
@@ -78,6 +78,7 @@ ifdef WINDOWS then
 elsifdef LINUX then
     export constant IUPLIBWB = open_dll({"libiupweb.so"}) -- the [atom] handle to the shared library
 end ifdef
+export constant IUPSCINTILLA = open_dll({"iup_scintilla.dll", "libiup_scintilla.so"}) -- the [atom] handle to the shared library
 constant NULL = 0
 constant VOID = -99
 --------------------------------------------------------------------------------
@@ -196,6 +197,14 @@ end if
 --
 -- Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.5
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2022.01.31
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--  * made loading webbrowser libraries conditional
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.4
 -- Euphoria Version: v4.0.5 and later
