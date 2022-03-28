@@ -13,16 +13,13 @@
 --=  Library: (iup4eu)(include)iup.ew
 -- Description: Wrapper library for use with Eu4.0.5 and beyond
 ------
---[[[Version: 4.0.5.68
+--[[[Version: 4.0.5.69
 -- Euphoria Verion: v4.0.5 and later
--- Date: 2022.03.12
+-- Date: 2022.03.28
 -- Author: Charles Newbould
 -- Status: incomplete; operational]]]
 -- Changes in this version:
---  * added ##IupScintillaOpen##
---  * added ##IupScintilla##
---  * added ##IupScintillaDlg##
---  * added ##IupScintillaSendMessage##
+--  * corrected error in finding WebBrowser functions
 --
 -- Details of earlier incremental changes can be found embedded in the source
 -- code at the end of this module, with the title "Previous Versions".
@@ -2691,7 +2688,7 @@ end function
 -- == Web browser
 --*/
 --------------------------------------------------------------------------------
-ifdef LINUX and IUPLIBWB then
+ifdef LINUX then
     public procedure IupWebBrowserOpen() -- opens the web browser library
         c_proc(define_c_proc(IUPLIBWB, "+IupWebBrowserOpen",{}), {})
     end procedure
@@ -2723,6 +2720,17 @@ public function IupScintillaSendMessage(atom ih, atom iMessage, atom wParam, ato
 end function
 --------------------------------------------------------------------------------
 -- Previous versions
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.68
+-- Euphoria Verion: v4.0.5 and later
+-- Date: 2022.03.12
+-- Author: Charles Newbould
+-- Status: incomplete; operational]]]
+-- Changes in this version:
+--  * added ##IupScintillaOpen##
+--  * added ##IupScintilla##
+--  * added ##IupScintillaDlg##
+--  * added ##IupScintillaSendMessage##
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.67
 -- Euphoria Verion: v4.0.5 and later
