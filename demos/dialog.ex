@@ -1,20 +1,21 @@
 --------------------------------------------------------------------------------
---	Test application: dialog.exw
+--	Test application: dialog.ex
 --------------------------------------------------------------------------------
 --/*
 --%%disallow={camelcase}
 --*/
 --------------------------------------------------------------------------------
 --/*
---=  Application: (iup4eu)(demos)dialog.exw
+--=  Application: (iup4eu)(demos)dialog.ex
 -- Description: Simple dialog example
 ------
---[[[Version: 4.0.5.4
--- Date: 2021.08.06
+--[[[Version: 4.0.5.5
+-- Date: 2022.04.02
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* modified label text
+--* modified to use //iupw.e// and new aliases therein
+--* changed //IUP_CLOSE// return value to ##IupClose##
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -38,7 +39,7 @@
 --=== Includes
 --*/
 --------------------------------------------------------------------------------
-include iup.ew
+include iupw.e
 --------------------------------------------------------------------------------
 --
 --=== Constants
@@ -54,41 +55,36 @@ include iup.ew
 --=== Types
 --
 --------------------------------------------------------------------------------
-type Ihandle(object x)
-    return 1
-end type
 --------------------------------------------------------------------------------
 --
 --=== Routines
 --
 --------------------------------------------------------------------------------
 function quit_cb()
-  return IUP_CLOSE 
+  return IupClose()--alternative to IUP_CLOSE
 end function
 --------------------------------------------------------------------------------
-procedure main(string title) 
+procedure main(string title)
     IupOpen()
-    -- Creating the button 
-    Ihandle quit_bt = IupButton("Quit") 
-    IupSetCallback(quit_bt, "ACTION", Icallback("quit_cb")) 
+    -- Creating the button
+    Ihandle quit_bt = IupButton("Quit")
+    IupSetCallback(quit_bt, "ACTION", _("quit_cb"))
     -- the container with a label and the button
     Ihandle vbox = IupVbox({
-        IupSetAttributes(IupLabel("Not especially long Text Label"),
+        IHandle(IupLabel("Not especially long Text Label"),
         "EXPAND=YES, ALIGNMENT=ACENTER"),
-        quit_bt}) 
-    IupSetAttribute(vbox, "ALIGNMENT", "ACENTER") 
-    IupSetAttribute(vbox, "MARGIN", "10x10") 
-    IupSetAttribute(vbox, "GAP", "5") 
-    -- Creating the dialog 
-    Ihandle dialog = IupDialog(vbox) 
+        quit_bt})
+    IupSetAttributes(vbox, "ALIGNMENT=ACENTER,MARGIN=10x10,GAP=5")
+    -- Creating the dialog
+    Ihandle dialog = IupDialog(vbox)
     IupSetAttribute(dialog, "TITLE", title)
-    IupSetAttribute(dialog, "SIZE", "QuarterxEight") 
-    IupSetAttributeHandle(dialog, "DEFAULTESC", quit_bt) 
+    IupSetAttribute(dialog, "SIZE", "QuarterxEight")
+    IupSetAttributeHandle(dialog, "DEFAULTESC", quit_bt)
     IupShow(dialog)
-    IupMainLoop() 
-    IupDestroy(dialog) 
+    IupMainLoop()
+    IupDestroy(dialog)
     -- Finishes IUP
-    IupClose()
+    IupClose() -- not actually necessary
     -- Program finished successfully
 end procedure
 --------------------------------------------------------------------------------
@@ -101,6 +97,13 @@ main("Dialog Title")
 --
 --Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.4
+-- Date: 2021.08.06
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* modified label text
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.3
 -- Date: 2020.05.06
