@@ -1,22 +1,22 @@
 --------------------------------------------------------------------------------
---	Test application: dialog1.exw
+--	Test application: dialog1.ex
 --------------------------------------------------------------------------------
 --/*
 --%%disallow={camelcase}
 --*/
 --------------------------------------------------------------------------------
 --/*
---=  Application: (iup4eu)(demos)dialog1.exw
+--=  Application: (iup4eu)(demos)dialog1.ex
 -- Description: Creates a dialog showing an icon, the "DEFAULTESC" attribute and
 -- a simple menu
 ------
---[[[Version: 4.0.5.3
+--[[[Version: 4.0.5.4
 -- Euphoria Version: v4.0.5 and later
--- Date: 2020.05.16
+-- Date: 2022.04.07
 -- Author: Charles Newbould
 -- Status: complete; operational]]]
 -- Changes in this version:
---* simplfied to accept revised iup.ew arrangement
+--* changed extension and reference to //iupw.e//
 ------
 --
 -- Details of earlier incremental changes can be found embedded in the source
@@ -37,7 +37,7 @@
 --=== Includes
 --*/
 --------------------------------------------------------------------------------
-include iup.ew
+include iupw.e
 --------------------------------------------------------------------------------
 --
 --=== Constants
@@ -146,6 +146,14 @@ main("IupDialog")
 --
 --Previous versions
 --
+--------------------------------------------------------------------------------
+--[[[Version: 4.0.5.3
+-- Euphoria Version: v4.0.5 and later
+-- Date: 2020.05.16
+-- Author: Charles Newbould
+-- Status: complete; operational]]]
+-- Changes in this version:
+--* simplfied to accept revised iup.ew arrangement
 --------------------------------------------------------------------------------
 --[[[Version: 4.0.5.2
 -- Euphoria Version: v4.0.5 and later
